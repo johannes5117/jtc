@@ -8,11 +8,14 @@ package com.johannes.lsctic;
 
 import java.io.File;
 import java.util.Objects;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
@@ -24,9 +27,14 @@ import javafx.scene.layout.StackPane;
  */
 public class internField extends HBox{
     private StackPane p;
-    private final String name;
-    public internField(String name) {
+    private int state;
+    private String name;
+    private int count;
+    private int number;
+    public internField(String name, int count, int number) {
         this.name =name;
+        this.count = count;
+        this.number = number;
         this.setMaxWidth(Double.MAX_VALUE);
         this.setPadding(new Insets(12,12, 12, 12));
         this.setSpacing(3);
@@ -40,7 +48,8 @@ public class internField extends HBox{
         p.setStyle("-fx-background-color: #FF0000; -fx-background-radius: 6px; -fx-border-width: 6px;");
         p.setPadding(new Insets(1, 1, 1, 1));
         p.setAlignment(Pos.CENTER);
-       
+        
+       state = -1;
         
         File file = new File("src/main/resources/pics/phone2.jpg");
         Image image = new Image(file.toURI().toString());
@@ -48,6 +57,37 @@ public class internField extends HBox{
         v.setFitHeight(15);
         v.setFitWidth(15);
         v.setOpacity(0.5);
+        v.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+
+            @Override
+            public void handle(MouseEvent event) {
+                ImageView v = (ImageView) event.getSource();
+                internField i = (internField)v.getParent().getParent();
+                System.out.println(i.getName());
+
+                event.consume();
+            }
+        });
+         v.addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
+
+            @Override
+            public void handle(MouseEvent event) {
+                ImageView v = (ImageView) event.getSource();
+                StackPane p = (StackPane) v.getParent();
+                p.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 6px; -fx-border-width: 6px;");                    
+                event.consume();
+            }
+        });
+        v.addEventHandler(MouseEvent.MOUSE_EXITED, new EventHandler<MouseEvent>() {
+
+            @Override
+            public void handle(MouseEvent event) {
+                ImageView v = (ImageView) event.getSource();
+                internField i = (internField)v.getParent().getParent();
+                i.refresh();
+                event.consume();
+            }
+        });
         p.getChildren().add(v);
         
         Label a = new Label(name);
@@ -59,6 +99,21 @@ public class internField extends HBox{
         
     }
     
+    public void changeStatus(int status){
+        this.state = status;
+        refresh();
+    }
+    public void refresh() {
+        if(state == 1 || state == 2) {
+            setBusyInUse();
+        } else if(state == 8) {
+            setRinging();
+        } else if(state == 0) {
+            setIdle();
+        } else {
+            setNotFoundUnavailable();
+        }
+    }
     public void setBusyInUse() {
         p.setStyle("-fx-background-color: #FF0000; -fx-background-radius: 6px; -fx-border-width: 6px;");    
     }
@@ -100,6 +155,14 @@ public class internField extends HBox{
             return false;
         }
         return true;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public int getNumber() {
+        return number;
     }
 
    

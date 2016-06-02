@@ -17,7 +17,7 @@
                      <children>
                         <VBox prefHeight="380.0" prefWidth="217.0">
                            <children>
-                              <TextField text="Suchen....." />
+                              <TextField promptText="Suchen....." fx:id="paneATextIn"/>
                               <ScrollPane hbarPolicy="NEVER" prefViewportHeight="380.0" prefViewportWidth="216.0" style="-fx-background-color: #FFFFFF11;" vbarPolicy="NEVER">
                                  <content>
                                     <VBox fx:id="panelA" layoutX="29.0" layoutY="79.0" prefHeight="380.0" prefWidth="216.0" style="-fx-background-color: rgba(255, 255, 255, 0.8);" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
