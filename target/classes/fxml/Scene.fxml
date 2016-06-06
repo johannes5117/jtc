@@ -9,15 +9,15 @@
 
 <AnchorPane id="AnchorPane" prefHeight="380.0" prefWidth="200.0" style="-fx-background-color: rgba(0, 0, 0, 0.0);" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.johannes.lsctic.FXMLController">
     <children>
-      <TabPane prefHeight="380.0" prefWidth="249.0" side="LEFT" style="-fx-background-color: rgba(0, 0, 0, 0.0);" tabClosingPolicy="UNAVAILABLE">
+      <TabPane fx:id="tabPane" focusTraversable="false" prefHeight="380.0" prefWidth="249.0" side="LEFT" style="-fx-background-color: rgba(0, 0, 0, 0.0);" tabClosingPolicy="UNAVAILABLE">
         <tabs>
-            <Tab text="Intern">
+            <Tab fx:id="intern" text="Intern">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
                         <VBox prefHeight="380.0" prefWidth="217.0">
                            <children>
-                              <TextField promptText="Suchen....." fx:id="paneATextIn"/>
+                              <TextField fx:id="paneATextIn" promptText="Suchen....." />
                               <ScrollPane hbarPolicy="NEVER" prefViewportHeight="380.0" prefViewportWidth="216.0" style="-fx-background-color: #FFFFFF11;" vbarPolicy="NEVER">
                                  <content>
                                     <VBox fx:id="panelA" layoutX="29.0" layoutY="79.0" prefHeight="380.0" prefWidth="216.0" style="-fx-background-color: rgba(255, 255, 255, 0.8);" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -35,7 +35,7 @@
                      </children></AnchorPane>
               </content>
             </Tab>
-          <Tab text="LDAP">
+          <Tab fx:id="ldap" text="LDAP">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -51,7 +51,7 @@
                      </children></AnchorPane>
             </content>
           </Tab>
-          <Tab text="Historie">
+          <Tab fx:id="historie" text="Historie">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -67,7 +67,7 @@
                      </children></AnchorPane>
             </content>
           </Tab>
-            <Tab text="Optionen">
+            <Tab fx:id="optionen" text="Optionen">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: rgba(0, 0, 0, 0.0);">
                      <children>

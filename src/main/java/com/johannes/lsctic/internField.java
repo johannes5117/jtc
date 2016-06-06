@@ -8,6 +8,8 @@ package com.johannes.lsctic;
 
 import java.io.File;
 import java.util.Objects;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -15,6 +17,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -25,7 +29,7 @@ import javafx.scene.layout.StackPane;
  *
  * @author johannesengler
  */
-public class internField extends HBox{
+public class internField extends HBox {
     private StackPane p;
     private int state;
     private String name;
@@ -38,8 +42,9 @@ public class internField extends HBox{
         this.setMaxWidth(Double.MAX_VALUE);
         this.setPadding(new Insets(12,12, 12, 12));
         this.setSpacing(3);
-        this.setStyle("-fx-background-color: #FFFFFF; -fx-border-radius: 5px;");
-       
+        this.setStyle("-fx-background-color: #FFFFFF; -fx-border-radius: 5px; -fx-border-color: #FFFFFF; -fx-border-width: 1px;");
+                         
+
         HBox inner = new HBox();
         inner.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(inner, Priority.ALWAYS);
@@ -88,6 +93,34 @@ public class internField extends HBox{
                 event.consume();
             }
         });
+        this.focusedProperty().addListener(new ChangeListener<Boolean> () {
+
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+
+                if(newValue){
+                    internField.this.setStyle("-fx-border-color: #0093ff; -fx-border-width: 1px;");
+                } else {
+                    internField.this.setStyle("-fx-border-color: #FFFFFF; -fx-border-width: 1px;");
+                }
+ 
+                 
+            }
+        });
+        this.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+
+    @Override
+    public void handle(javafx.scene.input.KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            System.out.println(internField.this.getName()+" anrufen");
+            event.consume(); // do nothing
+        }
+    }
+});
+        
+        this.setFocusTraversable(true);
+        
+
         p.getChildren().add(v);
         
         Label a = new Label(name);
