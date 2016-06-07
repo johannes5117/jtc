@@ -5,15 +5,16 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.SortedSet;
 import java.util.TreeMap;
-import java.util.TreeSet;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
-import javafx.event.EventType;
+
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
@@ -21,9 +22,18 @@ import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
+
 import javafx.scene.layout.VBox;
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
 
 public class FXMLController implements Initializable {
     
@@ -102,6 +112,13 @@ public class FXMLController implements Initializable {
                  
             }
         });
+        
+      LDAPController l = new LDAPController("server", 389, "server", "people" );
+      ArrayList<LDAPEntry> ld = l.getN("", 5);
+      
+      for(LDAPEntry ent : ld) {
+          System.out.println("Vorname: "+ent.getVorname() +" ,Nachname: "+ ent.getNachname()+" ,Firma: "+ent.getFirma());
+      }
 
     }    
     private void selectTab(int i) {
@@ -138,5 +155,10 @@ public class FXMLController implements Initializable {
         panelA.getChildren().clear();
         panelA.getChildren().addAll(i);
     }
+     
+
+
+ 
+    
    
 }
