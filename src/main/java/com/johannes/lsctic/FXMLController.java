@@ -5,34 +5,23 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 
 import javafx.scene.layout.VBox;
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
 
 public class FXMLController implements Initializable {
@@ -42,9 +31,14 @@ public class FXMLController implements Initializable {
     @FXML
     private VBox panelA;
     @FXML
+    private VBox panelB;
+    @FXML
     private TextField paneATextIn;
     @FXML
     private TabPane tabPane;
+    @FXML
+    private ScrollPane scrollPaneA;
+    
     
     private Map<String, PhoneNumber> internNumbers;
 
@@ -52,6 +46,7 @@ public class FXMLController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         panelA.setSpacing(3);
+        panelB.setSpacing(3);
         internNumbers = new TreeMap<String, PhoneNumber>();
         internNumbers.put("Johannes Engler", new PhoneNumber(true, 0157, "Johannes Engler", 12));
         internNumbers.put("Michael Engler", new PhoneNumber(true, 0157, "Michael Engler", 2));
@@ -66,8 +61,22 @@ public class FXMLController implements Initializable {
         internNumbers.put("Victor Englert", new PhoneNumber(true, 0157, "Victor Englert", 5));
         internNumbers.put("Marco Englert", new PhoneNumber(true, 0157, "Marco Englert", 5));
         internNumbers.put("Gregor Englert", new PhoneNumber(true, 0157, "Gregor Englert", 5));
+        
+        internNumbers.put("JoZannes Engler", new PhoneNumber(true, 0157, "JohZnnes Engler", 12));
+        internNumbers.put("MiZhael Engler", new PhoneNumber(true, 0157, "MichZel Engler", 2));
+        internNumbers.put("FaZian Engler", new PhoneNumber(true, 0157, "FabiaZ Engler", 1));
+        internNumbers.put("FaZian Englert", new PhoneNumber(true, 0157, "FabiZn Englert", 5));
+        internNumbers.put("MaZuel Englert", new PhoneNumber(true, 0157, "ManuZl Englert", 9));
+        internNumbers.put("StZfan Englert", new PhoneNumber(true, 0157, "StefZn Englert", 5));
+        internNumbers.put("FeZix Englert", new PhoneNumber(true, 0157, "FelixZEnglert", 5));
+        internNumbers.put("MaZcel Englert", new PhoneNumber(true, 0157, "MarcZl Englert", 5));
+        internNumbers.put("DiZk Englert", new PhoneNumber(true, 0157, "Dirk EZglert", 5));
+        internNumbers.put("OlZiver Englert", new PhoneNumber(true, 0157, "OllZver Englert", 15));
+        internNumbers.put("ViZtor Englert", new PhoneNumber(true, 0157, "VictZr Englert", 5));
+        internNumbers.put("MaZco Englert", new PhoneNumber(true, 0157, "MarcoZEnglert", 5));
 
-     /*   tabPane.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {   NICHT LÖSCHEN ERSTER ANSATZ FÜR WEITERE BESCHLEUNIGUNG DES 
+     /*   tabPane.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {   NICHT LÖSCHEN ERSTER ANSATZ FÜR WEITERE BESCHLEUNIGUNG DES ARBEITENS
+        
 
     @Override
     public void handle(javafx.scene.input.KeyEvent event) {
@@ -95,10 +104,10 @@ public class FXMLController implements Initializable {
 });*/ 
         
        
-        ArrayList<internField> i = new ArrayList(); 
+        ArrayList<InternField> i = new ArrayList(); 
         for(Map.Entry<String,PhoneNumber> g : internNumbers.entrySet()){
             
-            i.add(new internField(g.getKey(),g.getValue().getCount(),g.getValue().getPhoneNumber()));
+            i.add(new InternField(g.getKey(),g.getValue().getCount(),g.getValue().getPhoneNumber()));
         }
         updateAnzeige(i);
             
@@ -112,13 +121,35 @@ public class FXMLController implements Initializable {
                  
             }
         });
-        
-      LDAPController l = new LDAPController("server", 389, "server", "people" );
-      ArrayList<LDAPEntry> ld = l.getN("", 5);
+      ArrayList<String> fieldsToSearch = new ArrayList<>();
+      fieldsToSearch.add("cn");
+      fieldsToSearch.add("sn");
+      fieldsToSearch.add("givenName");
+      fieldsToSearch.add("l");
+      fieldsToSearch.add("mail");
+      fieldsToSearch.add("mobile");
+      fieldsToSearch.add("telephoneNumber");
+      fieldsToSearch.add("o");
+      ArrayList<String> fieldNames = new ArrayList<>();
+      fieldNames.add("Eintrag");
+      fieldNames.add("Nachname");
+      fieldNames.add("Vorname");
+      fieldNames.add("Wohnort");
+      fieldNames.add("Email");
+      fieldNames.add("Mobil");
+      fieldNames.add("Telefon");
+      fieldNames.add("Firma");
+
+      LDAPController l = new LDAPController("server", 389, "server", "people");
+      ArrayList<LDAPEntry> ld = l.getN("", 5, fieldsToSearch);
       
+       panelB.getChildren().clear();
+      ArrayList<LDAPField> ldapFields = new ArrayList<>();
       for(LDAPEntry ent : ld) {
-          System.out.println("Vorname: "+ent.getVorname() +" ,Nachname: "+ ent.getNachname()+" ,Firma: "+ent.getFirma());
+         
+          ldapFields.add(new LDAPField(ent.get(0), 2, 123123,ent,fieldNames));
       }
+     panelB.getChildren().addAll(ldapFields);
 
     }    
     private void selectTab(int i) {
@@ -127,19 +158,21 @@ public class FXMLController implements Initializable {
         tabPane.setSelectionModel(selectionModel);
         selectionModel.clearSelection(); //clear your selection
     }
-    private ArrayList<internField> generiereReduziertesSet(Map<String, PhoneNumber> internNumbers, String val) {
-        ArrayList<internField> out = new ArrayList<>();
+    private ArrayList<InternField> generiereReduziertesSet(Map<String, PhoneNumber> internNumbers, String val) {
+        ArrayList<InternField> out = new ArrayList<>();
             for(Map.Entry<String,PhoneNumber> g : internNumbers.entrySet()){
             if(g.getKey().toLowerCase().contains(val.toLowerCase())){
-             out.add(new internField(g.getKey(),g.getValue().getCount(),g.getValue().getPhoneNumber()));
+             out.add(new InternField(g.getKey(),g.getValue().getCount(),g.getValue().getPhoneNumber()));
             }
         }
         return out;
     }
-    private void updateAnzeige(ArrayList<internField> i) {
-         Collections.sort(i, new Comparator<internField>() {
+    private void updateAnzeige(ArrayList<InternField> i) {
+                scrollPaneA.setVvalue(0);
 
-        public int compare(internField o1, internField o2) {
+         Collections.sort(i, new Comparator<InternField>() {
+
+        public int compare(InternField o1, InternField o2) {
             return o2.getCount()- o1.getCount(); //Sortiert nach Count
           /*  int i = 0;
             while(o1.getName().charAt(i) == o2.getName().charAt(i)) {

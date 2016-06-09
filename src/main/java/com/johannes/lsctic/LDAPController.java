@@ -59,7 +59,7 @@ public class LDAPController {
     }
 
     
-    public ArrayList<LDAPEntry> getN(String ein, int n) {
+    public ArrayList<LDAPEntry> getN(String ein, int n, ArrayList<String> fieldsToSearch) {
         ArrayList<LDAPEntry> aus = new ArrayList<>();
         SearchControls sc = new SearchControls();
         String[] attributeFilter = {"cn", "mail", "sn", "givenName", "l","mobile","telephoneNumber","o" };
@@ -87,24 +87,14 @@ public class LDAPController {
                 SearchResult sr = (SearchResult) results.next();
                 Attributes attrs = sr.getAttributes();
                 
-                Attribute attr = (Attribute) attrs.get("cn");
-                String cn = (String) attr.get();
-                attr = (Attribute) attrs.get("sn");
-                String sn = (String) attr.get();
-                attr = (Attribute) attrs.get("givenName");
-                String givenName = (String) attr.get();
-                attr = (Attribute) attrs.get("l");
-                String l = (String) attr.get();
-                attr = (Attribute) attrs.get("mail");
-                String email = (String) attr.get();
-                attr = (Attribute) attrs.get("mobile");
-                int mobile = Integer.parseInt((String)attr.get());
-                attr = (Attribute) attrs.get("telephoneNumber");
-                int telephone = Integer.parseInt((String)attr.get());
-                attr = (Attribute) attrs.get("o");
-                String o = (String) attr.get();
-        
-                aus.add(new LDAPEntry(cn, givenName, sn, telephone, mobile, email, o, l));
+                ArrayList<String> data = new ArrayList<>();
+                
+                
+                for(String field: fieldsToSearch){
+                    Attribute attr = (Attribute) attrs.get(field);
+                    data.add((String) attr.get());
+                } 
+                aus.add(new LDAPEntry(data, data.get(0)));
                 ++i;
             }
         } catch (NamingException ex) {

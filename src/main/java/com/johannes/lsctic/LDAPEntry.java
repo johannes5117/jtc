@@ -5,67 +5,25 @@
  */
 package com.johannes.lsctic;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author johannesengler
  */
 public class LDAPEntry {
-    private String cn;
-    private String vorname;
-    private String nachname;
-    private int telephoneNumber;
-    private int mobileNumber;
-    private String email;
-    private String firma;
-    private String wohnort;
-    private int plz;
-
-    public LDAPEntry(String cn, String vorname, String nachname, int telephoneNumber, int mobileNumber, String email, String firma, String wohnort) {
-        this.cn = cn;
-        this.vorname = vorname;
-        this.nachname = nachname;
-        this.telephoneNumber = telephoneNumber;
-        this.mobileNumber = mobileNumber;
-        this.email = email;
-        this.firma = firma;
-        this.wohnort = wohnort;
-        this.plz = plz;
+    private String name;
+    private ArrayList<String> data;
+    public LDAPEntry(ArrayList<String> data, String name) {
+        this.name = name;
+        this.data = data;
     }
 
-    public String getCn() {
-        return cn;
+    public String getName() {
+        return name;
     }
-
-    public String getVorname() {
-        return vorname;
-    }
-
-    public String getNachname() {
-        return nachname;
-    }
-
-    public int getTelephoneNumber() {
-        return telephoneNumber;
-    }
-
-    public int getMobileNumber() {
-        return mobileNumber;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getFirma() {
-        return firma;
-    }
-
-    public String getWohnort() {
-        return wohnort;
-    }
-
-    public int getPlz() {
-        return plz;
+    public String get(int i) {
+        return data.get(i);
     }
     
     

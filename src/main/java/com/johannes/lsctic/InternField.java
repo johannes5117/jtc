@@ -29,21 +29,22 @@ import javafx.scene.layout.StackPane;
  *
  * @author johannesengler
  */
-public class internField extends HBox {
+public class InternField extends HBox {
     private StackPane p;
     private int state;
     private String name;
     private int count;
     private int number;
-    public internField(String name, int count, int number) {
+    public InternField(String name, int count, int number) {
         this.name =name;
         this.count = count;
         this.number = number;
         this.setMaxWidth(Double.MAX_VALUE);
         this.setPadding(new Insets(12,12, 12, 12));
         this.setSpacing(3);
-        this.setStyle("-fx-background-color: #FFFFFF; -fx-border-radius: 5px; -fx-border-color: #FFFFFF; -fx-border-width: 1px;");
-                         
+        this.setStyle(" -fx-border-color: #FFFFFF; -fx-border-width: 1px;");
+        this.setFocusTraversable(true);
+     
 
         HBox inner = new HBox();
         inner.setMaxWidth(Double.MAX_VALUE);
@@ -53,10 +54,24 @@ public class internField extends HBox {
         p.setStyle("-fx-background-color: #FF0000; -fx-background-radius: 6px; -fx-border-width: 6px;");
         p.setPadding(new Insets(1, 1, 1, 1));
         p.setAlignment(Pos.CENTER);
+        p.setPrefSize(15, 15);
         
        state = -1;
-        
-        File file = new File("src/main/resources/pics/phone2.jpg");
+       this.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+
+            @Override
+            public void handle(MouseEvent event) {
+                 if(event.getClickCount()==2) {
+            System.out.println(InternField.this.getName()+" anrufen");
+                  
+                 }
+                 InternField.this.requestFocus();
+                 event.consume();
+            
+            }
+        });
+       
+      /*  File file = new File("src/main/resources/pics/phone2.jpg");
         Image image = new Image(file.toURI().toString());
         ImageView v = new ImageView(image);
         v.setFitHeight(15);
@@ -92,16 +107,16 @@ public class internField extends HBox {
                 i.refresh();
                 event.consume();
             }
-        });
+        });*/
         this.focusedProperty().addListener(new ChangeListener<Boolean> () {
 
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
 
                 if(newValue){
-                    internField.this.setStyle("-fx-border-color: #0093ff; -fx-border-width: 1px;");
+                    InternField.this.setStyle("-fx-border-color: #0093ff; -fx-border-width: 1px;");
                 } else {
-                    internField.this.setStyle("-fx-border-color: #FFFFFF; -fx-border-width: 1px;");
+                    InternField.this.setStyle("-fx-border-color: #FFFFFF; -fx-border-width: 1px;");
                 }
  
                  
@@ -112,16 +127,15 @@ public class internField extends HBox {
     @Override
     public void handle(javafx.scene.input.KeyEvent event) {
         if (event.getCode() == KeyCode.ENTER) {
-            System.out.println(internField.this.getName()+" anrufen");
+            System.out.println(InternField.this.getName()+" anrufen");
             event.consume(); // do nothing
         }
     }
-});
+        });
         
-        this.setFocusTraversable(true);
         
 
-        p.getChildren().add(v);
+       // p.getChildren().add(v);
         
         Label a = new Label(name);
         a.setStyle(" -fx-font-size: 12px;  -fx-font-weight: bold;");
@@ -183,7 +197,7 @@ public class internField extends HBox {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final internField other = (internField) obj;
+        final InternField other = (InternField) obj;
         if (!Objects.equals(this.name, other.name)) {
             return false;
         }
