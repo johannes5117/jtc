@@ -7,7 +7,6 @@ package com.johannes.lsctic;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
-import java.io.File;
 import java.util.ArrayList;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -106,8 +105,7 @@ public class LDAPField extends VBox{
         });
         
         if(fieldNames.contains("Telefon")) {
-        File file = new File("src/main/resources/pics/phone.png");
-        Image image = new Image(file.toURI().toString());
+        Image image = new Image("/pics/phone.png");
         ImageView v = new ImageView(image);
         v.setFitHeight(15);
         v.setFitWidth(15);
@@ -145,8 +143,8 @@ public class LDAPField extends VBox{
         });
         }
           if(fieldNames.contains("Mobil")) {
-        File file = new File("src/main/resources/pics/mobile.png");
-        Image image = new Image(file.toURI().toString());
+        
+        Image image = new Image("/pics/mobile.png");
         ImageView v = new ImageView(image);
         
         v.setFitHeight(15);
@@ -185,8 +183,7 @@ public class LDAPField extends VBox{
             }
         });
         }
-          File file = new File("src/main/resources/pics/down.png");
-        Image image = new Image(file.toURI().toString());
+        Image image = new Image("/pics/down.png");
         vUpDown = new ImageView(image);
         vUpDown.setFitHeight(15);
         vUpDown.setFitWidth(15);
@@ -200,14 +197,12 @@ public class LDAPField extends VBox{
             @Override
             public void handle(MouseEvent event) {
                 if(expanded){
-                    File file = new File("src/main/resources/pics/down.png");
-                    Image image = new Image(file.toURI().toString());
+                    Image image = new Image("/pics/down.png");
                     LDAPField.this.requestFocus();
                     vUpDown.setImage(image);
                     collapse();
                 } else {
-                    File file = new File("src/main/resources/pics/up.png");
-                    Image image = new Image(file.toURI().toString());
+                    Image image = new Image("/pics/up.png");
                     LDAPField.this.requestFocus();
                     vUpDown.setImage(image);
                     expand();
@@ -274,7 +269,6 @@ public class LDAPField extends VBox{
             @Override
             public void handle(MouseEvent event) {
                 Label l = (Label) event.getSource();
-                System.out.println(l.getText());
                 StringSelection stringSelection = new StringSelection(l.getText());
                 java.awt.datatransfer.Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
                 clpbrd.setContents(stringSelection, null);
@@ -311,4 +305,5 @@ public class LDAPField extends VBox{
         this.getChildren().remove(this.getChildren().size()-1);
         expanded = false;
     }
+   
 }
