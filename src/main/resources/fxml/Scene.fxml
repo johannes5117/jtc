@@ -7,29 +7,29 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="AnchorPane" prefHeight="380.0" prefWidth="200.0" style="-fx-background-color: rgba(0, 0, 0, 0.0);" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.johannes.lsctic.FXMLController">
+<AnchorPane id="AnchorPane" prefHeight="380.0" style="-fx-background-color: rgba(0, 0, 0, 0.0);" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.johannes.lsctic.FXMLController">
     <children>
-      <TabPane fx:id="tabPane" focusTraversable="false" prefHeight="380.0" prefWidth="249.0" side="LEFT" style="-fx-background-color: rgba(0, 0, 0, 0.0);" tabClosingPolicy="UNAVAILABLE">
+      <TabPane fx:id="tabPane" focusTraversable="false" prefHeight="380.0" side="LEFT" style="-fx-background-color: rgba(0, 0, 0, 0.0);" tabClosingPolicy="UNAVAILABLE">
         <tabs>
             <Tab fx:id="intern" text="Intern">
               <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <AnchorPane prefHeight="380.0">
                      <children>
-                        <VBox prefHeight="380.0">
+                        <VBox minWidth="220.0" prefHeight="380.0">
                            <children>
                               <TextField fx:id="paneATextIn" promptText="Suchen....." />
-                              <ScrollPane fx:id="scrollPaneA" hbarPolicy="NEVER" prefViewportHeight="380.0" prefViewportWidth="216.0" style="-fx-background-color: #FFFFFF11;" vbarPolicy="NEVER">
+                              <ScrollPane fx:id="scrollPaneA" hbarPolicy="NEVER" hmax="0.0" prefViewportHeight="380.0" prefViewportWidth="300.0" style="-fx-background-color: #FFFFFF11;" vbarPolicy="NEVER">
                                  <content>
-                                    <VBox fx:id="panelA" layoutX="29.0" layoutY="79.0" prefWidth="216.0" style="-fx-background-color: rgba(255, 255, 255, 0.8);" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <VBox fx:id="panelA" layoutX="29.0" layoutY="79.0" prefHeight="380.0" prefWidth="300.0" style="-fx-background-color: rgba(255, 255, 255, 0.8);" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                         <padding>
-                                          <Insets bottom="3.0" left="3.0" right="7.0" top="3.0" />
+                                          <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
                                        </padding>
                                     </VBox>
                                  </content>
                               </ScrollPane>
                            </children>
                            <padding>
-                              <Insets bottom="1.0" left="1.0" right="3.0" top="1.0" />
+                              <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
                            </padding>
                         </VBox>
                      </children></AnchorPane>
@@ -37,23 +37,23 @@
             </Tab>
           <Tab fx:id="ldap" text="LDAP">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <AnchorPane prefHeight="380.0">
                      <children>
                         <VBox prefHeight="380.0">
                            <children>
-                              <TextField fx:id="paneBTextIn" promptText="Suchen....." />
-                              <ScrollPane hbarPolicy="NEVER" prefViewportHeight="380.0" prefViewportWidth="216.0" style="-fx-background-color: #FFFFFF11;" vbarPolicy="NEVER">
+                              <TextField fx:id="paneBTextIn" promptText="Suchen....." VBox.vgrow="NEVER" />
+                              <ScrollPane hbarPolicy="NEVER" hmax="0.0" prefViewportHeight="380.0" prefViewportWidth="300.0" style="-fx-background-color: #FFFFFF11;" vbarPolicy="NEVER">
                                  <content>
-                                    <VBox fx:id="panelB" layoutX="65.0" layoutY="122.0" prefHeight="380.0" prefWidth="216.0" style="-fx-background-color: rgba(255, 255, 255, 0.8);" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <VBox fx:id="panelB" layoutX="65.0" layoutY="122.0" prefHeight="380.0" prefWidth="300.0" style="-fx-background-color: rgba(255, 255, 255, 0.8);" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                         <padding>
-                                          <Insets bottom="3.0" left="3.0" right="5.0" top="3.0" />
+                                          <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
                                        </padding>
                                     </VBox>
                                  </content>
                               </ScrollPane>
                            </children>
                            <padding>
-                              <Insets bottom="1.0" left="1.0" right="3.0" top="1.0" />
+                              <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
                            </padding>
                         </VBox>
                      </children></AnchorPane>
@@ -61,17 +61,57 @@
           </Tab>
           <Tab fx:id="historie" text="Historie">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <AnchorPane prefHeight="380.0">
                      <children>
-                        <ScrollPane prefViewportHeight="380.0" prefViewportWidth="216.0" style="-fx-background-color: #FFFFFF11;">
-                           <content>
-                              <VBox fx:id="panelC" layoutX="58.0" layoutY="66.0" prefHeight="380.0" prefWidth="216.0" style="-fx-background-color: rgba(255, 255, 255, 0.8);" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                              <padding>
-                                    <Insets bottom="3.0" left="3.0" right="5.0" top="3.0" />
-                                 </padding>
-                              </VBox>
-                           </content>
-                        </ScrollPane>
+                        <VBox prefHeight="380.0">
+                           <children>
+                              <TextField fx:id="paneCTextIn" promptText="Suchen....." VBox.vgrow="NEVER" />
+                              <ScrollPane hbarPolicy="NEVER" hmax="0.0" prefViewportHeight="380.0" prefViewportWidth="300.0" vbarPolicy="NEVER">
+                                 <content>
+                                    <VBox prefHeight="380.0" prefWidth="300.0" style="-fx-background-color: rgba(255, 255, 255, 0.8);">
+                                       <children>
+                                          <ScrollPane hbarPolicy="NEVER" hmax="0.0" prefViewportHeight="380.0" prefViewportWidth="300.0" style="-fx-background-color: #FFFFFF11;" vbarPolicy="NEVER" VBox.vgrow="ALWAYS">
+                                             <content>
+                                                <VBox fx:id="panelC" layoutX="58.0" layoutY="66.0" prefHeight="380.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                   <padding>
+                                                      <Insets right="6.0" />
+                                                   </padding>
+                                                </VBox>
+                                             </content>
+                                          </ScrollPane>
+                                          <Separator prefWidth="200.0">
+                                             <VBox.margin>
+                                                <Insets />
+                                             </VBox.margin>
+                                          </Separator>
+                                          <HBox prefWidth="200.0">
+                                             <children>
+                                                <Button disable="true" mnemonicParsing="false" text="Letzte" />
+                                                <HBox HBox.hgrow="ALWAYS" />
+                                                <Button alignment="CENTER_RIGHT" contentDisplay="CENTER" disable="true" mnemonicParsing="false" text="Nächste" />
+                                             </children>
+                                             <padding>
+                                                <Insets bottom="4.0" left="2.0" right="2.0" top="1.0" />
+                                             </padding>
+                                             <VBox.margin>
+                                                <Insets />
+                                             </VBox.margin>
+                                          </HBox>
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets top="1.0" />
+                                       </VBox.margin>
+                                       <padding>
+                                          <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                       </padding>
+                                    </VBox>
+                                 </content>
+                              </ScrollPane>
+                           </children>
+                           <padding>
+                              <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+                           </padding>
+                        </VBox>
                      </children></AnchorPane>
             </content>
           </Tab>

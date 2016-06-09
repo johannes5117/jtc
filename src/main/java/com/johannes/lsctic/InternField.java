@@ -51,10 +51,10 @@ public class InternField extends HBox {
         HBox.setHgrow(inner, Priority.ALWAYS);
         
         p = new StackPane();
-        p.setStyle("-fx-background-color: #FF0000; -fx-background-radius: 6px; -fx-border-width: 6px;");
+        p.setStyle("-fx-background-color: #FF0000; -fx-background-radius: 7px; -fx-border-width: 7px;");
         p.setPadding(new Insets(1, 1, 1, 1));
         p.setAlignment(Pos.CENTER);
-        p.setPrefSize(15, 15);
+        p.setPrefSize(14, 14);
         
        state = -1;
        this.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {

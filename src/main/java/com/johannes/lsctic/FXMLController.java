@@ -33,6 +33,8 @@ public class FXMLController implements Initializable {
     @FXML
     private VBox panelB;
     @FXML
+    private VBox panelC;
+    @FXML
     private TextField paneATextIn;
     @FXML
     private TabPane tabPane;
@@ -47,6 +49,7 @@ public class FXMLController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         panelA.setSpacing(3);
         panelB.setSpacing(3);
+        panelC.setSpacing(3);
         internNumbers = new TreeMap<String, PhoneNumber>();
         internNumbers.put("Johannes Engler", new PhoneNumber(true, 0157, "Johannes Engler", 12));
         internNumbers.put("Michael Engler", new PhoneNumber(true, 0157, "Michael Engler", 2));
@@ -150,6 +153,22 @@ public class FXMLController implements Initializable {
           ldapFields.add(new LDAPField(ent.get(0), 2, 123123,ent,fieldNames));
       }
      panelB.getChildren().addAll(ldapFields);
+     
+     ArrayList<HistoryField> hFields = new ArrayList();
+     hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", true));
+     hFields.add(new HistoryField("Johannes Engler", "12.12.16 15:30", "10 min", true));
+     hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", true));
+     hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", false));
+     hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", true));
+     hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", true));
+     hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", true));
+     hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", false));
+     hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", true));
+     hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", true));
+     hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", true));
+
+     panelC.getChildren().addAll(hFields);
+       
 
     }    
     private void selectTab(int i) {
