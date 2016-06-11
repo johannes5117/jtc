@@ -117,18 +117,35 @@
           </Tab>
             <Tab fx:id="optionen" text="Optionen">
               <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: rgba(0, 0, 0, 0.0);">
+                  <VBox>
                      <children>
-                        <ScrollPane prefViewportHeight="380.0" prefViewportWidth="216.0" style="-fx-background-color: rgba(0, 0, 0, 0.0);">
+                        <ScrollPane hbarPolicy="NEVER" prefViewportHeight="380.0" prefViewportWidth="300.0" style="-fx-background-color: rgba(0, 0, 0, 0.0);" vbarPolicy="NEVER">
                            <content>
-                              <VBox fx:id="panelD" layoutX="65.0" layoutY="62.0" prefHeight="380.0" prefWidth="216.0" spacing="3.0" style="-fx-background-color: rgba(255, 255, 255, 0.8);" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                              <VBox fx:id="panelD" layoutX="65.0" layoutY="62.0" prefHeight="380.0" prefWidth="300.0" spacing="3.0" style="-fx-background-color: rgba(255, 255, 255, 0.8);" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                  <padding>
-                                    <Insets bottom="3.0" left="3.0" right="5.0" top="3.0" />
+                                    <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
                                  </padding>
                               </VBox>
                            </content>
                         </ScrollPane>
-                     </children></AnchorPane>
+                        <HBox prefWidth="200.0" style="-fx-background-color: rgba(255, 255, 255, 0.8);">
+                           <children>
+                              <Button mnemonicParsing="false" text="Anwenden" />
+                              <HBox HBox.hgrow="ALWAYS" />
+                              <Button mnemonicParsing="false" text="Zurücksetzen" />
+                           </children>
+                           <padding>
+                              <Insets bottom="5.0" left="15.0" right="15.0" top="5.0" />
+                           </padding>
+                           <VBox.margin>
+                              <Insets left="1.0" right="1.0" />
+                           </VBox.margin>
+                        </HBox>
+                     </children>
+                     <padding>
+                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+                     </padding>
+                  </VBox>
               </content>
             </Tab>
         </tabs>

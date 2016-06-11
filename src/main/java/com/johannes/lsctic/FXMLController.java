@@ -1,6 +1,7 @@
 package com.johannes.lsctic;
 
 
+import com.johannes.lsctic.settings.AsteriskSettingsField;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +35,8 @@ public class FXMLController implements Initializable {
     private VBox panelB;
     @FXML
     private VBox panelC;
+    @FXML
+    private VBox panelD;
     @FXML
     private TextField paneATextIn;
     @FXML
@@ -169,6 +172,7 @@ public class FXMLController implements Initializable {
 
      panelC.getChildren().addAll(hFields);
        
+     panelD.getChildren().add(new AsteriskSettingsField());
 
     }    
     private void selectTab(int i) {
