@@ -7,21 +7,17 @@ package com.johannes.lsctic.settings;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.TextField;
-
 import javafx.scene.layout.VBox;
 
 /**
  *
  * @author johannesengler
  */
-public class AsteriskSettingsField extends SettingsField {
+public class LDAPSettingsField extends SettingsField {
 
-    public AsteriskSettingsField() {
-        super("Asterisk (AMI)");
+    public LDAPSettingsField() {
+        super("LDAP");
     }
-  
-  
-    
     @Override
     public void expand() {
         VBox v = new VBox();
@@ -30,16 +26,16 @@ public class AsteriskSettingsField extends SettingsField {
         TextField f = new TextField();
         f.setPromptText("IP Adresse (Beispiel: server)");
         
-        TextField f1 = new TextField();
-        f1.setPromptText("Port (Beispiel: 5038)");
-        
         TextField f2 = new TextField();
-        f2.setPromptText("AMI Benutzer (Beispiel: user)");
+        f2.setPromptText("Port (Beispiel: 389)");
         
         TextField f3 = new TextField();
-        f3.setPromptText("AMI Passwort (Beispiel: vogel)");
+        f3.setPromptText("Suchbasis (Beispiel: dc=server, dc=com)");
         
-        v.getChildren().addAll(f,f1,f2,f3);
+        TextField f5 = new TextField();
+        f5.setPromptText("Basis (Beispiel: ou=people");
+        
+        v.getChildren().addAll(f,f2,f3,f5);
         this.getChildren().add(v);
         super.expand();
         

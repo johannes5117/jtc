@@ -2,6 +2,7 @@ package com.johannes.lsctic;
 
 
 import com.johannes.lsctic.settings.AsteriskSettingsField;
+import com.johannes.lsctic.settings.LDAPSettingsField;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -109,7 +110,8 @@ public class FXMLController implements Initializable {
     }
 });*/ 
         
-       
+        SqlLiteConnection s = new SqlLiteConnection("settingsAndData.db");
+        
         ArrayList<InternField> i = new ArrayList(); 
         for(Map.Entry<String,PhoneNumber> g : internNumbers.entrySet()){
             
@@ -172,7 +174,7 @@ public class FXMLController implements Initializable {
 
      panelC.getChildren().addAll(hFields);
        
-     panelD.getChildren().add(new AsteriskSettingsField());
+     panelD.getChildren().addAll(new AsteriskSettingsField(), new LDAPSettingsField());
 
     }    
     private void selectTab(int i) {
