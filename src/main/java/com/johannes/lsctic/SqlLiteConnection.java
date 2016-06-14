@@ -54,15 +54,8 @@ public class SqlLiteConnection {
 
                 
                 statement.executeUpdate("create table internfields (id integer, number string, name string, callcount integer, favorit boolean)");
+                            
                 
-                
-                statement.executeUpdate("create table callhistory (id integer, number string, outgoing boolean)");
-                statement.executeUpdate("create table phonebook (id integer, number string, name string, callcount integer, favorit boolean)");
-
-                
-
-
-                                
                 ResultSet rs = statement.executeQuery("select * from person");
                 while (rs.next()) {
                     System.out.println("name = " + rs.getString("name"));
@@ -121,16 +114,8 @@ public class SqlLiteConnection {
             return rs;
         } catch (SQLException ex) {
             System.err.println(ex.getMessage());
-            try {
-                statement = localConnection.createStatement();
-                statement.setQueryTimeout(10);
-                ResultSet rs = statement.executeQuery(query);
-                return rs;
-            } catch (SQLException ex1) {
-                 return null;
-            }
-           
-        }
+            return null;
+           }
     }
     public void update(String update) {
         Statement statement;
