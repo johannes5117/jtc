@@ -130,9 +130,9 @@
                         </ScrollPane>
                         <HBox prefWidth="200.0" style="-fx-background-color: rgba(255, 255, 255, 0.8);">
                            <children>
-                              <Button mnemonicParsing="false" text="Anwenden" />
+                              <Button fx:id="optionAccept" mnemonicParsing="false" text="Anwenden" />
                               <HBox HBox.hgrow="ALWAYS" />
-                              <Button mnemonicParsing="false" text="Zurücksetzen" />
+                              <Button fx:id="optionReject" mnemonicParsing="false" text="Zurücksetzen" />
                            </children>
                            <padding>
                               <Insets bottom="5.0" left="15.0" right="15.0" top="5.0" />

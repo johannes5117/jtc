@@ -5,6 +5,9 @@
  */
 package com.johannes.lsctic.settings;
 
+import com.johannes.lsctic.OptionsStorage;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -15,8 +18,8 @@ import javafx.scene.layout.VBox;
  */
 public class LDAPSettingsField extends SettingsField {
 
-    public LDAPSettingsField() {
-        super("LDAP");
+    public LDAPSettingsField(OptionsStorage storage) {
+        super("LDAP", storage);
     }
     @Override
     public void expand() {
@@ -25,16 +28,40 @@ public class LDAPSettingsField extends SettingsField {
         VBox.setMargin(v, new Insets(6, 0, 3, 0));
         TextField f = new TextField();
         f.setPromptText("IP Adresse (Beispiel: server)");
-        
-        TextField f2 = new TextField();
+        f.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                getStorage().setLdapAdressTemp(newValue);
+            }
+        });
+        final TextField f2 = new TextField();
         f2.setPromptText("Port (Beispiel: 389)");
-        
+        f2.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                try{
+                    getStorage().setLdapServerPortTemp(Integer.valueOf(newValue));
+                } catch (Exception e) {
+                    f2.setPromptText("Der Port ist eine Zahl");
+                }
+            }
+        });
         TextField f3 = new TextField();
         f3.setPromptText("Suchbasis (Beispiel: dc=server, dc=com)");
-        
+        f3.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                getStorage().setLdapSearchBaseTemp(newValue);
+            }
+        });
         TextField f5 = new TextField();
         f5.setPromptText("Basis (Beispiel: ou=people");
-        
+        f5.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                getStorage().setLdapBaseTemp(newValue);
+            }
+        });
         v.getChildren().addAll(f,f2,f3,f5);
         this.getChildren().add(v);
         super.expand();

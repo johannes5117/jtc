@@ -17,6 +17,7 @@ import javafx.beans.value.ObservableValue;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SingleSelectionModel;
@@ -39,6 +40,10 @@ public class FXMLController implements Initializable {
     private VBox panelC;
     @FXML
     private VBox panelD;
+    @FXML
+    private Button optionAccept;
+    @FXML
+    private Button optionReject;
     @FXML
     private TextField paneATextIn;
     @FXML
@@ -175,11 +180,11 @@ public class FXMLController implements Initializable {
 
      panelC.getChildren().addAll(hFields);
      
-     LicenseVerification lic = new LicenseVerification("0580111570890");
+     LicenseVerification lic = new LicenseVerification("011042100011048833103");
      System.out.println(lic.getLicenseCount());
             System.out.println(lic.checkValid());
-
-     panelD.getChildren().addAll(new AsteriskSettingsField(), new LDAPSettingsField(), new DeploymentSettingsField());
+     OptionsStorage storage = new OptionsStorage(optionAccept, optionReject);
+     panelD.getChildren().addAll(new AsteriskSettingsField(storage), new LDAPSettingsField(storage), new DeploymentSettingsField(storage));
 
     }    
     private void selectTab(int i) {

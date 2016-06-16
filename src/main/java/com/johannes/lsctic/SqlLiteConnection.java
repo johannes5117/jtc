@@ -172,4 +172,7 @@ public class SqlLiteConnection {
             System.err.println(ex.getMessage());
         }
     }
+    public Connection getConnection(){
+        return connection;
+    }
 }
