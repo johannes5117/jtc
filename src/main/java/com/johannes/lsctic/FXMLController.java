@@ -17,6 +17,9 @@ import javafx.beans.value.ObservableValue;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -26,6 +29,10 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.VBoxBuilder;
+import javafx.scene.text.Text;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 
 public class FXMLController implements Initializable {
@@ -57,6 +64,20 @@ public class FXMLController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        OptionsStorage storage = new OptionsStorage(optionAccept, optionReject);
+        
+        LicenseChecker lcheck = new LicenseChecker(storage);
+        
+    /*    if(!lcheck.checkIsValid()) {
+            Stage dialogStage = new Stage();
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.setScene(new Scene(VBoxBuilder.create().
+            children(new Text("Hi"), new Button("Ok.")).
+             alignment(Pos.CENTER).padding(new Insets(5)).build()));
+             dialogStage.show();
+            System.exit(0);
+        }*/
+        
         panelA.setSpacing(3);
         panelB.setSpacing(3);
         panelC.setSpacing(3);
@@ -180,10 +201,7 @@ public class FXMLController implements Initializable {
 
      panelC.getChildren().addAll(hFields);
      
-     LicenseVerification lic = new LicenseVerification("011042100011048833103");
-     System.out.println(lic.getLicenseCount());
-            System.out.println(lic.checkValid());
-     OptionsStorage storage = new OptionsStorage(optionAccept, optionReject);
+    
      panelD.getChildren().addAll(new AsteriskSettingsField(storage), new LDAPSettingsField(storage), new DeploymentSettingsField(storage));
 
     }    

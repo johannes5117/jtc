@@ -31,6 +31,7 @@ public class AsteriskSettingsField extends SettingsField {
         VBox.setMargin(v, new Insets(6, 0, 3, 0));
         TextField f = new TextField();
         f.setPromptText("IP Adresse (Beispiel: server)");
+        f.setText(getStorage().getAmiAdress());
         f.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -39,6 +40,7 @@ public class AsteriskSettingsField extends SettingsField {
         });
         final TextField f1 = new TextField();
         f1.setPromptText("Port (Beispiel: 5038)");
+        f1.setText(""+getStorage().getAmiServerPort());
         f1.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -51,6 +53,7 @@ public class AsteriskSettingsField extends SettingsField {
         });
         TextField f2 = new TextField();
         f2.setPromptText("AMI Benutzer (Beispiel: user)");
+        f2.setText(getStorage().getAmiLogIn());
         f2.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -59,7 +62,8 @@ public class AsteriskSettingsField extends SettingsField {
         });
         TextField f3 = new TextField();
         f3.setPromptText("AMI Passwort (Beispiel: vogel)");
-        f.textProperty().addListener(new ChangeListener<String>() {
+        f3.setText(getStorage().getAmiPassword());
+        f3.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 getStorage().setAmiPasswordTemp(newValue);

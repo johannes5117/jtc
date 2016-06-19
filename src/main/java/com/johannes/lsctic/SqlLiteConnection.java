@@ -42,25 +42,11 @@ public class SqlLiteConnection {
                 statement.setQueryTimeout(30);
                 //Asterisk Optionen
                 statement.executeUpdate("create table settings (id integer, setting string, description string)");
-                statement.executeUpdate("insert into settings values(0, 'snull', 'AMI Server Adresse')");
-                statement.executeUpdate("insert into settings values(1, 'snull','AMI Server Port')");
-                statement.executeUpdate("insert into settings values(2, 'snull','AMI Login')");
-                statement.executeUpdate("insert into settings values(3, 'snull','AMI Password')");
-                // LDAP Optionen
-                statement.executeUpdate("insert into settings values(4, 'snull', 'LDAP Server Adresse')");
-                statement.executeUpdate("insert into settings values(5, 'snull','LDAP Server Port')");
-                statement.executeUpdate("insert into settings values(6, 'snull','LDAP Suchbasis')");
-                statement.executeUpdate("insert into settings values(7, 'snull','LDAP Basis')");
-
+     
                 
                 statement.executeUpdate("create table internfields (id integer, number string, name string, callcount integer, favorit boolean)");
                             
-                
-                ResultSet rs = statement.executeQuery("select * from person");
-                while (rs.next()) {
-                    System.out.println("name = " + rs.getString("name"));
-                    System.out.println("id = " + rs.getInt("id"));
-                }
+               
             } catch (SQLException e) {
                 System.err.println(e.getMessage());
             } 

@@ -21,15 +21,20 @@ public class LicenseVerification {
         
     }
     public int getLicenseCount() {
+        try{
         String aus = "";
         String licenseshort = license.substring(0, 13);
         for(int i =0;i<=licenseshort.length(); i = i +3) {
             aus = aus + licenseshort.charAt(i);
         }
         return Integer.valueOf(aus);
+        } catch(Exception e) {
+            System.out.println("Fehlerhafte Lizenz");
+            return 0;
+        }
     }
     public boolean checkValid() {
-      
+       try{
         String licenseshort = license.substring(0, 13);
         String licenseshort2 = license.substring(13, license.length());
         StringBuffer aus = new StringBuffer(licenseshort);
@@ -39,7 +44,10 @@ public class LicenseVerification {
             --i;
         }
         return istPrimzahl(Integer.valueOf(aus.toString())-12)& istPrimzahl(Integer.valueOf(licenseshort2)-14);       
-        
+       } catch (Exception e) {
+           System.out.println("Illegales Format");
+           return false;
+       }
     }
     
      private boolean istPrimzahl(int p){

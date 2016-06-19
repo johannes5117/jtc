@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
@@ -65,10 +66,22 @@ public class DeploymentSettingsField extends SettingsField{
 
             @Override
             public void handle(ActionEvent event) {
+                getStorage().accept();
                 String g = f.getText().trim();
                 LicenseVerification veri = new LicenseVerification(g);
-                int i = Integer.valueOf(f2.getText().trim());
+                int i = 0;
+                try{
+                    i = Integer.valueOf(f2.getText().trim());
+                } catch(Exception e){
+                    System.out.println(e.getMessage());
+                }
                 if(i ==veri.getLicenseCount() & veri.checkValid()){
+                    System.out.println("Lizenz ist gültig");
+                } else {
+                    System.out.println("Lizenz ist nicht gültig");
+
+                }
+                boolean activated = veri.checkValid();
                     DirectoryChooser c = new DirectoryChooser();
                     File d  = c.showDialog((Stage) v.getParent().getScene().getWindow());
                     if(d!=null) {
@@ -84,24 +97,25 @@ public class DeploymentSettingsField extends SettingsField{
                                System.out.println("Konnte nicht in die Interns Datenbank schreiben"); 
                                System.out.println(ex.getMessage());
                             }
-                            ArrayList<String> settings = new ArrayList<>();
-                            settings.add("s");  //AMI Server Adresse
-                            settings.add("s");  //AMI Server Port
-                            settings.add("");  //AMI Login
-                            settings.add("");  //AMI Password
-                            settings.add("");  //LDAP Server Adresse
-                            settings.add("");  //LDAP Server Port
-                            settings.add("");  //LDAP Suchbasis
-                            settings.add("");  //LDAP Basis
-                            settings.add("");  // Aktiv
-                            settings.add("");  // ownExtension
+                            HashMap<String, String> settings = new HashMap<>();
+                            settings.put("amiAdress", getStorage().getAmiAdress());
+                            settings.put("amiServerPort",""+getStorage().getAmiServerPort());  //AMI Server Port
+                            settings.put("amiLogIn",getStorage().getAmiLogIn());  //AMI LogingetStorage().getAmiLogIn());  //AMI Login
+                            settings.put("amiPassword",getStorage().getAmiPassword());  //AMI Password
+                            settings.put("ldapAdress",getStorage().getLdapAdress());  //LDAP Server Adresse
+                            settings.put("ldapServerPort",""+getStorage().getLdapServerPort());  //LDAP Server Port
+                            settings.put("ldapSearchBase",getStorage().getLdapSearchBase());  //LDAP Suchbasis
+                            settings.put("ldapBase",getStorage().getLdapBase());  //LDAP Basis
+                            settings.put("ownExtension",""+mit.getExtension());  // ownExtension
+                            settings.put("activated",""+activated);  // Aktiv
+                            settings.put("time",""+System.currentTimeMillis());  // time
                             try {
                                 sql.writeSettingsToDatabase(settings);
                             } catch (SQLException ex) {
                                System.out.println("Konnte nicht in die Interns Datenbank schreiben"); 
                                System.out.println(ex.getMessage());                            }
                         }
-                    }
+                    
                 }
             }
         });
