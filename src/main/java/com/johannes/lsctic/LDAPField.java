@@ -32,11 +32,12 @@ public class LDAPField extends VBox{
     private String name;
     private int count;
     private int number;
-    private ArrayList<String> fieldNames;
     private LDAPEntry ldapEntry;
     private ImageView vUpDown;
     private boolean expanded;
-        public LDAPField(String name, int count, int number , LDAPEntry ldapEntry, ArrayList<String> fieldNames) {
+    private OptionsStorage storage;
+    private ArrayList<String> fieldNames ;
+        public LDAPField(String name, int count, int number , LDAPEntry ldapEntry, OptionsStorage storage) {
 
         this.name =name;
         this.count = count;
@@ -48,7 +49,13 @@ public class LDAPField extends VBox{
         this.setFocusTraversable(true);
         this.expanded = false;
         this.ldapEntry = ldapEntry;
-        this.fieldNames = fieldNames;
+        this.storage = storage;
+        this.fieldNames = new ArrayList<>();
+        int i = 0;
+        for(String[] s : storage.getLdapFields()) {
+            fieldNames.add(s[1]);
+            ++i;
+        }
 
         HBox inner = new HBox();
         inner.setSpacing(5);

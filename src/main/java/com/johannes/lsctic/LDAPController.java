@@ -29,8 +29,9 @@ public class LDAPController {
     private String ldapUrl;
     private DirContext dctx;
     private String base;
+    private OptionsStorage storage;
 
-    public LDAPController(String serverIp, int port, String dc, String dc2, String ou) {
+    public LDAPController(String serverIp, int port, String dc, String dc2, String ou, OptionsStorage storage) {
         env = new Hashtable();
 
         String sp = "com.sun.jndi.ldap.LdapCtxFactory";
@@ -39,12 +40,13 @@ public class LDAPController {
         ldapUrl = "ldap://" + serverIp + ":" + port + "/dc=" + dc + " , dc=" + dc2;
 
         env.put(Context.PROVIDER_URL, ldapUrl);
-
+        
+        this.storage = storage;
 
         base = "ou=" + ou;
     }
 
-    public LDAPController(String serverIp, int port, String dc, String ou) {
+    public LDAPController(String serverIp, int port, String dc, String ou, OptionsStorage storage) {
         env = new Hashtable();
 
         String sp = "com.sun.jndi.ldap.LdapCtxFactory";
@@ -54,19 +56,27 @@ public class LDAPController {
 
         env.put(Context.PROVIDER_URL, ldapUrl);
 
-        
+        this.storage = storage;
         base = "ou=" + ou;
     }
 
     
-    public ArrayList<LDAPEntry> getN(String ein, int n, ArrayList<String> fieldsToSearch) {
+    public ArrayList<LDAPEntry> getN(String ein, int n) {
         ArrayList<LDAPEntry> aus = new ArrayList<>();
         SearchControls sc = new SearchControls();
-        String[] attributeFilter = {"cn", "mail", "sn", "givenName", "l","mobile","telephoneNumber","o" };
+        String[] attributeFilter = new String[storage.getLdapFields().size()];
+        int i = 0;
+        String filter="(|";
+        for(String[] s : storage.getLdapFields()) {
+            attributeFilter[i] = s[0];
+            filter = filter + "("+s[0]+"="+ein+"*)";
+            ++i;
+        }
+        filter = filter +")";
         sc.setReturningAttributes(attributeFilter);
         sc.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-        String filter = "(|(sn="+ein+"*)(sn="+ein+"*)(cn="+ein+"*)(o="+ein+"*))";
+        //String filter = "(|(sn="+ein+"*)(sn="+ein+"*)(cn="+ein+"*)(o="+ein+"*))";
 
         NamingEnumeration results = null;
         
@@ -82,7 +92,7 @@ public class LDAPController {
             Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
         }
         try {
-            int i = 0;
+            i = 0;
             while (results.hasMore() && i<n) {
                 SearchResult sr = (SearchResult) results.next();
                 Attributes attrs = sr.getAttributes();
@@ -90,8 +100,8 @@ public class LDAPController {
                 ArrayList<String> data = new ArrayList<>();
                 
                 
-                for(String field: fieldsToSearch){
-                    Attribute attr = (Attribute) attrs.get(field);
+                for(String[] field: storage.getLdapFields()){
+                    Attribute attr = (Attribute) attrs.get(field[0]);
                     data.add((String) attr.get());
                 } 
                 aus.add(new LDAPEntry(data, data.get(0)));

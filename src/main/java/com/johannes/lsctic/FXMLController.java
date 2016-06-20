@@ -10,16 +10,24 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.application.Platform;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -33,6 +41,7 @@ import javafx.scene.layout.VBoxBuilder;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 
 public class FXMLController implements Initializable {
@@ -64,23 +73,18 @@ public class FXMLController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        // Muss vor dem erstellen des Optionsstorage sein, da ggf. die Datenbank nicht existiert
+         SqlLiteConnection s = new SqlLiteConnection("settingsAndData.db", "dataLocal.db");
+        // Optionsstorage erstellen und Daten aus Settingsdatabase laden
         OptionsStorage storage = new OptionsStorage(optionAccept, optionReject);
-        
-        LicenseChecker lcheck = new LicenseChecker(storage);
-        
-    /*    if(!lcheck.checkIsValid()) {
-            Stage dialogStage = new Stage();
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.setScene(new Scene(VBoxBuilder.create().
-            children(new Text("Hi"), new Button("Ok.")).
-             alignment(Pos.CENTER).padding(new Insets(5)).build()));
-             dialogStage.show();
-            System.exit(0);
-        }*/
+        // Die Lizenz überprüfen, wenn nicht lizensiert beenden.
+    //  startUpLicenseCheck(storage);
         
         panelA.setSpacing(3);
         panelB.setSpacing(3);
         panelC.setSpacing(3);
+        
+        
         internNumbers = new TreeMap<String, PhoneNumber>();
         internNumbers.put("Johannes Engler", new PhoneNumber(true, 0157, "Johannes Engler", 12));
         internNumbers.put("Michael Engler", new PhoneNumber(true, 0157, "Michael Engler", 2));
@@ -137,7 +141,6 @@ public class FXMLController implements Initializable {
     }
 });*/ 
         
-        SqlLiteConnection s = new SqlLiteConnection("settingsAndData.db", "dataLocal.db");
         
         ArrayList<InternField> i = new ArrayList(); 
         for(Map.Entry<String,PhoneNumber> g : internNumbers.entrySet()){
@@ -156,33 +159,15 @@ public class FXMLController implements Initializable {
                  
             }
         });
-      ArrayList<String> fieldsToSearch = new ArrayList<>();
-      fieldsToSearch.add("cn");
-      fieldsToSearch.add("sn");
-      fieldsToSearch.add("givenName");
-      fieldsToSearch.add("l");
-      fieldsToSearch.add("mail");
-      fieldsToSearch.add("mobile");
-      fieldsToSearch.add("telephoneNumber");
-      fieldsToSearch.add("o");
-      ArrayList<String> fieldNames = new ArrayList<>();
-      fieldNames.add("Eintrag");
-      fieldNames.add("Nachname");
-      fieldNames.add("Vorname");
-      fieldNames.add("Wohnort");
-      fieldNames.add("Email");
-      fieldNames.add("Mobil");
-      fieldNames.add("Telefon");
-      fieldNames.add("Firma");
+      
 
-      LDAPController l = new LDAPController("server", 389, "server", "people");
-      ArrayList<LDAPEntry> ld = l.getN("", 5, fieldsToSearch);
+      LDAPController l = new LDAPController("server", 389, "server", "people", storage);
+      ArrayList<LDAPEntry> ld = l.getN("", 5);
       
        panelB.getChildren().clear();
       ArrayList<LDAPField> ldapFields = new ArrayList<>();
-      for(LDAPEntry ent : ld) {
-         
-          ldapFields.add(new LDAPField(ent.get(0), 2, 123123,ent,fieldNames));
+      for(LDAPEntry ent : ld) { 
+        ldapFields.add(new LDAPField(ent.get(0), 2, 123123,ent,storage));
       }
      panelB.getChildren().addAll(ldapFields);
      
@@ -240,6 +225,55 @@ public class FXMLController implements Initializable {
             });
         panelA.getChildren().clear();
         panelA.getChildren().addAll(i);
+    }
+    public void startUpLicenseCheck(OptionsStorage storage){
+        LicenseChecker lcheck = new LicenseChecker(storage);
+        
+        if(lcheck.checkIsValid()) {
+            Stage dialogStage = new Stage();
+            dialogStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+
+                @Override
+                public void handle(WindowEvent event) {
+                    System.exit(0);
+                }
+            });
+            dialogStage.setAlwaysOnTop(true);
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            final Button b = new Button("Beenden");
+            b.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    System.exit(0);
+                }
+            });
+            dialogStage.setScene(new Scene(VBoxBuilder.create().
+            children(new Text("Ihre Testlizenz ist leider abgelaufen. Bitte besuchen sie www.cti.eu um das Produkt zu lizenzieren"),b).
+             alignment(Pos.CENTER).padding(new Insets(10)).build()));
+             dialogStage.show();
+             
+             Timer timer = new Timer();
+    timer.scheduleAtFixedRate(new TimerTask() {
+        int seconds = 21;
+    int i = 0;
+    @Override
+    public void run()
+    {
+       i++;
+
+       if(i % seconds == 0) {
+           System.exit(0);
+    }
+       else{
+           Platform.runLater(() -> {
+               b.setText("Beenden ("+(20-i)+")");
+            });    
+       }}
+            
+           
+        
+    }, 1000, 1000);
+        }
     }
      
 
