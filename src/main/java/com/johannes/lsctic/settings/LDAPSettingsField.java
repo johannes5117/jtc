@@ -85,20 +85,23 @@ public class LDAPSettingsField extends SettingsField {
         VBox vLdapFields = new VBox();
         vLdapFields.setSpacing(3);
       for(String[] g: getStorage().getLdapFields()) {
-          ldapFields.add(makeAdditionalField(g[0], g[1],vLdapFields));
+          ldapFields.add(makeAdditionalField(g[0], g[1],vLdapFields,"X"));
           ++i;
       }
         
-        Button plus = new Button("Hizufügen");
-        plus.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
+       // Button plus = new Button("Hizufügen");
+      //  plus.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
 
-            @Override
-            public void handle(javafx.event.ActionEvent event) {
-                ldapFields.add(makeAdditionalField("", "",vLdapFields));
-            }
-        });
+       //     @Override
+      //      public void handle(javafx.event.ActionEvent event) {
+     //           ldapFields.add(makeAdditionalField("", "",vLdapFields));
+        //    }
+      //  });
         
-        v.getChildren().addAll(vLdapFields,plus);
+      ldapFields.add(makeAdditionalField("", "",vLdapFields,"+"));
+       
+      v.getChildren().addAll(vLdapFields);
+
         this.getChildren().add(v);
         
         
@@ -112,17 +115,21 @@ public class LDAPSettingsField extends SettingsField {
         this.getChildren().remove(this.getChildren().size()-1);
         super.collapse();
     }
-    public HBox makeAdditionalField(String a, String b, VBox vLdapFields) {
+    public HBox makeAdditionalField(String a, String b, VBox vLdapFields, String sign) {
        HBox box = new HBox();
        TextField t1 = new TextField(a);
        t1.setPromptText("Feld");
        Label l = new Label(":");
        TextField t2 = new TextField(b);
        t2.setPromptText("Anzeigename");
-       Button but = new Button("X");
+       Button but = new Button(sign);
+       if(sign.equals("+")) {
+           but.setStyle("-fx-font-size:13.5;");
+       }
        but.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
            @Override
            public void handle(javafx.event.ActionEvent event) {
+               if(but.getText().equals("X")) {
                HBox b = (HBox) but.getParent();
                TextField t1  = (TextField) b.getChildren().get(0);              
                TextField t2  = (TextField) b.getChildren().get(2);
@@ -130,6 +137,20 @@ public class LDAPSettingsField extends SettingsField {
                ldapFields.remove(but.getParent());
                
                vLdapFields.getChildren().remove(but.getParent());
+               }else {
+                   
+                   boolean r = getStorage().addToLdapFieldsTemp(t1.getText(), t2.getText());
+                   if(r) {
+                        makeAdditionalField("", "", vLdapFields,"+");
+                        but.setText("X");
+                          but.setStyle("-fx-font-size:13");
+                   } else {
+                       t1.setPromptText("bereits vorhanden");
+                       t2.setPromptText("bereits vorhanden");
+                       t1.setText("");
+                       t2.setText("");
+                   }
+               }
            }
        });
        box.getChildren().addAll(t1,l, t2,but);
