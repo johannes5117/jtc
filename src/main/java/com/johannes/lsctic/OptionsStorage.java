@@ -31,6 +31,7 @@ public class OptionsStorage {
     private int ldapServerPort = 0;      //LDAP Server Port
     private String ldapSearchBase = "";   //LDAP Suchbasis
     private String ldapBase = "";         //LDAP Basis
+    private int ldapSearchAmount = 0;       //Amount of Entrys that will be loaded 
     private String ownExtension = "";     // eigene Extension asterisk
     private boolean activated = false;       // Aktiv
     private long time = 0;               // TimeStamp
@@ -44,6 +45,7 @@ public class OptionsStorage {
     private int ldapServerPortTemp;      //LDAP Server Port
     private String ldapSearchBaseTemp;   //LDAP Suchbasis
     private String ldapBaseTemp;         //LDAP Basis
+    private int ldapSearchAmountTemp = 0; //Amount of Entrys that will be loaded 
     private String ownExtensionTemp;     // eigene Extension asterisk
     private boolean activatedTemp;       // Aktiv
     private long timeTemp;               // TimeStamp
@@ -69,6 +71,7 @@ public class OptionsStorage {
                 ldapServerPortTemp = ldapServerPort;
                 ldapSearchBaseTemp = ldapSearchBase;
                 ldapBaseTemp = ldapBase;
+                ldapSearchAmountTemp = ldapSearchAmount;
                 activatedTemp = activated;
                 ownExtensionTemp = ownExtension;
                 ldapFieldsTemp.clear();
@@ -91,6 +94,7 @@ public class OptionsStorage {
         ldapServerPort = ldapServerPortTemp;
         ldapSearchBase = ldapSearchBaseTemp;
         ldapBase = ldapBaseTemp;
+        ldapSearchAmount = ldapSearchAmountTemp;
         activated = activatedTemp;
         ownExtension = ownExtensionTemp;
         ldapFields.clear();
@@ -117,6 +121,8 @@ public class OptionsStorage {
             statement.executeUpdate("UPDATE Settings SET Setting = '" + ldapServerPort + "' WHERE description = 'ldapServerPort'");
             statement.executeUpdate("UPDATE Settings SET Setting = '" + ldapSearchBase + "' WHERE description = 'ldapSearchBase'");
             statement.executeUpdate("UPDATE Settings SET Setting = '" + ldapBase + "' WHERE description = 'ldapBase'");
+            statement.executeUpdate("UPDATE Settings SET Setting = '" + ldapSearchAmount + "' WHERE description = 'ldapSearchAmount'");
+
             //   statement.executeUpdate("UPDATE Settings SET Setting = '"+ownExtension+"' WHERE description = 'ownExtension'");
             //   statement.executeUpdate("UPDATE Settings SET Setting = '"+activated+"' WHERE description = 'activated'");
             //   statement.executeUpdate("UPDATE Settings SET Setting = '"+time+"' WHERE description = 'time'");
@@ -150,6 +156,7 @@ public class OptionsStorage {
             ldapServerPort = Integer.valueOf(statement.executeQuery("select setting from settings where description = 'ldapServerPort'").getString("setting"));
             ldapSearchBase = statement.executeQuery("select setting from settings where description = 'ldapSearchBase'").getString("setting");
             ldapBase = statement.executeQuery("select setting from settings where description = 'ldapBase'").getString("setting");
+            ldapSearchAmount = Integer.valueOf(statement.executeQuery("select setting from settings where description = 'ldapSearchAmount'").getString("setting"));
             ownExtension = statement.executeQuery("select setting from settings where description = 'ownExtension'").getString("setting");
             activated = Boolean.valueOf(statement.executeQuery("select setting from settings where description = 'activated'").getString("setting"));
             time = Long.valueOf(statement.executeQuery("select setting from settings where description = 'time'").getString("setting"));
@@ -181,6 +188,7 @@ public class OptionsStorage {
             ldapServerPortTemp = ldapServerPort;
             ldapSearchBaseTemp = ldapSearchBase;
             ldapBaseTemp = ldapBase;
+            ldapSearchAmountTemp = ldapSearchAmount;
             ownExtensionTemp = ownExtension;
             activatedTemp = activated;
             timeTemp = time;
@@ -371,6 +379,20 @@ public class OptionsStorage {
     public void setTimeTemp(long timeTemp) {
         this.timeTemp = timeTemp;
     }
+
+    public int getLdapSearchAmount() {
+        return ldapSearchAmount;
+    }
+
+    public void setLdapSearchAmount(int ldapSearchAmount) {
+        this.ldapSearchAmount = ldapSearchAmount;
+    }
+
+
+    public void setLdapSearchAmountTemp(int ldapSearchAmountTemp) {
+        this.ldapSearchAmountTemp = ldapSearchAmountTemp;
+    }
+    
 
     @Override
     public String toString() {

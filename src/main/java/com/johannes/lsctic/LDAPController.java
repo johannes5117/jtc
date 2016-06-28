@@ -75,7 +75,7 @@ public class LDAPController {
         filter = filter +")";
         sc.setReturningAttributes(attributeFilter);
         sc.setSearchScope(SearchControls.SUBTREE_SCOPE);
-
+        
         //String filter = "(|(sn="+ein+"*)(sn="+ein+"*)(cn="+ein+"*)(o="+ein+"*))";
 
         NamingEnumeration results = null;
@@ -101,8 +101,13 @@ public class LDAPController {
                 
                 
                 for(String[] field: storage.getLdapFields()){
-                    Attribute attr = (Attribute) attrs.get(field[0]);
-                    data.add((String) attr.get());
+                    // catch if a ldap field will be not available
+                    try{
+                        Attribute attr = (Attribute) attrs.get(field[0]);
+                        data.add((String) attr.get());
+                    } catch (Exception e) {
+                        data.add("!Nicht gefunden!");
+                    }
                 } 
                 aus.add(new LDAPEntry(data, data.get(0)));
                 ++i;

@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.johannes.lsctic;
+package com.johannes.lsctic.fields;
 
+import com.johannes.lsctic.LDAPEntry;
+import com.johannes.lsctic.OptionsStorage;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.util.ArrayList;
