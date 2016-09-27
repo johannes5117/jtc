@@ -6,8 +6,12 @@
 package com.johannes.lsctic.fields;
 
 
+import com.johannes.lsctic.amiapi.Amiapi;
 import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -127,8 +131,18 @@ public class InternField extends HBox {
     @Override
     public void handle(javafx.scene.input.KeyEvent event) {
         if (event.getCode() == KeyCode.ENTER) {
-            System.out.println(InternField.this.getName()+" anrufen");
-            event.consume(); // do nothing
+            
+            try {
+                System.out.println(InternField.this.getName()+" anrufen mit dem Anton aus Tirol");
+                
+                Amiapi a = new Amiapi("192.168.178.195", "Johannes", "johannesAusTirol1232", 5038);
+                a.login();
+                a.dial("702", "017643698142");
+                event.consume(); // do nothing
+            } catch (IOException ex) {
+                System.out.println("Fehler");
+                Logger.getLogger(InternField.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
         });
