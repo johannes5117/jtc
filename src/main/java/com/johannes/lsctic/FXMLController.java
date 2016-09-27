@@ -6,33 +6,23 @@ import com.johannes.lsctic.fields.LDAPField;
 import com.johannes.lsctic.settings.AsteriskSettingsField;
 import com.johannes.lsctic.settings.DeploymentSettingsField;
 import com.johannes.lsctic.settings.LDAPSettingsField;
-import static java.awt.SystemColor.control;
-import java.math.BigInteger;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
-
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -43,7 +33,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.VBoxBuilder;
 import javafx.scene.text.Text;
@@ -78,7 +67,7 @@ public class FXMLController implements Initializable {
 
     private OptionsStorage storage;
     private Map<String, PhoneNumber> internNumbers;
-    private  String quickdialString;
+    private String quickdialString;
     private Tooltip customTooltip;
 
     @Override
@@ -94,7 +83,7 @@ public class FXMLController implements Initializable {
         panelB.setSpacing(3);
         panelC.setSpacing(3);
 
-        internNumbers = new TreeMap<String, PhoneNumber>();
+        internNumbers = new TreeMap<>();
         internNumbers.put("Johannes Engler", new PhoneNumber(true, 0157, "Johannes Engler", 12));
         internNumbers.put("Michael Engler", new PhoneNumber(true, 0157, "Michael Engler", 2));
         internNumbers.put("Fabian Engler", new PhoneNumber(true, 0157, "Fabian Engler", 1));
@@ -150,67 +139,48 @@ public class FXMLController implements Initializable {
          }
          });*/
         ArrayList<InternField> i = new ArrayList();
-        for (Map.Entry<String, PhoneNumber> g : internNumbers.entrySet()) {
-
+        internNumbers.entrySet().stream().forEach((g) -> {
             i.add(new InternField(g.getKey(), g.getValue().getCount(), g.getValue().getPhoneNumber()));
-        }
+        });
         updateAnzeige(i);
-           paneATextIn.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() { 
-        
-
-         @Override
-         public void handle(javafx.scene.input.KeyEvent event) {
-        
-         if (event.getCode() == KeyCode.ENTER) {
-         System.out.println(quickdialString);
-         try{
-             long l  = Long.valueOf(quickdialString);
-             System.out.println("Wähle "+l );
-         } catch (Exception e) {
-             
-         }
-
-         event.consume();
-         }
-         }
-         });
-
-        paneATextIn.textProperty().addListener(new ChangeListener<String>() {
-
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+        paneATextIn.addEventFilter(KeyEvent.KEY_PRESSED, (javafx.scene.input.KeyEvent event) -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                System.out.println(quickdialString);
                 try {
-                     quickdialString = newValue;
-                   long quickdial = Long.valueOf(newValue);
-                    customTooltip.hide();
-                    customTooltip.setText("Nummer erkannt. Enter zum wählen");
-                    paneATextIn.setTooltip(customTooltip);
-                    customTooltip.setAutoHide(true);
-                    Point2D p = paneATextIn.localToScene(0.0, 0.0);
-                    customTooltip.show(paneATextIn, p.getX()
-                            + paneATextIn.getScene().getX() + paneATextIn.getScene().getWindow().getX(), p.getY()
-                            + paneATextIn.getScene().getY() + paneATextIn.getScene().getWindow().getY() + paneATextIn.getHeight());
-                    
-                  
+                    long l = Long.valueOf(quickdialString);
+                    System.out.println("Wähle " + l);
                 } catch (Exception e) {
-                    customTooltip.hide();
-                }
-                updateAnzeige(generiereReduziertesSet(internNumbers, newValue));
 
+                }
+
+                event.consume();
             }
+        });
+
+        paneATextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+            try {
+                quickdialString = newValue;
+                long quickdial = Long.valueOf(newValue);
+                customTooltip.hide();
+                customTooltip.setText("Nummer erkannt. Enter zum wählen");
+                paneATextIn.setTooltip(customTooltip);
+                customTooltip.setAutoHide(true);
+                Point2D p = paneATextIn.localToScene(0.0, 0.0);
+                customTooltip.show(paneATextIn, p.getX()
+                        + paneATextIn.getScene().getX() + paneATextIn.getScene().getWindow().getX(), p.getY()
+                        + paneATextIn.getScene().getY() + paneATextIn.getScene().getWindow().getY() + paneATextIn.getHeight());
+
+            } catch (Exception e) {
+                customTooltip.hide();
+            }
+            updateAnzeige(generiereReduziertesSet(internNumbers, newValue));
         });
         LDAPController l = new LDAPController("server", 389, "server", "people", storage);
         ArrayList<LDAPEntry> ld = l.getN("", storage.getLdapSearchAmount());
         updateLdapFields(ld);
-        paneBTextIn.textProperty().addListener(new ChangeListener<String>() {
-
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-
-                ArrayList<LDAPEntry> ld = l.getN(newValue, storage.getLdapSearchAmount());
-                updateLdapFields(ld);
-
-            }
+        paneBTextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+            ArrayList<LDAPEntry> ld1 = l.getN(newValue, storage.getLdapSearchAmount());
+            updateLdapFields(ld1);
         });
 
         ArrayList<HistoryField> hFields = new ArrayList();
@@ -241,32 +211,26 @@ public class FXMLController implements Initializable {
 
     private ArrayList<InternField> generiereReduziertesSet(Map<String, PhoneNumber> internNumbers, String val) {
         ArrayList<InternField> out = new ArrayList<>();
-        for (Map.Entry<String, PhoneNumber> g : internNumbers.entrySet()) {
-            if (g.getKey().toLowerCase().contains(val.toLowerCase())) {
-                out.add(new InternField(g.getKey(), g.getValue().getCount(), g.getValue().getPhoneNumber()));
-            }
-        }
+        internNumbers.entrySet().stream().filter((g) -> (g.getKey().toLowerCase().contains(val.toLowerCase()))).forEach((g) -> {
+            out.add(new InternField(g.getKey(), g.getValue().getCount(), g.getValue().getPhoneNumber()));
+        });
         return out;
     }
 
     private void updateAnzeige(ArrayList<InternField> i) {
         scrollPaneA.setVvalue(0);
 
-        Collections.sort(i, new Comparator<InternField>() {
-
-            public int compare(InternField o1, InternField o2) {
-                return o2.getCount() - o1.getCount(); //Sortiert nach Count
-          /*  int i = 0;
-                 while(o1.getName().charAt(i) == o2.getName().charAt(i)) {
-                 ++i;
-                 if(i>=o1.getName().length() || i>=o2.getName().length()) {
-                 return 0;
-                 }
-                 }
-            
-                 return o1.getName().charAt(i) - o2.getName().charAt(i);*/ // Nach namen sortieren
-            }
-        });
+        Collections.sort(i, (InternField o1, InternField o2) -> o2.getCount() - o1.getCount() //Sortiert nach Count
+        /*  int i = 0;
+         while(o1.getName().charAt(i) == o2.getName().charAt(i)) {
+         ++i;
+         if(i>=o1.getName().length() || i>=o2.getName().length()) {
+         return 0;
+         }
+         }
+         return o1.getName().charAt(i) - o2.getName().charAt(i);*/
+        // Nach namen sortieren
+        );
         panelA.getChildren().clear();
         panelA.getChildren().addAll(i);
     }
@@ -274,9 +238,9 @@ public class FXMLController implements Initializable {
     private void updateLdapFields(ArrayList<LDAPEntry> i) {
         panelB.getChildren().clear();
         ArrayList<LDAPField> ldapFields = new ArrayList<>();
-        for (LDAPEntry ent : i) {
+        i.stream().forEach((ent) -> {
             ldapFields.add(new LDAPField(ent.get(0), 2, 123123, ent, storage));
-        }
+        });
         panelB.getChildren().addAll(ldapFields);
     }
 
@@ -285,21 +249,14 @@ public class FXMLController implements Initializable {
 
         if (lcheck.checkIsValid()) {
             Stage dialogStage = new Stage();
-            dialogStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-
-                @Override
-                public void handle(WindowEvent event) {
-                    System.exit(0);
-                }
+            dialogStage.setOnCloseRequest((WindowEvent event) -> {
+                System.exit(0);
             });
             dialogStage.setAlwaysOnTop(true);
             dialogStage.initModality(Modality.WINDOW_MODAL);
             final Button b = new Button("Beenden");
-            b.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    System.exit(0);
-                }
+            b.setOnAction((ActionEvent event) -> {
+                System.exit(0);
             });
             dialogStage.setScene(new Scene(VBoxBuilder.create().
                     children(new Text("Ihre Testlizenz ist leider abgelaufen. Bitte besuchen sie www.cti.eu um das Produkt zu lizenzieren"), b).

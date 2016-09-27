@@ -75,6 +75,7 @@ public class CallField extends HBox{
     public void handle(javafx.scene.input.KeyEvent event) {
         if (event.getCode() == KeyCode.ENTER) {
             System.out.println(CallField.this.getNumber()+" anrufen");
+            
             event.consume(); // do nothing
         }
     }
