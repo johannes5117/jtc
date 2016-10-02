@@ -7,20 +7,17 @@ package com.johannes.lsctic.fields;
 
 
 import com.johannes.lsctic.amiapi.Amiapi;
-import java.io.File;
+import com.johannes.lsctic.amiapi.ServerConnectionHandler;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -34,12 +31,13 @@ import javafx.scene.layout.StackPane;
  * @author johannesengler
  */
 public class InternField extends HBox {
-    private StackPane p;
+    private final StackPane p;
     private int state;
-    private String name;
-    private int count;
-    private int number;
-    public InternField(String name, int count, int number) {
+    private final String name;
+    private final int count;
+    private final int number;
+    private Amiapi api;
+    public InternField(String name, int count, int number, ServerConnectionHandler somo) {
         this.name =name;
         this.count = count;
         this.number = number;
@@ -48,6 +46,7 @@ public class InternField extends HBox {
         this.setSpacing(3);
         this.setStyle(" -fx-border-color: #FFFFFF; -fx-border-width: 1px;");
         this.setFocusTraversable(true);
+        this.api = api;
      
 
         HBox inner = new HBox();
@@ -61,18 +60,13 @@ public class InternField extends HBox {
         p.setPrefSize(14, 14);
         
        state = -1;
-       this.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-
-            @Override
-            public void handle(MouseEvent event) {
-                 if(event.getClickCount()==2) {
-            System.out.println(InternField.this.getName()+" anrufen");
-                  
-                 }
-                 InternField.this.requestFocus();
-                 event.consume();
-            
-            }
+       this.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent event) -> {
+           if(event.getClickCount()==2) {
+               System.out.println(InternField.this.getName()+" anrufen");
+               
+           }
+           InternField.this.requestFocus();
+           event.consume();
         });
        
       /*  File file = new File("src/main/resources/pics/phone2.jpg");
@@ -112,39 +106,25 @@ public class InternField extends HBox {
                 event.consume();
             }
         });*/
-        this.focusedProperty().addListener(new ChangeListener<Boolean> () {
-
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-
-                if(newValue){
-                    InternField.this.setStyle("-fx-border-color: #0093ff; -fx-border-width: 1px;");
-                } else {
-                    InternField.this.setStyle("-fx-border-color: #FFFFFF; -fx-border-width: 1px;");
-                }
- 
-                 
+        this.focusedProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
+            if(newValue){
+                InternField.this.setStyle("-fx-border-color: #0093ff; -fx-border-width: 1px;");
+            } else {
+                InternField.this.setStyle("-fx-border-color: #FFFFFF; -fx-border-width: 1px;");
             }
         });
-        this.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
-
-    @Override
-    public void handle(javafx.scene.input.KeyEvent event) {
-        if (event.getCode() == KeyCode.ENTER) {
-            
-            try {
-                System.out.println(InternField.this.getName()+" anrufen mit dem Anton aus Tirol");
+        this.addEventFilter(KeyEvent.KEY_PRESSED, (javafx.scene.input.KeyEvent event) -> {
+            if (event.getCode() == KeyCode.ENTER) {
                 
-                Amiapi a = new Amiapi("192.168.178.195", "Johannes", "johannesAusTirol1232", 5038);
-                a.login();
-                a.dial("702", "017643698142");
-                event.consume(); // do nothing
-            } catch (IOException ex) {
-                System.out.println("Fehler");
-                Logger.getLogger(InternField.class.getName()).log(Level.SEVERE, null, ex);
+                try {
+                    System.out.println(InternField.this.getName()+" anrufen mit dem Anton aus Tirol");
+                    api.dial("702", "017643698142");
+                    event.consume(); // do nothing
+                } catch (IOException ex) {
+                    System.out.println("Fehler");
+                    Logger.getLogger(InternField.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
-        }
-    }
         });
         
         
@@ -224,6 +204,26 @@ public class InternField extends HBox {
 
     public int getNumber() {
         return number;
+    }
+
+    public void setStatus(int status) {
+        switch (status){
+            case -1: 
+                setNotFoundUnavailable();
+                break;
+            case 0:
+                setIdle();
+                break;
+            case 1:
+                setBusyInUse();
+                break;
+            case 2:
+                setBusyInUse();
+                break;
+            case 8:
+                setRinging();
+                break;
+        }
     }
 
    

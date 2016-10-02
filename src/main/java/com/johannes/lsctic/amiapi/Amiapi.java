@@ -34,12 +34,14 @@ public class Amiapi {
     private ArrayList<String> fifo;
     private boolean found;
     private int actId;
+    private boolean loggedin;
 
     public Amiapi(String server, String user, String passwort, int port) {
         this.server = server;
         this.user = user;
         this.passwort = passwort;
         this.port = port;
+        this.loggedin = false;
     }
 
     public void login() throws IOException {
@@ -50,15 +52,17 @@ public class Amiapi {
         send("secret: " + passwort + "\r\n");
         send("ActionID: 1\r\n");
         send("\r\n");
+        loggedin = true;
     }
 
     public void dial(String extension, String number)
             throws IOException {
-
+        login();
         send("Action: Originate\r\n");
         send("Channel: sip/" + extension + "\r\n");
         send("Exten: " + number + "\r\n");
-    //    send("Context: from-internal\r\n");
+        //FIXME 
+        //  send("Context: from-internal\r\n");
         send("Async: yes\r\n\r\n");
     }
 
@@ -81,15 +85,19 @@ public class Amiapi {
         }
         found = false;
 
-        StringBuffer b = new StringBuffer(fifo.get(fifo.indexOf("ActionID: " + tActId + "") + 5));
+        String b = fifo.get(fifo.indexOf("ActionID: " + tActId + "") + 5);
         fifo.clear();
         return Integer.valueOf(b.substring(8, b.length()));
     }
 
-    public void send(String request)
-            throws IOException {
-
-        wr.writeBytes(request);
+    public void send(String request) throws IOException {
+        
+           
+                wr.writeBytes(request);
+   
+                
+            
+        
     }
 
     public void receive() throws IOException {
@@ -118,14 +126,12 @@ public class Amiapi {
         wr = new DataOutputStream(socket.getOutputStream());
         buffin = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         fifo = new ArrayList<>();
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    receive();
-                } catch (IOException ex) {
-                    Logger.getLogger(Amiapi.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        Thread t;
+        t = new Thread(() -> {
+            try {
+                receive();
+            } catch (IOException ex) {
+                Logger.getLogger(Amiapi.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
         t.start();
