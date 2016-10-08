@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -70,14 +71,23 @@ public class ServerConnectionHandler {
                             String param = chatInput.substring(3,chatInput.length());
                             System.out.println(op);
                             switch(op) {
-                                case 0:
+                                case 0: {
                                     String[] d = param.split(":");
                                     int intern = Integer.valueOf(d[0]);
                                     int status = Integer.valueOf(d[1]);
-                                                                       System.out.println("Für: "+intern+" setze: "+status);
-
                                     internNumbers.get(intern).setStatus(status);
                                     break;
+                                }
+                                case 10: {
+                                    String[] d = param.split(":");
+                                    String source = d[0];
+                                    String destinatnion = d[1];
+                                    Date startTime = new Date(Long.parseLong(d[2]));
+                                    Long duration = Long.parseLong(d[3]);
+                                    int disposition = Integer.valueOf(d[4]);
+                                    System.out.println("CDR: von: "+source+" nach: "+destinatnion+" am "+startTime.toString()+" dauer "+ duration+" dispo: "+disposition);
+                                    break;
+                                }
                                 default:
                                     System.out.println("i liegt nicht zwischen null und drei");
                             }   break;
