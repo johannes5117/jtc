@@ -95,7 +95,7 @@ public class FXMLController implements Initializable {
         //api = new Amiapi("192.168.178.195", "Johannes", "johannesAusTirol1232", 5038);
         
         internNumbers = new TreeMap<>();
-        internNumbers.put(702, new PhoneNumber(true, 702, "Johannes Engler", 19));
+        internNumbers.put(201, new PhoneNumber(true, 702, "Johannes Engler", 19));
         internNumbers.put(703, new PhoneNumber(true, 703, "Michael Engler", 2));
         internNumbers.put(704, new PhoneNumber(true, 704, "Fabian Engler", 1));
         internNumbers.put(705, new PhoneNumber(true, 705, "Fabian Englert", 5));

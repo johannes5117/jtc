@@ -50,32 +50,37 @@ public class ServerConnectionHandler {
                 //Create the streams
                 output = new PrintWriter(threadSocket.getOutputStream(), true);
                 BufferedReader input = new BufferedReader(new InputStreamReader(threadSocket.getInputStream()));
-                sendBack("000702");
+                sendBack("000201");
                 //Tell the client that he/she has connected
                 output.println("success");
                 boolean notEndedYet = true;
                 while (notEndedYet) {
                     //This will wait until a line of text has been sent
                     String chatInput = input.readLine();
-                    if(chatInput.equals("logoff")) {
-                        notEndedYet = false;
-                        output.println("success");
-                    } else if(chatInput.equals("success")) {
-                        System.out.println("Erfolgreich Verbunden");
-                    }else {
-                        int op = Integer.valueOf(chatInput.substring(0, 2));
-                        String param = chatInput.substring(3,chatInput.length());
-                        System.out.println(op);
-                        switch(op) {
-                            case 0:
-                                int intern = Integer.valueOf(param.substring(0,param.length()-1));
-                                int status = Integer.valueOf(param.substring(param.length()-1,param.length()));
-                                internNumbers.get(intern).setStatus(status);
-                                System.out.println("Für: "+intern+" setze: "+status);
-                                break;
-                            default: 
-                                System.out.println("i liegt nicht zwischen null und drei"); 
-                        }
+                    switch (chatInput) {
+                        case "logoff":
+                            notEndedYet = false;
+                            output.println("success");
+                            break;
+                        case "success":
+                            System.out.println("Erfolgreich Verbunden");
+                            break;
+                        default:
+                            int op = Integer.valueOf(chatInput.substring(0, 2));
+                            String param = chatInput.substring(3,chatInput.length());
+                            System.out.println(op);
+                            switch(op) {
+                                case 0:
+                                    String[] d = param.split(":");
+                                    int intern = Integer.valueOf(d[0]);
+                                    int status = Integer.valueOf(d[1]);
+                                                                       System.out.println("Für: "+intern+" setze: "+status);
+
+                                    internNumbers.get(intern).setStatus(status);
+                                    break;
+                                default:
+                                    System.out.println("i liegt nicht zwischen null und drei");
+                            }   break;
                     }
                     System.out.println(chatInput);
                 }

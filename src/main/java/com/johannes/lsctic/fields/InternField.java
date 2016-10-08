@@ -12,9 +12,7 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -118,7 +116,7 @@ public class InternField extends HBox {
                 
                 try {
                     System.out.println(InternField.this.getName()+" anrufen mit dem Anton aus Tirol");
-                    api.dial("702", "017643698142");
+                    api.dial("201", "202");
                     event.consume(); // do nothing
                 } catch (IOException ex) {
                     System.out.println("Fehler");
@@ -219,6 +217,9 @@ public class InternField extends HBox {
                 break;
             case 2:
                 setBusyInUse();
+                break;
+            case 4:
+                setNotFoundUnavailable();
                 break;
             case 8:
                 setRinging();
