@@ -11,6 +11,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 
 
@@ -43,8 +45,7 @@ public class SqlLiteConnection {
                 statement.executeUpdate("create table settings (id integer, setting string, description string)");
      
                 
-                statement.executeUpdate("create table internfields (id integer, number string, name string, callcount integer, favorit boolean)");
-                            
+                statement.executeUpdate("create table internfields (id integer  Primary Key AUTOINCREMENT, number string, name string, callcount integer, favorit boolean)");
                
             } catch (SQLException e) {
                 System.err.println(e.getMessage());
@@ -159,5 +160,38 @@ public class SqlLiteConnection {
     }
     public Connection getConnection(){
         return connection;
+    }
+
+    Map<Integer, PhoneNumber> getInterns() {
+        Map<Integer, PhoneNumber> internNumbers = new TreeMap<>();
+        
+        Statement statement;
+        try {
+            statement = connection.createStatement();
+            statement.setQueryTimeout(10);
+            ResultSet rs = statement.executeQuery("select * from internfields");
+       
+            while(rs.next()) {
+                internNumbers.put(rs.getInt(2), new PhoneNumber(true, rs.getInt(2), rs.getString(3), rs.getInt(4)));
+            }
+            
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return internNumbers;
+        }
+        
+        return internNumbers;
+    }
+
+    void queryNoReturn(String query) {
+       
+         Statement statement;
+        try {
+            statement = connection.createStatement();
+            statement.setQueryTimeout(10);
+            ResultSet rs = statement.executeQuery(query);
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+           }
     }
 }

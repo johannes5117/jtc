@@ -5,7 +5,7 @@
  */
 package com.johannes.lsctic.fields;
 
-
+import com.johannes.lsctic.FXMLController;
 import com.johannes.lsctic.amiapi.Amiapi;
 import com.johannes.lsctic.amiapi.ServerConnectionHandler;
 import java.io.IOException;
@@ -13,99 +13,69 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
-
 
 /**
  *
  * @author johannesengler
  */
 public class InternField extends HBox {
+
     private final StackPane p;
     private int state;
     private final String name;
     private final int count;
     private final int number;
-    private Amiapi api;
-    public InternField(String name, int count, int number, ServerConnectionHandler somo) {
-        this.name =name;
+    private FXMLController con;
+    private ServerConnectionHandler somo;
+
+    public InternField(String name, int count, int number, ServerConnectionHandler somo, FXMLController con) {
+        this.name = name;
         this.count = count;
         this.number = number;
         this.setMaxWidth(Double.MAX_VALUE);
-        this.setPadding(new Insets(12,12, 12, 12));
+        this.setPadding(new Insets(12, 12, 12, 12));
         this.setSpacing(3);
         this.setStyle(" -fx-border-color: #FFFFFF; -fx-border-width: 1px;");
         this.setFocusTraversable(true);
-        this.api = api;
-     
-
+        this.con = con;
+        this.somo = somo;
         HBox inner = new HBox();
         inner.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(inner, Priority.ALWAYS);
-        
+
         p = new StackPane();
         p.setStyle("-fx-background-color: #FF0000; -fx-background-radius: 7px; -fx-border-width: 7px;");
         p.setPadding(new Insets(1, 1, 1, 1));
         p.setAlignment(Pos.CENTER);
         p.setPrefSize(14, 14);
-        
-       state = -1;
-       this.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent event) -> {
-           if(event.getClickCount()==2) {
-               System.out.println(InternField.this.getName()+" anrufen");
-               
-           }
-           InternField.this.requestFocus();
-           event.consume();
-        });
-       
-      /*  File file = new File("src/main/resources/pics/phone2.jpg");
-        Image image = new Image(file.toURI().toString());
-        ImageView v = new ImageView(image);
-        v.setFitHeight(15);
-        v.setFitWidth(15);
-        v.setOpacity(0.5);
-        v.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
 
-            @Override
-            public void handle(MouseEvent event) {
-                ImageView v = (ImageView) event.getSource();
-                internField i = (internField)v.getParent().getParent();
-                System.out.println(i.getName());
+        state = -1;
+        this.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent event) -> {
 
-                event.consume();
+            if (event.getClickCount() == 2 & event.getButton() == MouseButton.PRIMARY) {
+                System.out.println(InternField.this.getName() + " anrufen");
+
             }
+            InternField.this.requestFocus();
+            event.consume();
         });
-         v.addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
 
-            @Override
-            public void handle(MouseEvent event) {
-                ImageView v = (ImageView) event.getSource();
-                StackPane p = (StackPane) v.getParent();
-                p.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 6px; -fx-border-width: 6px;");                    
-                event.consume();
-            }
-        });
-        v.addEventHandler(MouseEvent.MOUSE_EXITED, new EventHandler<MouseEvent>() {
-
-            @Override
-            public void handle(MouseEvent event) {
-                ImageView v = (ImageView) event.getSource();
-                internField i = (internField)v.getParent().getParent();
-                i.refresh();
-                event.consume();
-            }
-        });*/
         this.focusedProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
-            if(newValue){
+            if (newValue) {
                 InternField.this.setStyle("-fx-border-color: #0093ff; -fx-border-width: 1px;");
             } else {
                 InternField.this.setStyle("-fx-border-color: #FFFFFF; -fx-border-width: 1px;");
@@ -113,61 +83,95 @@ public class InternField extends HBox {
         });
         this.addEventFilter(KeyEvent.KEY_PRESSED, (javafx.scene.input.KeyEvent event) -> {
             if (event.getCode() == KeyCode.ENTER) {
-                
-                try {
-                    System.out.println(InternField.this.getName()+" anrufen mit dem Anton aus Tirol");
-                    api.dial("201", "202");
+
+           
+                    System.out.println(InternField.this.getName() + " anrufen mit dem Anton aus Tirol");
+                    InternField.this.call();
                     event.consume(); // do nothing
-                } catch (IOException ex) {
-                    System.out.println("Fehler");
-                    Logger.getLogger(InternField.class.getName()).log(Level.SEVERE, null, ex);
-                }
+               
+            }
+        });
+        final ContextMenu contextMenu = new ContextMenu();
+        MenuItem del = new MenuItem("Löschen");
+        MenuItem call = new MenuItem("Anrufen");
+        MenuItem num = new MenuItem("Nummer: "+this.getNumber());
+        contextMenu.getItems().addAll(del, call, num);
+
+        del.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                System.out.println("Lösche");
+                con.removeInternAndUpdate(InternField.this);
+                                    contextMenu.hide();
+
+            }
+        });
+        call.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                InternField.this.call();
+                contextMenu.hide();
+
             }
         });
         
-        
+        this.addEventFilter(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (event.getButton() == MouseButton.SECONDARY) {
+                    contextMenu.show(InternField.this, event.getScreenX(), event.getScreenY());
+                } else {
+                    contextMenu.hide();
+                }
+            }
+        });
 
-       // p.getChildren().add(v);
-        
+        // p.getChildren().add(v);
         Label a = new Label(name);
         a.setStyle(" -fx-font-size: 12px;  -fx-font-weight: bold;");
-        
+
         this.getChildren().add(a);
         this.getChildren().add(inner);
         this.getChildren().add(p);
-        
+
     }
-    
-    public void changeStatus(int status){
+
+    public void changeStatus(int status) {
         this.state = status;
         refresh();
     }
+
     public void refresh() {
-        if(state == 1 || state == 2) {
+        if (state == 1 || state == 2) {
             setBusyInUse();
-        } else if(state == 8) {
+        } else if (state == 8) {
             setRinging();
-        } else if(state == 0) {
+        } else if (state == 0) {
             setIdle();
         } else {
             setNotFoundUnavailable();
         }
     }
+
     public void setBusyInUse() {
-        p.setStyle("-fx-background-color: #FF0000; -fx-background-radius: 6px; -fx-border-width: 6px;");    
+        p.setStyle("-fx-background-color: #FF0000; -fx-background-radius: 6px; -fx-border-width: 6px;");
     }
+
     public void setIdle() {
-        p.setStyle("-fx-background-color: #00FF00; -fx-background-radius: 6px; -fx-border-width: 6px;");    
+        p.setStyle("-fx-background-color: #00FF00; -fx-background-radius: 6px; -fx-border-width: 6px;");
     }
+
     public void setNotFoundUnavailable() {
-        p.setStyle("-fx-background-color: #0000FF; -fx-background-radius: 6px; -fx-border-width: 6px;");    
+        p.setStyle("-fx-background-color: #0000FF; -fx-background-radius: 6px; -fx-border-width: 6px;");
     }
+
     public void setRinging() {
-        p.setStyle("-fx-background-color: #eeff00; -fx-background-radius: 6px; -fx-border-width: 6px;");    
+        p.setStyle("-fx-background-color: #eeff00; -fx-background-radius: 6px; -fx-border-width: 6px;");
     }
+
     public void setVisisble(boolean value) {
-            this.setVisible(value);
-       
+        this.setVisible(value);
+
     }
 
     public String getName() {
@@ -205,8 +209,8 @@ public class InternField extends HBox {
     }
 
     public void setStatus(int status) {
-        switch (status){
-            case -1: 
+        switch (status) {
+            case -1:
                 setNotFoundUnavailable();
                 break;
             case 0:
@@ -227,6 +231,9 @@ public class InternField extends HBox {
         }
     }
 
-   
-   
+    private void call() {
+        //TO IMPLEMENT
+        somo.sendBack("001");
+   }
+
 }

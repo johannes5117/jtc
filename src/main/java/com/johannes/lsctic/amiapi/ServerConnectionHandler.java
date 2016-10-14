@@ -5,6 +5,7 @@
  */
 package com.johannes.lsctic.amiapi;
 
+import apple.laf.JRSUIUtils;
 import com.johannes.lsctic.PhoneNumber;
 import com.johannes.lsctic.fields.InternField;
 import java.io.BufferedReader;
@@ -14,6 +15,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Date;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -23,12 +26,16 @@ public class ServerConnectionHandler {
     private final String adresse = "localhost";
     private final int port = 12350;
     private final Socket s;
+    private ClientThread t;
     private final Map<Integer, InternField> internNumbers;
     public ServerConnectionHandler(Map<Integer, InternField> internNumbers) throws IOException {
         s = new Socket(adresse, port); 
-        ClientThread t = new ClientThread(s);
+         t = new ClientThread(s);
         new Thread(t).start();
         this.internNumbers = internNumbers;
+    }
+    public void sendBack(String msg) {
+        t.sendBack(msg);
     }
     
     class ClientThread implements Runnable
@@ -49,11 +56,11 @@ public class ServerConnectionHandler {
             //All this should look familiar
             try {
                 //Create the streams
-                output = new PrintWriter(threadSocket.getOutputStream(), true);
-                BufferedReader input = new BufferedReader(new InputStreamReader(threadSocket.getInputStream()));
+               
                 sendBack("000201");
                 //Tell the client that he/she has connected
-                output.println("success");
+                BufferedReader input = new BufferedReader(new InputStreamReader(threadSocket.getInputStream()));
+
                 boolean notEndedYet = true;
                 while (notEndedYet) {
                     //This will wait until a line of text has been sent
@@ -100,7 +107,12 @@ public class ServerConnectionHandler {
             }
         }
         private void sendBack(String msg) {
-            output.println(msg);
+            try {
+                output = new PrintWriter(threadSocket.getOutputStream(), true);
+                output.println(msg);
+            } catch (IOException ex) {
+                Logger.getLogger(ServerConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 }
