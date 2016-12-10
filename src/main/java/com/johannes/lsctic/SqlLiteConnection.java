@@ -156,42 +156,24 @@ public class SqlLiteConnection {
     public ResultSet selectWhere(String attribut, String table, String whereAttribut, String whereValue) {
         PreparedStatement statement = null;
         try {
-            String state = "select ? from ? where ?=?";
-            statement = connection.prepareStatement(state);
-            statement.setString(1, attribut);
-            statement.setString(2, table);
-            statement.setString(3, whereAttribut);
-            statement.setString(4, whereValue);
-            statement.setQueryTimeout(10);
+            if(whereAttribut == null && whereValue == null) {
+                String state = "select ? from ? where ?=?";
+                statement = connection.prepareStatement(state);
+                statement.setString(1, attribut);
+                statement.setString(2, table);
+                statement.setString(3, whereAttribut);
+                statement.setString(4, whereValue);
+                statement.setQueryTimeout(10);
             return statement.executeQuery();
-        } catch (SQLException ex) {
-            Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        } finally {
-            if(statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-                }
+            } else {
+                String state = "select ? from ?";
+                statement = connection.prepareStatement(state);
+                statement.setString(1, attribut);
+                statement.setString(2, table);
+                statement.setQueryTimeout(10);
+            return statement.executeQuery();
             }
-        }
-    }
-/**
- * select specific attribute list from table
- * @param attribut
- * @param table
- * @return 
- */
-    public ResultSet select(String attribut, String table) {
-        PreparedStatement statement = null;
-        try {
-            String state = "select ? from ?";
-            statement = connection.prepareStatement(state);
-            statement.setQueryTimeout(10);
-            statement.setString(1, attribut);
-            statement.setString(2, table);
-            return statement.executeQuery();
+            
         } catch (SQLException ex) {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
             return null;
