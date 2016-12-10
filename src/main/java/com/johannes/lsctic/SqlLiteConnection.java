@@ -24,7 +24,7 @@ public class SqlLiteConnection {
 
     private Connection connection;
     private Connection localConnection;
-    private final String JDBC = "jdbc:sqlite:";
+    private final static String JDBC = "jdbc:sqlite:";
 
     /**
      * Beispiel database: "settingsAndData.db"
@@ -33,6 +33,14 @@ public class SqlLiteConnection {
      * @param localDatabase
      */
     public SqlLiteConnection(String database, String localDatabase) {
+        String[] createLines = {"create table callhistory (id integer, number string, outgoing boolean)",
+            "create table phonebook (id integer, number string, name string, callcount integer, favorit boolean)"};
+        createDatabase(localDatabase, createLines);
+        String[] createLines2 = {"create table settings (id integer, setting string, description string)",
+           "create table internfields (id integer  Primary Key AUTOINCREMENT, number string, name string, callcount integer, favorit boolean)" };
+        createDatabase(database, createLines2);
+    }
+    private void createDatabase(String database, String[] createLines) {
         File f = new File(database);
         if (f.exists() && !f.isDirectory()) {
             try {
@@ -49,9 +57,12 @@ public class SqlLiteConnection {
                 statement = connection.createStatement();
                 statement.setQueryTimeout(30);
                 //Asterisk Optionen
-                statement.executeUpdate("create table settings (id integer, setting string, description string)");
+                for(String create: createLines) {
+                   
+                    statement.executeUpdate(create);
 
-                statement.executeUpdate("create table internfields (id integer  Primary Key AUTOINCREMENT, number string, name string, callcount integer, favorit boolean)");
+                }
+               
 
             } catch (SQLException e) {
                 Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, e);
@@ -66,36 +77,6 @@ public class SqlLiteConnection {
             }
         }
 
-        File f2 = new File("localDatabase");
-        if (f2.exists() && !f2.isDirectory()) {
-            try {
-                localConnection = DriverManager.getConnection(JDBC + localDatabase);
-            } catch (SQLException ex) {
-                Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } else {
-            Statement statement = null;
-            try {
-                // Erstelle die Datenbank für das Programm
-                localConnection = DriverManager.getConnection(JDBC + localDatabase);
-                statement = localConnection.createStatement();
-                statement.setQueryTimeout(30);
-
-                statement.executeUpdate("create table callhistory (id integer, number string, outgoing boolean)");
-                statement.executeUpdate("create table phonebook (id integer, number string, name string, callcount integer, favorit boolean)");
-
-            } catch (SQLException e) {
-                Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, e);
-            } finally {
-                if (statement != null) {
-                    try {
-                        statement.close();
-                    } catch (SQLException ex) {
-                        Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -141,7 +122,10 @@ public class SqlLiteConnection {
             }
         }
     }
-
+    /**
+     * Perform a update query on the server
+     * @param update 
+     */
     public void update(String update) {
         Statement statement = null;
         try {
@@ -160,7 +144,14 @@ public class SqlLiteConnection {
             }
         }
     }
-
+/**
+ * Select specific attribut where specific attribute in database
+ * @param attribut
+ * @param table
+ * @param whereAttribut
+ * @param whereValue
+ * @return 
+ */
     public ResultSet selectWhere(String attribut, String table, String whereAttribut, String whereValue) {
         Statement statement = null;
         try {
@@ -180,7 +171,12 @@ public class SqlLiteConnection {
             }
         }
     }
-
+/**
+ * select specific attribute list from table
+ * @param attribut
+ * @param table
+ * @return 
+ */
     public ResultSet select(String attribut, String table) {
         Statement statement = null;
         try {
@@ -201,7 +197,14 @@ public class SqlLiteConnection {
         }
     }
 
-    // value beispiel: "1, 'leo', 'test'"
+    
+    
+    /**
+     * Insert values into table
+     * value beispiel: "1, 'leo', 'test'"
+     * @param table
+     * @param value 
+     */
     public void insert(String table, String value) {
         Statement statement = null;
         try {
@@ -220,7 +223,14 @@ public class SqlLiteConnection {
             }
         }
     }
-
+    /**
+     * Updates one attribute
+     * @param table
+     * @param whereAttribut
+     * @param whereValue
+     * @param updateAttribut
+     * @param updateValue 
+     */
     public void updateOneAttribute(String table, String whereAttribut, String whereValue, String updateAttribut, String updateValue) {
         Statement statement = null;
         try {
@@ -239,11 +249,17 @@ public class SqlLiteConnection {
             }
         }
     }
-
+    /**
+     * get the connection
+     * @return 
+     */
     public Connection getConnection() {
         return connection;
     }
-
+    /**
+     * 
+     * @return Map with all interns
+     */
     Map<String, PhoneNumber> getInterns() {
         Map<String, PhoneNumber> internNumbers = new TreeMap<>();
 
@@ -271,7 +287,10 @@ public class SqlLiteConnection {
 
         return internNumbers;
     }
-
+    /**
+     * Only a query without a return
+     * @param query 
+     */
     void queryNoReturn(String query) {
 
         Statement statement = null;
