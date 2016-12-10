@@ -6,12 +6,7 @@
 package com.johannes.lsctic.fields;
 
 import com.johannes.lsctic.FXMLController;
-import com.johannes.lsctic.amiapi.Amiapi;
-import com.johannes.lsctic.amiapi.ServerConnectionHandler;
-import java.io.IOException;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -38,11 +33,10 @@ public class InternField extends HBox {
     private int state;
     private final String name;
     private final int count;
-    private final int number;
-    private FXMLController con;
-    private ServerConnectionHandler somo;
+    private final String number;
+    private final FXMLController con;
 
-    public InternField(String name, int count, int number, ServerConnectionHandler somo, FXMLController con) {
+    public InternField(String name, int count, String number, FXMLController con) {
         this.name = name;
         this.count = count;
         this.number = number;
@@ -52,7 +46,6 @@ public class InternField extends HBox {
         this.setStyle(" -fx-border-color: #FFFFFF; -fx-border-width: 1px;");
         this.setFocusTraversable(true);
         this.con = con;
-        this.somo = somo;
         HBox inner = new HBox();
         inner.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(inner, Priority.ALWAYS);
@@ -86,7 +79,7 @@ public class InternField extends HBox {
 
            
                     System.out.println(InternField.this.getName() + " anrufen mit dem Anton aus Tirol");
-                    InternField.this.call();
+                    InternField.this.call(InternField.this.getNumber()+"");
                     event.consume(); // do nothing
                
             }
@@ -109,7 +102,7 @@ public class InternField extends HBox {
         call.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                InternField.this.call();
+                InternField.this.call(InternField.this.getNumber()+"");
                 contextMenu.hide();
 
             }
@@ -204,7 +197,7 @@ public class InternField extends HBox {
         return count;
     }
 
-    public int getNumber() {
+    public String getNumber() {
         return number;
     }
 
@@ -231,9 +224,10 @@ public class InternField extends HBox {
         }
     }
 
-    private void call() {
+    private void call(String number) {
         //TO IMPLEMENT
-        somo.sendBack("001");
+    
+        con.getSomo().sendBack("003"+con.getOwnExtension()+":"+number);
    }
 
 }

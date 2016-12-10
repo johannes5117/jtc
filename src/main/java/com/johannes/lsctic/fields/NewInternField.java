@@ -44,7 +44,7 @@ public class NewInternField extends HBox{
         this.setAlignment(Pos.CENTER);
         this.getChildren().add(imgBox);
         v.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent event) -> {
-            int number = Integer.valueOf(extension.getText());
+            String number = extension.getText();
             PhoneNumber p = new PhoneNumber(true, number, name.getText(), 0);
            aThis.addInternAndUpdate(p);
            event.consume();

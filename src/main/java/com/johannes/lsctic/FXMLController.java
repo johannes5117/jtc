@@ -70,13 +70,15 @@ public class FXMLController implements Initializable {
     @FXML
     private ScrollPane scrollPaneA;
 
+    private int ownExtension;
     private OptionsStorage storage;
-    private HashMap<Integer, InternField> internFields;
-    private Map<Integer, PhoneNumber> internNumbers;
+    private HashMap<String, InternField> internFields;
+    private Map<String, PhoneNumber> internNumbers;
     private SqlLiteConnection sqlCon;
     private String quickdialString;
     private Tooltip customTooltip;
     private ServerConnectionHandler somo;
+    private ArrayList<HistoryField> hFields;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -91,7 +93,7 @@ public class FXMLController implements Initializable {
         panelB.setSpacing(3);
         panelC.setSpacing(3);
         
-
+        ownExtension = 201;
         internNumbers = sqlCon.getInterns();
         
         
@@ -122,17 +124,19 @@ public class FXMLController implements Initializable {
          }
          }
          });*/
+        
+        
+        
         internFields = new HashMap();
         internNumbers.entrySet().stream().forEach((g) -> {
-            internFields.put(g.getKey(),new InternField(g.getValue().getName(), g.getValue().getCount(), g.getKey(), somo,this));
+            internFields.put(g.getKey(),new InternField(g.getValue().getName(), g.getValue().getCount(), g.getKey(),this));
         });
-        
-        try {
-            somo = new ServerConnectionHandler(internFields);
+         try {
+            somo = new ServerConnectionHandler(internFields, this);
         } catch (IOException ex) {
             Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+       somo.sendBack("004201");
         updateAnzeige(new ArrayList<>(internFields.values()));
         
         
@@ -176,18 +180,8 @@ public class FXMLController implements Initializable {
             updateLdapFields(ld1);
         });
 
-        ArrayList<HistoryField> hFields = new ArrayList();
-        hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", true));
-        hFields.add(new HistoryField("Johannes Engler", "12.12.16 15:30", "10 min", true));
-        hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", true));
-        hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", false));
-        hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", true));
-        hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", true));
-        hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", true));
-        hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", false));
-        hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", true));
-        hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", true));
-        hFields.add(new HistoryField("Johannes Engler", "Gestern", "10 min", true));
+        hFields = new ArrayList();
+        
 
         panelC.getChildren().addAll(hFields);
 
@@ -202,23 +196,28 @@ public class FXMLController implements Initializable {
         selectionModel.clearSelection(); //clear your selection
     }
 
-    private ArrayList<InternField> generiereReduziertesSet(Map<Integer, PhoneNumber> internNumbers, String val) {
+    private ArrayList<InternField> generiereReduziertesSet(Map<String, PhoneNumber> internNumbers, String val) {
         ArrayList<InternField> out = new ArrayList<>();
         internNumbers.entrySet().stream().filter((g) -> (g.getValue().getName().toLowerCase().contains(val.toLowerCase()))).forEach((g) -> {
-            out.add(new InternField(g.getValue().getName(), g.getValue().getCount(), g.getKey(), somo,this));
+            out.add(new InternField(g.getValue().getName(), g.getValue().getCount(), g.getKey(),this));
         });
         return out;
     }
 
     public void addInternAndUpdate(PhoneNumber p) {
         if(!internFields.containsKey(p.getPhoneNumber())) {
-        sqlCon.queryNoReturn("Insert into internfields (number,name,callcount,favorit) values ("+p.getPhoneNumber()+",'"+p.getName()+"',"+p.getCount()+",0)");
+        sqlCon.queryNoReturn("Insert into internfields (number,name,callcount,favorit) values ('"+p.getPhoneNumber()+"','"+p.getName()+"',"+p.getCount()+",0)");
         internNumbers.put(p.getPhoneNumber(), p);
-        internFields.put(p.getPhoneNumber(), new InternField(p.getName(), p.getCount(), p.getPhoneNumber(), somo, this));
+        internFields.put(p.getPhoneNumber(), new InternField(p.getName(), p.getCount(), p.getPhoneNumber(), this));
         updateAnzeige(new ArrayList<>(internFields.values()));
         } else {
             //FIXME Fehler
         }
+    }
+    public void addCdrAndUpdate(HistoryField f) {
+        hFields.add(f);
+        panelC.getChildren().clear();
+        panelC.getChildren().addAll(hFields);
     }
     public void removeInternAndUpdate(InternField f) {
         sqlCon.queryNoReturn("Delete from internfields where number="+f.getNumber()+"");
@@ -294,5 +293,14 @@ public class FXMLController implements Initializable {
             }, 1000, 1000);
         }
     }
+
+    public int getOwnExtension() {
+        return ownExtension;
+    }
+
+    public ServerConnectionHandler getSomo() {
+        return somo;
+    }
+    
 
 }

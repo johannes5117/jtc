@@ -11,11 +11,11 @@ package com.johannes.lsctic;
  */
 public class PhoneNumber {
     private boolean intern;
-    private int phoneNumber;
+    private String phoneNumber;
     private String name;
     private int count;
 
-    public PhoneNumber(boolean intern, int phoneNumber, String name, int count) {
+    public PhoneNumber(boolean intern, String phoneNumber, String name, int count) {
         this.intern = intern;
         this.phoneNumber = phoneNumber;
         this.name = name;
@@ -26,7 +26,7 @@ public class PhoneNumber {
         return intern;
     }
 
-    public int getPhoneNumber() {
+    public String getPhoneNumber() {
         return phoneNumber;
     }
 
@@ -42,7 +42,7 @@ public class PhoneNumber {
         this.intern = intern;
     }
 
-    public void setPhoneNumber(int phoneNumber) {
+    public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 

@@ -5,8 +5,8 @@
  */
 package com.johannes.lsctic.amiapi;
 
-import apple.laf.JRSUIUtils;
-import com.johannes.lsctic.PhoneNumber;
+import com.johannes.lsctic.FXMLController;
+import com.johannes.lsctic.fields.HistoryField;
 import com.johannes.lsctic.fields.InternField;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,12 +27,14 @@ public class ServerConnectionHandler {
     private final int port = 12350;
     private final Socket s;
     private ClientThread t;
-    private final Map<Integer, InternField> internNumbers;
-    public ServerConnectionHandler(Map<Integer, InternField> internNumbers) throws IOException {
+    private final Map<String, InternField> internNumbers;
+    private FXMLController fcont;
+    public ServerConnectionHandler(Map<String, InternField> internNumbers, FXMLController fcont) throws IOException {
         s = new Socket(adresse, port); 
          t = new ClientThread(s);
         new Thread(t).start();
         this.internNumbers = internNumbers;
+        this.fcont = fcont;
     }
     public void sendBack(String msg) {
         t.sendBack(msg);
@@ -74,13 +76,13 @@ public class ServerConnectionHandler {
                             System.out.println("Erfolgreich Verbunden");
                             break;
                         default:
-                            int op = Integer.valueOf(chatInput.substring(0, 2));
+                            int op = Integer.valueOf(chatInput.substring(0, 3));
                             String param = chatInput.substring(3,chatInput.length());
-                            System.out.println(op);
+                            Logger.getLogger(getClass().getName()).info(chatInput);
                             switch(op) {
                                 case 0: {
                                     String[] d = param.split(":");
-                                    int intern = Integer.valueOf(d[0]);
+                                    String intern = d[0];
                                     int status = Integer.valueOf(d[1]);
                                     internNumbers.get(intern).setStatus(status);
                                     break;
@@ -93,13 +95,16 @@ public class ServerConnectionHandler {
                                     Long duration = Long.parseLong(d[3]);
                                     int disposition = Integer.valueOf(d[4]);
                                     System.out.println("CDR: von: "+source+" nach: "+destinatnion+" am "+startTime.toString()+" dauer "+ duration+" dispo: "+disposition);
-                                    break;
+                                    if(source.equals(fcont.getOwnExtension()+"")){
+                                        fcont.addCdrAndUpdate(new HistoryField(destinatnion, startTime.toString(), duration.toString(), true));
+                                    } else {
+                                        fcont.addCdrAndUpdate(new HistoryField(destinatnion, startTime.toString(), duration.toString(), false));
+                                    }
                                 }
                                 default:
                                     System.out.println("i liegt nicht zwischen null und drei");
                             }   break;
                     }
-                    System.out.println(chatInput);
                 }
                 threadSocket.close();
             } catch(IOException exception) {
@@ -108,8 +113,10 @@ public class ServerConnectionHandler {
         }
         private void sendBack(String msg) {
             try {
+                System.out.println("abfrage geht raus: "+msg);
                 output = new PrintWriter(threadSocket.getOutputStream(), true);
                 output.println(msg);
+                output.flush();
             } catch (IOException ex) {
                 Logger.getLogger(ServerConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
             }

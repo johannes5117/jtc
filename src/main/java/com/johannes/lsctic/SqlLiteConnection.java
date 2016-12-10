@@ -162,8 +162,8 @@ public class SqlLiteConnection {
         return connection;
     }
 
-    Map<Integer, PhoneNumber> getInterns() {
-        Map<Integer, PhoneNumber> internNumbers = new TreeMap<>();
+    Map<String, PhoneNumber> getInterns() {
+        Map<String, PhoneNumber> internNumbers = new TreeMap<>();
         
         Statement statement;
         try {
@@ -172,7 +172,7 @@ public class SqlLiteConnection {
             ResultSet rs = statement.executeQuery("select * from internfields");
        
             while(rs.next()) {
-                internNumbers.put(rs.getInt(2), new PhoneNumber(true, rs.getInt(2), rs.getString(3), rs.getInt(4)));
+                internNumbers.put(rs.getString(2), new PhoneNumber(true, rs.getString(2), rs.getString(3), rs.getInt(4)));
             }
             
         } catch (SQLException ex) {
