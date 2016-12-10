@@ -8,6 +8,7 @@ package com.johannes.lsctic;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -24,7 +25,7 @@ public class SqlLiteConnection {
 
     private Connection connection;
     private Connection localConnection;
-    private final static String JDBC = "jdbc:sqlite:";
+    private static final String JDBC = "jdbc:sqlite:";
 
     /**
      * Beispiel database: "settingsAndData.db"
@@ -153,11 +154,13 @@ public class SqlLiteConnection {
  * @return 
  */
     public ResultSet selectWhere(String attribut, String table, String whereAttribut, String whereValue) {
-        Statement statement = null;
+        PreparedStatement statement = null;
         try {
-            statement = connection.createStatement();
+            String state = "select " + attribut + " from " + table + " where " + whereAttribut + "=?";
+            statement = connection.prepareStatement(state);
+            statement.setString(1, whereValue);
             statement.setQueryTimeout(10);
-            return statement.executeQuery("select " + attribut + " from " + table + " where " + whereAttribut + "=" + whereValue + "");
+            return statement.executeQuery();
         } catch (SQLException ex) {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
             return null;
@@ -178,11 +181,13 @@ public class SqlLiteConnection {
  * @return 
  */
     public ResultSet select(String attribut, String table) {
-        Statement statement = null;
+        PreparedStatement statement = null;
         try {
-            statement = connection.createStatement();
+            String state = "select " + attribut + " from ?";
+            statement = connection.prepareStatement(state);
             statement.setQueryTimeout(10);
-            return statement.executeQuery("select " + attribut + " from " + table);
+            statement.setString(1, table);
+            return statement.executeQuery();
         } catch (SQLException ex) {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
             return null;
