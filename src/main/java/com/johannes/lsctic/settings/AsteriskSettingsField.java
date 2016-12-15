@@ -6,7 +6,6 @@
 package com.johannes.lsctic.settings;
 
 import com.johannes.lsctic.OptionsStorage;
-import com.sun.org.apache.xml.internal.security.keys.storage.StorageResolver;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
