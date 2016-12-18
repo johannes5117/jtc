@@ -96,7 +96,6 @@ public class DeploymentSettingsField extends SettingsField {
         Button b2 = new Button();
         b2.setOnAction((ActionEvent event) -> {
             getStorage().accept();
-            String g = f.getText().trim();
             createInternDatasets(v);
         });
         b2.setText("Start");
@@ -107,7 +106,7 @@ public class DeploymentSettingsField extends SettingsField {
         DirectoryChooser c = new DirectoryChooser();
         File d = c.showDialog((Stage) v.getParent().getScene().getWindow());
         if (d != null) {
-            interns.stream().forEach((mit) -> {
+            interns.stream().forEach(mit -> {
                 boolean success = (new File(d.getAbsolutePath() + "/" + mit.getName() + " (" + mit.getExtension() + ")")).mkdirs();
                 if (!success) {
                     Logger.getLogger(getClass().getName()).info("Konnte einen Ordner nicht erstellen");
@@ -117,14 +116,14 @@ public class DeploymentSettingsField extends SettingsField {
                     sql.writeInternsToDatabase(interns);
                 } catch (SQLException ex) {
                     Logger.getLogger(getClass().getName()).info("Konnte nicht in die Interns Datenbank schreiben");
-                    Logger.getLogger(getClass().getName()).info(ex.getLocalizedMessage());
+                    Logger.getLogger(getClass().getName()).info((Supplier<String>) ex);
                 }
                 HashMap settings = (HashMap) generateHashmap(mit, true);
                 try {
                     sql.writeSettingsToDatabase(settings);
                 } catch (SQLException ex) {
                     Logger.getLogger(getClass().getName()).info("Konnte nicht in die Interns Datenbank schreiben");
-                    Logger.getLogger(getClass().getName()).info(ex.getLocalizedMessage());
+                    Logger.getLogger(getClass().getName()).info((Supplier<String>) ex);
                 }
             });
         }
