@@ -7,11 +7,13 @@ package com.johannes.lsctic;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -23,18 +25,18 @@ import javafx.scene.control.Button;
  */
 public class OptionsStorage {
 
-    private String amiAdress = "";        //AMI Server Adresse
-    private int amiServerPort = 0;       //AMI Server Port
-    private String amiLogIn = "";         //AMI Login
-    private String amiPassword = "";      //AMI Password
-    private String ldapAdress = "";       //LDAP Server Adresse
-    private int ldapServerPort = 0;      //LDAP Server Port
-    private String ldapSearchBase = "";   //LDAP Suchbasis
-    private String ldapBase = "";         //LDAP Basis
-    private int ldapSearchAmount = 0;       //Amount of Entrys that will be loaded 
-    private String ownExtension = "";     // eigene Extension asterisk
-    private boolean activated = false;       // Aktiv
-    private long time = 0;               // TimeStamp
+    private String amiAdress;        //AMI Server Adresse
+    private int amiServerPort;       //AMI Server Port
+    private String amiLogIn;         //AMI Login
+    private String amiPassword;      //AMI Password
+    private String ldapAdress;       //LDAP Server Adresse
+    private int ldapServerPort;      //LDAP Server Port
+    private String ldapSearchBase;   //LDAP Suchbasis
+    private String ldapBase;         //LDAP Basis
+    private int ldapSearchAmount;       //Amount of Entrys that will be loaded 
+    private String ownExtension;     // eigene Extension asterisk
+    private boolean activated;       // Aktiv
+    private long time;               // TimeStamp
     private ArrayList<String[]> ldapFields = new ArrayList<>();  // LDAP Felder mit Namen
 
     private String amiAdressTemp;        //AMI Server Adresse
@@ -160,19 +162,23 @@ public class OptionsStorage {
             ownExtension = statement.executeQuery("select setting from settings where description = 'ownExtension'").getString("setting");
             activated = Boolean.valueOf(statement.executeQuery("select setting from settings where description = 'activated'").getString("setting"));
             time = Long.valueOf(statement.executeQuery("select setting from settings where description = 'time'").getString("setting"));
-
+            
             String field = null;
             int i = 0;
-            field = statement.executeQuery("select setting from settings where description = 'ldapField" + i + "'").getString("setting");
-
+            String query = "select setting from settings where description = 'ldapField=?";
+            PreparedStatement statement2 = con.prepareStatement(query);
+            statement2.setInt(1, i); 
+            field = statement2.executeQuery().getString("setting");;
             ldapFields.add(field.split(";"));
-            System.out.println(ldapFields.get(i)[0] + " und " + ldapFields.get(i)[1]);
+            Logger.getLogger(getClass().getName()).log(Level.INFO, "{0} und {1}", new Object[]{ldapFields.get(i)[0], ldapFields.get(i)[1]});
             ++i;
             while (field != null) {
                 try {
-                    field = statement.executeQuery("select setting from settings where description = 'ldapField" + i + "'").getString("setting");
+                    PreparedStatement statement3 = con.prepareStatement(query);
+                    statement3.setInt(1, i); 
+                    field = statement3.executeQuery().getString("setting");
                     ldapFields.add(field.split(";"));
-                    System.out.println(ldapFields.get(i)[0] + " und " + ldapFields.get(i)[1]);
+                    Logger.getLogger(getClass().getName()).log(Level.INFO, "{0} und {1}", new Object[]{ldapFields.get(i)[0], ldapFields.get(i)[1]});
                     ++i;
                 } catch (SQLException e) {
                     System.out.println("nicht gefunden");
