@@ -1,6 +1,5 @@
 package com.johannes.lsctic.settings;
 
-import com.johannes.lsctic.LicenseVerification;
 import com.johannes.lsctic.OptionsStorage;
 import com.johannes.lsctic.deployment.Intern;
 import com.johannes.lsctic.deployment.SqlLiteDeployment;
@@ -11,10 +10,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -84,9 +83,9 @@ public class DeploymentSettingsField extends SettingsField {
                 }
                 br.close();
             } catch (FileNotFoundException e) {
-                Logger.getLogger("DeploymentSettingsField/loadCsv").info(e.getLocalizedMessage());
+                Logger.getLogger("DeploymentSettingsField/loadCsv").info((Supplier<String>) e);
             } catch (IOException e) {
-                Logger.getLogger("DeploymentSettingsField/loadCsv").info(e.getLocalizedMessage());
+                Logger.getLogger("DeploymentSettingsField/loadCsv").info((Supplier<String>) e);
             }
             return out;
         }
@@ -98,35 +97,37 @@ public class DeploymentSettingsField extends SettingsField {
         b2.setOnAction((ActionEvent event) -> {
             getStorage().accept();
             String g = f.getText().trim();
-            boolean activated = true;
-            DirectoryChooser c = new DirectoryChooser();
-            File d = c.showDialog((Stage) v.getParent().getScene().getWindow());
-            if (d != null) {
-                interns.stream().forEach((mit) -> {
-                    boolean success = (new File(d.getAbsolutePath() + "/" + mit.getName() + " (" + mit.getExtension() + ")")).mkdirs();
-                    if (!success) {
-                        Logger.getLogger(getClass().getName()).info("Konnte einen Ordner nicht erstellen");
-                    }
-                    SqlLiteDeployment sql = new SqlLiteDeployment(d.getAbsolutePath() + "/" + mit.getName() + " (" + mit.getExtension() + ")/settingsAndData.db");
-                    try {
-                        sql.writeInternsToDatabase(interns);
-                    } catch (SQLException ex) {
-                        Logger.getLogger(getClass().getName()).info("Konnte nicht in die Interns Datenbank schreiben");
-                        Logger.getLogger(getClass().getName()).info(ex.getLocalizedMessage());
-                    }
-                    HashMap settings = (HashMap) generateHashmap(mit, activated);
-                    try {
-                        sql.writeSettingsToDatabase(settings);
-                    } catch (SQLException ex) {
-                        Logger.getLogger(getClass().getName()).info("Konnte nicht in die Interns Datenbank schreiben");
-                        Logger.getLogger(getClass().getName()).info(ex.getLocalizedMessage());
-                    }
-                });
-
-            }
+            createInternDatasets(v);
         });
         b2.setText("Start");
         return b2;
+    }
+
+    public void createInternDatasets(VBox v) {
+        DirectoryChooser c = new DirectoryChooser();
+        File d = c.showDialog((Stage) v.getParent().getScene().getWindow());
+        if (d != null) {
+            interns.stream().forEach((mit) -> {
+                boolean success = (new File(d.getAbsolutePath() + "/" + mit.getName() + " (" + mit.getExtension() + ")")).mkdirs();
+                if (!success) {
+                    Logger.getLogger(getClass().getName()).info("Konnte einen Ordner nicht erstellen");
+                }
+                SqlLiteDeployment sql = new SqlLiteDeployment(d.getAbsolutePath() + "/" + mit.getName() + " (" + mit.getExtension() + ")/settingsAndData.db");
+                try {
+                    sql.writeInternsToDatabase(interns);
+                } catch (SQLException ex) {
+                    Logger.getLogger(getClass().getName()).info("Konnte nicht in die Interns Datenbank schreiben");
+                    Logger.getLogger(getClass().getName()).info(ex.getLocalizedMessage());
+                }
+                HashMap settings = (HashMap) generateHashmap(mit, true);
+                try {
+                    sql.writeSettingsToDatabase(settings);
+                } catch (SQLException ex) {
+                    Logger.getLogger(getClass().getName()).info("Konnte nicht in die Interns Datenbank schreiben");
+                    Logger.getLogger(getClass().getName()).info(ex.getLocalizedMessage());
+                }
+            });
+        }
     }
 
     public Map generateHashmap(Intern mit, boolean activated) {
