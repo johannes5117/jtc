@@ -11,7 +11,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -47,9 +50,7 @@ public class DeploymentSettingsField extends SettingsField {
         f2.setPromptText("Anzahl gekaufter Lizenzen (Beispiel: 10)");
 
         Button b = new Button();
-        b.setOnAction((ActionEvent event) -> {
-            interns = loadCSV((Stage) v.getParent().getScene().getWindow());
-        });
+        b.setOnAction((ActionEvent event) -> interns = (ArrayList<Intern>) loadCSV((Stage) v.getParent().getScene().getWindow()));
         b.setText("Deployment Datei");
 
         Button b2 = createButton(f, f2, v);
@@ -67,38 +68,29 @@ public class DeploymentSettingsField extends SettingsField {
         super.collapse();
     }
 
-    public static ArrayList<Intern> loadCSV(Stage stage) {
+    public static List<Intern> loadCSV(Stage stage) {
         ArrayList<Intern> out = new ArrayList();
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Mitarbeiter Liste (*.csv)", "*.csv");
         fileChooser.getExtensionFilters().add(extFilter);
         File file = fileChooser.showOpenDialog(stage);
         if (file != null) {
-            BufferedReader br = null;
-            try {
-                br = new BufferedReader(new FileReader(file));
+
+            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     String[] splittet = line.split(";");
                     out.add(new Intern(splittet[0], Integer.valueOf(splittet[1])));
                 }
+                br.close();
             } catch (FileNotFoundException e) {
-                Logger.getLogger("DeploymentSettingsField/loadCsv").info(e.getMessage());
+                Logger.getLogger("DeploymentSettingsField/loadCsv").info(e.getLocalizedMessage());
             } catch (IOException e) {
-                Logger.getLogger("DeploymentSettingsField/loadCsv").info(e.getMessage());
-            } finally {
-                if (br != null) {
-                    try {
-                        br.close();
-                    } catch (IOException e) {
-                        Logger.getLogger("DeploymentSettingsField/loadCsv").info(e.getMessage());
-                    }
-                }
+                Logger.getLogger("DeploymentSettingsField/loadCsv").info(e.getLocalizedMessage());
             }
-
             return out;
         }
-        return null;
+        return out;
     }
 
     public Button createButton(TextField f, TextField f2, VBox v) {
@@ -106,19 +98,7 @@ public class DeploymentSettingsField extends SettingsField {
         b2.setOnAction((ActionEvent event) -> {
             getStorage().accept();
             String g = f.getText().trim();
-            LicenseVerification veri = new LicenseVerification(g);
-            int i = 0;
-            try {
-                i = Integer.valueOf(f2.getText().trim());
-            } catch (Exception e) {
-                Logger.getLogger(getClass().getName()).info(e.getMessage());
-            }
-            if (i == veri.getLicenseCount() & veri.checkValid()) {
-                Logger.getLogger(getClass().getName()).info("Lizenz ist gültig");
-            } else {
-                Logger.getLogger(getClass().getName()).info("Lizenz ist nicht gültig");
-            }
-            boolean activated = veri.checkValid();
+            boolean activated = true;
             DirectoryChooser c = new DirectoryChooser();
             File d = c.showDialog((Stage) v.getParent().getScene().getWindow());
             if (d != null) {
@@ -132,25 +112,14 @@ public class DeploymentSettingsField extends SettingsField {
                         sql.writeInternsToDatabase(interns);
                     } catch (SQLException ex) {
                         Logger.getLogger(getClass().getName()).info("Konnte nicht in die Interns Datenbank schreiben");
-                        Logger.getLogger(getClass().getName()).info(ex.getMessage());
+                        Logger.getLogger(getClass().getName()).info(ex.getLocalizedMessage());
                     }
-                    HashMap<String, String> settings = new HashMap<>();
-                    settings.put("amiAdress", getStorage().getAmiAdress());
-                    settings.put("amiServerPort", "" + getStorage().getAmiServerPort());  //AMI Server Port
-                    settings.put("amiLogIn", getStorage().getAmiLogIn());  //AMI LogingetStorage().getAmiLogIn());  //AMI Login
-                    settings.put("amiPassword", getStorage().getAmiPassword());  //AMI Password
-                    settings.put("ldapAdress", getStorage().getLdapAdress());  //LDAP Server Adresse
-                    settings.put("ldapServerPort", "" + getStorage().getLdapServerPort());  //LDAP Server Port
-                    settings.put("ldapSearchBase", getStorage().getLdapSearchBase());  //LDAP Suchbasis
-                    settings.put("ldapBase", getStorage().getLdapBase());  //LDAP Basis
-                    settings.put("ownExtension", "" + mit.getExtension());  // ownExtension
-                    settings.put("activated", "" + activated);  // Aktiv
-                    settings.put("time", "" + System.currentTimeMillis());  // time
+                    HashMap settings = (HashMap) generateHashmap(mit, activated);
                     try {
                         sql.writeSettingsToDatabase(settings);
                     } catch (SQLException ex) {
                         Logger.getLogger(getClass().getName()).info("Konnte nicht in die Interns Datenbank schreiben");
-                        Logger.getLogger(getClass().getName()).info(ex.getMessage());
+                        Logger.getLogger(getClass().getName()).info(ex.getLocalizedMessage());
                     }
                 });
 
@@ -158,5 +127,21 @@ public class DeploymentSettingsField extends SettingsField {
         });
         b2.setText("Start");
         return b2;
+    }
+
+    public Map generateHashmap(Intern mit, boolean activated) {
+        HashMap<String, String> settings = new HashMap<>();
+        settings.put("amiAdress", getStorage().getAmiAdress());
+        settings.put("amiServerPort", "" + Integer.toString(getStorage().getAmiServerPort()));  //AMI Server Port
+        settings.put("amiLogIn", getStorage().getAmiLogIn());  //AMI LogingetStorage().getAmiLogIn());  //AMI Login
+        settings.put("amiPassword", getStorage().getAmiPassword());  //AMI Password
+        settings.put("ldapAdress", getStorage().getLdapAdress());  //LDAP Server Adresse
+        settings.put("ldapServerPort", "" + Integer.toString(getStorage().getLdapServerPort()));  //LDAP Server Port
+        settings.put("ldapSearchBase", getStorage().getLdapSearchBase());  //LDAP Suchbasis
+        settings.put("ldapBase", getStorage().getLdapBase());  //LDAP Basis
+        settings.put("ownExtension", "" + Integer.toString(mit.getExtension()));  // ownExtension
+        settings.put("activated", "" + Boolean.toString(activated));  // Aktiv
+        settings.put("time", "" + Long.toString(System.currentTimeMillis()));  // time
+        return settings;
     }
 }
