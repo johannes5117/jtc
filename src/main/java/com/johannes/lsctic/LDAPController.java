@@ -6,6 +6,7 @@
 package com.johannes.lsctic;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -65,9 +66,12 @@ public class LDAPController {
         ArrayList<LDAPEntry> aus = new ArrayList<>();
         SearchControls sc = new SearchControls();
         String[] attributeFilter = new String[storage.getLdapFields().size()];
+        Logger.getLogger(getClass().getName()).log(Level.INFO, Arrays.toString(attributeFilter));
+
         int i = 0;
         String filter="(|";
         for(String[] s : storage.getLdapFields()) {
+            Logger.getLogger(getClass().getName()).log(Level.INFO, Arrays.toString(s));
             attributeFilter[i] = s[0];
             filter = filter + "("+s[0]+"="+ein+"*)";
             ++i;

@@ -8,10 +8,12 @@ package com.johannes.lsctic;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -111,34 +113,32 @@ public class OptionsStorage {
     public void writeSettingsToDatabase() {
         try {
 
-            Connection con = DriverManager.getConnection("jdbc:sqlite:" + "settingsAndData.db");
-
-            Statement statement = con.createStatement();
-            statement.setQueryTimeout(10);
-            statement.executeUpdate("UPDATE Settings SET setting = '" + amiAdress + "' WHERE description = 'amiAdress'");
-            statement.executeUpdate("UPDATE Settings SET Setting = '" + amiServerPort + "' WHERE description = 'amiServerPort'");
-            statement.executeUpdate("UPDATE Settings SET Setting = '" + amiLogIn + "' WHERE description = 'amiLogIn'");
-            statement.executeUpdate("UPDATE Settings SET Setting = '" + amiPassword + "' WHERE description = 'amiPassword'");
-            statement.executeUpdate("UPDATE Settings SET Setting = '" + ldapAdress + "' WHERE description = 'ldapAdress'");
-            statement.executeUpdate("UPDATE Settings SET Setting = '" + ldapServerPort + "' WHERE description = 'ldapServerPort'");
-            statement.executeUpdate("UPDATE Settings SET Setting = '" + ldapSearchBase + "' WHERE description = 'ldapSearchBase'");
-            statement.executeUpdate("UPDATE Settings SET Setting = '" + ldapBase + "' WHERE description = 'ldapBase'");
-            statement.executeUpdate("UPDATE Settings SET Setting = '" + ldapSearchAmount + "' WHERE description = 'ldapSearchAmount'");
-
-            //   statement.executeUpdate("UPDATE Settings SET Setting = '"+ownExtension+"' WHERE description = 'ownExtension'");
-            //   statement.executeUpdate("UPDATE Settings SET Setting = '"+activated+"' WHERE description = 'activated'");
-            //   statement.executeUpdate("UPDATE Settings SET Setting = '"+time+"' WHERE description = 'time'");
-            int i = 0;
-            statement.execute("Delete from Settings where description LIKE '%ldapField%'");
-            int max = statement.executeQuery("SELECT * FROM Settings ORDER BY id DESC LIMIT 1").getInt("id");
-            ++max;
-            for (String[] s : ldapFields) {
-                statement.execute("insert into settings values("+max+", '"+ s[0] + ";" + s[1] +"', 'ldapField" + i + "')");
+            try (Connection con = DriverManager.getConnection("jdbc:sqlite:" + "settingsAndData.db")) {
+                Statement statement = con.createStatement();
+                statement.setQueryTimeout(10);
+                statement.executeUpdate("UPDATE Settings SET setting = '" + amiAdress + "' WHERE description = 'amiAdress'");
+                statement.executeUpdate("UPDATE Settings SET Setting = '" + amiServerPort + "' WHERE description = 'amiServerPort'");
+                statement.executeUpdate("UPDATE Settings SET Setting = '" + amiLogIn + "' WHERE description = 'amiLogIn'");
+                statement.executeUpdate("UPDATE Settings SET Setting = '" + amiPassword + "' WHERE description = 'amiPassword'");
+                statement.executeUpdate("UPDATE Settings SET Setting = '" + ldapAdress + "' WHERE description = 'ldapAdress'");
+                statement.executeUpdate("UPDATE Settings SET Setting = '" + ldapServerPort + "' WHERE description = 'ldapServerPort'");
+                statement.executeUpdate("UPDATE Settings SET Setting = '" + ldapSearchBase + "' WHERE description = 'ldapSearchBase'");
+                statement.executeUpdate("UPDATE Settings SET Setting = '" + ldapBase + "' WHERE description = 'ldapBase'");
+                statement.executeUpdate("UPDATE Settings SET Setting = '" + ldapSearchAmount + "' WHERE description = 'ldapSearchAmount'");
+                
+                //   statement.executeUpdate("UPDATE Settings SET Setting = '"+ownExtension+"' WHERE description = 'ownExtension'");
+                //   statement.executeUpdate("UPDATE Settings SET Setting = '"+activated+"' WHERE description = 'activated'");
+                //   statement.executeUpdate("UPDATE Settings SET Setting = '"+time+"' WHERE description = 'time'");
+                int i = 0;
+                statement.execute("Delete from Settings where description LIKE '%ldapField%'");
+                int max = statement.executeQuery("SELECT * FROM Settings ORDER BY id DESC LIMIT 1").getInt("id");
                 ++max;
-                ++i;
+                for (String[] s : ldapFields) {
+                    statement.execute("insert into settings values(" + max + ", '" + s[0] + ";" + s[1] + "', 'ldapField" + i + "')");
+                    ++max;
+                    ++i;
+                }
             }
-
-            con.close();
         } catch (SQLException ex) {
             System.out.println(ex + " in writeSEttingsToDatabase in OptionStorage");
         }
@@ -146,110 +146,87 @@ public class OptionsStorage {
 
     public void readSettingsFromDatabase() {
         try {
-            Connection con = DriverManager.getConnection("jdbc:sqlite:" + "settingsAndData.db");
-            Statement statement = con.createStatement();
-            statement.setQueryTimeout(10);
-
-            amiAdress = statement.executeQuery("select setting from settings where description = 'amiAdress'").getString("setting");
-            amiServerPort = Integer.valueOf(statement.executeQuery("select setting from settings where description = 'amiServerPort'").getString("setting"));
-            amiLogIn = statement.executeQuery("select setting from settings where description = 'amiLogIn'").getString("setting");
-            amiPassword = statement.executeQuery("select setting from settings where description = 'amiPassword'").getString("setting");
-            ldapAdress = statement.executeQuery("select setting from settings where description = 'ldapAdress'").getString("setting");
-            ldapServerPort = Integer.valueOf(statement.executeQuery("select setting from settings where description = 'ldapServerPort'").getString("setting"));
-            ldapSearchBase = statement.executeQuery("select setting from settings where description = 'ldapSearchBase'").getString("setting");
-            ldapBase = statement.executeQuery("select setting from settings where description = 'ldapBase'").getString("setting");
-            ldapSearchAmount = Integer.valueOf(statement.executeQuery("select setting from settings where description = 'ldapSearchAmount'").getString("setting"));
-            ownExtension = statement.executeQuery("select setting from settings where description = 'ownExtension'").getString("setting");
-            activated = Boolean.valueOf(statement.executeQuery("select setting from settings where description = 'activated'").getString("setting"));
-            time = Long.valueOf(statement.executeQuery("select setting from settings where description = 'time'").getString("setting"));
+            try (Connection con = DriverManager.getConnection("jdbc:sqlite:" + "settingsAndData.db"); Statement statement = con.createStatement()) {
+                statement.setQueryTimeout(10);
+                
+                //Safely read in all Settings. If a setting isnt found a default value will be taken
+                ResultSet amiAdressRS = statement.executeQuery("select setting from settings where description = 'amiAdress'");
+                amiAdress = ((amiAdressRS.next() == false) ? "localhost" : amiAdressRS.getString("setting"));
+                
+                ResultSet amiServerPortRS = statement.executeQuery("select setting from settings where description = 'amiServerPort'");
+                amiServerPort = Integer.valueOf(((amiServerPortRS.next() == false) ? "12350" : amiServerPortRS.getString("setting")));
+                
+                ResultSet amiLogInRS = statement.executeQuery("select setting from settings where description = 'amiLogIn'");
+                amiLogIn = ((amiLogInRS.next() == false) ? "admin" : amiLogInRS.getString("setting"));
+                
+                ResultSet amiPasswordRS = statement.executeQuery("select setting from settings where description = 'amiPassword'");
+                amiPassword = ((amiPasswordRS.next() == false) ? "" : amiPasswordRS.getString("setting"));
+                
+                ResultSet ldapAdressRS = statement.executeQuery("select setting from settings where description = 'ldapAdress'");
+                ldapAdress = ((ldapAdressRS.next() == false) ? "192.168.178.66" : ldapAdressRS.getString("setting"));
+                
+                ResultSet ldapServerPortRS = statement.executeQuery("select setting from settings where description = 'ldapServerPort'");
+                ldapServerPort = Integer.valueOf(((ldapServerPortRS.next() == false) ? "389" : ldapServerPortRS.getString("setting")));
+                
+                ResultSet ldapSearchBaseRS = statement.executeQuery("select setting from settings where description = 'ldapSearchBase'");
+                ldapSearchBase = ((ldapSearchBaseRS.next() == false) ? "cn=ldapDocker" : ldapSearchBaseRS.getString("setting"));
+                
+                ResultSet ldapBaseRS = statement.executeQuery("select setting from settings where description = 'ldapBase'");
+                ldapBase = ((ldapBaseRS.next() == false) ? "ou=people" : ldapBaseRS.getString("setting"));
+                
+                ResultSet ldapSearchAmountRS = statement.executeQuery("select setting from settings where description = 'ldapSearchAmount'");
+                ldapSearchAmount = Integer.valueOf(((ldapSearchAmountRS.next() == false) ? "10" : ldapSearchAmountRS.getString("setting")));
+                
+                ResultSet ownExtensionRS = statement.executeQuery("select setting from settings where description = 'ownExtension'");
+                ownExtension = ((ownExtensionRS.next() == false) ? "201" : ownExtensionRS.getString("setting"));
+                
+                ResultSet timeRS = statement.executeQuery("select setting from settings where description = 'time'");
+                time = Long.valueOf(((timeRS.next() == false) ? System.currentTimeMillis() + "" : timeRS.getString("setting")));
+                
             
-            String field = null;
-            int i = 0;
-            String query = "select setting from settings where description = 'ldapField=?";
-            PreparedStatement statement2 = con.prepareStatement(query);
-            statement2.setInt(1, i); 
-            field = statement2.executeQuery().getString("setting");;
-            ldapFields.add(field.split(";"));
-            Logger.getLogger(getClass().getName()).log(Level.INFO, "{0} und {1}", new Object[]{ldapFields.get(i)[0], ldapFields.get(i)[1]});
-            ++i;
-            while (field != null) {
-                try {
-                    PreparedStatement statement3 = con.prepareStatement(query);
-                    statement3.setInt(1, i); 
-                    field = statement3.executeQuery().getString("setting");
-                    ldapFields.add(field.split(";"));
-                    Logger.getLogger(getClass().getName()).log(Level.INFO, "{0} und {1}", new Object[]{ldapFields.get(i)[0], ldapFields.get(i)[1]});
-                    ++i;
-                } catch (SQLException e) {
-                    System.out.println("nicht gefunden");
-                    break;
+                int i = 1;
+                String quField = "ldapField=";
+                String query = "select setting from settings where description = ?";
+                
+                while(true) {
+                    PreparedStatement statement2 = con.prepareStatement(query);
+                    statement2.setString(1, quField + i);
+                
+                    Logger.getLogger(getClass().getName()).log(Level.INFO, "{0}{1}", new Object[]{quField, i});
+                
+                    ResultSet fieldRS = statement2.executeQuery();
+                    if(fieldRS.next()==true){
+                        Logger.getLogger(getClass().getName()).log(Level.INFO, "Gefunden");
+                                
+                        String field = fieldRS.getString("setting");
+                       ldapFields.add(field.split(";"));
+                         ++i;
+                    } else {
+                                                Logger.getLogger(getClass().getName()).log(Level.INFO, "Break");
+
+                        break;
+                    }
+                }
+                amiAdressTemp = amiAdress;
+                amiServerPortTemp = amiServerPort;
+                amiLogInTemp = amiLogIn;
+                amiPasswordTemp = amiPassword;
+                ldapAdressTemp = ldapAdress;
+                ldapServerPortTemp = ldapServerPort;
+                ldapSearchBaseTemp = ldapSearchBase;
+                ldapBaseTemp = ldapBase;
+                ldapSearchAmountTemp = ldapSearchAmount;
+                ownExtensionTemp = ownExtension;
+                timeTemp = time;
+                
+                for (String[] p : ldapFields) {
+                    String[] g = {p[0], p[1]};
+                    ldapFieldsTemp.add(g);
                 }
             }
 
-            amiAdressTemp = amiAdress;
-            amiServerPortTemp = amiServerPort;
-            amiLogInTemp = amiLogIn;
-            amiPasswordTemp = amiPassword;
-            ldapAdressTemp = ldapAdress;
-            ldapServerPortTemp = ldapServerPort;
-            ldapSearchBaseTemp = ldapSearchBase;
-            ldapBaseTemp = ldapBase;
-            ldapSearchAmountTemp = ldapSearchAmount;
-            ownExtensionTemp = ownExtension;
-            activatedTemp = activated;
-            timeTemp = time;
-
-            for (String[] p : ldapFields) {
-                String[] g = {p[0], p[1]};
-                ldapFieldsTemp.add(g);
-            }
-            statement.close();
-            con.close();
-
-            /* Funktioniert ist aber nicht schön
-             ResultSet rs = statement.executeQuery("select * from settings");
-             while (rs.next()) {
-             String description = rs.getString("description");
-             if(description.equals("AMI Server Adresse")) {
-             System.out.println("Ja");
-             amiAdress = rs.getString("setting");
-             } else if(description.equals("AMI Server Port")){
-             System.out.println("Ja 2");
-             amiServerPort = Integer.valueOf(rs.getString("setting"));
-             } else if(description.equals("AMI Login")) {
-             System.out.println("Ja 3");
-             amiLogIn = rs.getString("setting");
-             } else if(description.equals("AMI Password")){
-             System.out.println("Ja 4");
-             amiPassword = rs.getString("setting");
-             } else if(description.equals("LDAP Server Adresse")){
-             System.out.println("Ja 5");     
-             ldapAdress = rs.getString("setting");
-             } else if(description.equals("LDAP Server Port")){
-             System.out.println("Ja 6");
-             ldapServerPort = Integer.valueOf(rs.getString("setting"));
-             } else if(description.equals("LDAP Suchbasis")){
-             System.out.println("Ja 7");
-             ldapSearchBase = rs.getString("setting");
-             } else if(description.equals("LDAP Basis")){
-             System.out.println("Ja 8");          
-             ldapBase = rs.getString("setting");
-             } else if(description.equals("Aktiv")){
-             System.out.println("Ja 9");
-             activated = Boolean.valueOf(rs.getString("setting"));
-             } else if(description.equals("Beginn")){
-             System.out.println("Ja 10");
-             time = Long.valueOf(rs.getString("setting"));
-             } else if(description.equals("ownExtension")){
-             System.out.println("Ja 11");
-             ownExtension = rs.getString("setting");
-             }  
-                   
-             }
-             */
         } catch (SQLException ex) {
-            System.out.println(ex + " in readSettingsFromDatabase in OptionStorage");
-            System.out.println(ex.getMessage());
+            Logger.getLogger(getClass().getName()).log(Level.WARNING, ex.toString());
         }
     }
 
@@ -318,14 +295,6 @@ public class OptionsStorage {
         this.ldapBase = ldapBase;
     }
 
-    public boolean isActivated() {
-        return activated;
-    }
-
-    public void setActivated(boolean activated) {
-        this.activated = activated;
-    }
-
     public void setAmiAdressTemp(String amiAdressTemp) {
         this.amiAdressTemp = amiAdressTemp;
     }
@@ -356,10 +325,6 @@ public class OptionsStorage {
 
     public void setLdapBaseTemp(String ldapBaseTemp) {
         this.ldapBaseTemp = ldapBaseTemp;
-    }
-
-    public void setActivatedTemp(boolean activatedTemp) {
-        this.activatedTemp = activatedTemp;
     }
 
     public String getOwnExtension() {
@@ -394,15 +359,13 @@ public class OptionsStorage {
         this.ldapSearchAmount = ldapSearchAmount;
     }
 
-
     public void setLdapSearchAmountTemp(int ldapSearchAmountTemp) {
         this.ldapSearchAmountTemp = ldapSearchAmountTemp;
     }
-    
 
     @Override
     public String toString() {
-        return "OptionsStorage{" + "amiAdress=" + amiAdress + ", amiServerPort=" + amiServerPort + ", amiLogIn=" + amiLogIn + ", amiPassword=" + amiPassword + ", ldapAdress=" + ldapAdress + ", ldapServerPort=" + ldapServerPort + ", ldapSearchBase=" + ldapSearchBase + ", ldapBase=" + ldapBase + ", ownExtension=" + ownExtension + ", activated=" + activated + ", time=" + time + ", amiAdressTemp=" + amiAdressTemp + ", amiServerPortTemp=" + amiServerPortTemp + ", amiLogInTemp=" + amiLogInTemp + ", amiPasswordTemp=" + amiPasswordTemp + ", ldapAdressTemp=" + ldapAdressTemp + ", ldapServerPortTemp=" + ldapServerPortTemp + ", ldapSearchBaseTemp=" + ldapSearchBaseTemp + ", ldapBaseTemp=" + ldapBaseTemp + ", ownExtensionTemp=" + ownExtensionTemp + ", activatedTemp=" + activatedTemp + ", timeTemp=" + timeTemp + '}';
+        return "OptionsStorage{" + "amiAdress=" + amiAdress + ", amiServerPort=" + amiServerPort + ", amiLogIn=" + amiLogIn + ", amiPassword=" + amiPassword + ", ldapAdress=" + ldapAdress + ", ldapServerPort=" + ldapServerPort + ", ldapSearchBase=" + ldapSearchBase + ", ldapBase=" + ldapBase + ", ownExtension=" + ownExtension + ", time=" + time + ", amiAdressTemp=" + amiAdressTemp + ", amiServerPortTemp=" + amiServerPortTemp + ", amiLogInTemp=" + amiLogInTemp + ", amiPasswordTemp=" + amiPasswordTemp + ", ldapAdressTemp=" + ldapAdressTemp + ", ldapServerPortTemp=" + ldapServerPortTemp + ", ldapSearchBaseTemp=" + ldapSearchBaseTemp + ", ldapBaseTemp=" + ldapBaseTemp + ", ownExtensionTemp=" + ownExtensionTemp + ", activatedTemp=" + activatedTemp + ", timeTemp=" + timeTemp + '}';
     }
 
     public ArrayList<String[]> getLdapFields() {
@@ -424,7 +387,7 @@ public class OptionsStorage {
                 System.out.println("Remove");
             }
         }
-        for(String[] g : ldapFieldsTemp) {
+        for (String[] g : ldapFieldsTemp) {
             System.out.println(g[0]);
         }
 
@@ -433,23 +396,23 @@ public class OptionsStorage {
     public boolean addToLdapFieldsTemp(String cn, String field) {
         System.out.println("HA");
         String[] a = {cn, field};
-       
-        for(String[] b : ldapFieldsTemp) {
-            
-            if(a[0].equals(b[0]) | a[1].equals(b[1])) {
+
+        for (String[] b : ldapFieldsTemp) {
+
+            if (a[0].equals(b[0]) | a[1].equals(b[1])) {
                 System.out.println("Schon vorhanden");
                 return false;
             }
-            
+
         }
-        
-            ldapFieldsTemp.add(a);
-for(String[] b : ldapFieldsTemp) {
-            
-           System.out.println(b[0] +" "+ b[1]);
-            
+
+        ldapFieldsTemp.add(a);
+        for (String[] b : ldapFieldsTemp) {
+
+            System.out.println(b[0] + " " + b[1]);
+
         }
-              return true;
+        return true;
     }
 
 }

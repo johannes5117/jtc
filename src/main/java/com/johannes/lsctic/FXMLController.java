@@ -96,7 +96,6 @@ public class FXMLController implements Initializable {
         ownExtension = 201;
         internNumbers = sqlCon.getInterns();
         
-        System.out.println("sdasdf");
         
         /*   tabPane.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {   NICHT LÖSCHEN ERSTER ANSATZ FÜR WEITERE BESCHLEUNIGUNG DES ARBEITENS
         
@@ -173,7 +172,9 @@ public class FXMLController implements Initializable {
             }
             updateAnzeige(generiereReduziertesSet(internNumbers, newValue));
         });
-        LDAPController l = new LDAPController("server", 389, "server", "people", storage);
+        storage.setLdapSearchAmount(10);
+        Logger.getLogger(getClass().getName()).log(Level.INFO, "Search Amount: {0}", String.valueOf(storage.getLdapSearchAmount()));
+        LDAPController l = new LDAPController("192.168.178.66", 389, "ldapDocker", "people", storage);
         ArrayList<LDAPEntry> ld = l.getN("", storage.getLdapSearchAmount());
         updateLdapFields(ld);
         paneBTextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
@@ -255,9 +256,8 @@ public class FXMLController implements Initializable {
     }
 
     public void startUpLicenseCheck(OptionsStorage storage) {
-        LicenseChecker lcheck = new LicenseChecker(storage);
 
-        if (lcheck.checkIsValid()) {
+     
             Stage dialogStage = new Stage();
             dialogStage.setOnCloseRequest((WindowEvent event) -> {
                 System.exit(0);
@@ -293,7 +293,7 @@ public class FXMLController implements Initializable {
 
             }, 1000, 1000);
         }
-    }
+    
 
     public int getOwnExtension() {
         return ownExtension;
