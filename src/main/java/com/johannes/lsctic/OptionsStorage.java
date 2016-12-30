@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.johannes.lsctic;
 
 import java.sql.Connection;
@@ -22,7 +17,6 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 
 /**
- *
  * @author johannesengler
  */
 public final class OptionsStorage {
@@ -75,6 +69,9 @@ public final class OptionsStorage {
         readSettingsFromDatabase();
     }
 
+    /**
+     * Used to store the temp. vars.
+     */
     public void setTempVariables() {
         amiAdressTemp = amiAdress;
         amiServerPortTemp = amiServerPort;
@@ -93,11 +90,18 @@ public final class OptionsStorage {
         }
     }
 
+    /**
+     * User accepts the changes and wants to store the changes in database
+     */
     public void accept() {
         setVariables();
         writeSettingsToDatabase();
     }
 
+    /**
+     * Sets the real variables to the temps. That will happen if user clicks on
+     * accept
+     */
     public void setVariables() {
         amiAdress = amiAdressTemp;
         amiServerPort = amiServerPortTemp;
@@ -117,6 +121,9 @@ public final class OptionsStorage {
         }
     }
 
+    /**
+     * Saves the settings in the sqlite database
+     */
     private void writeSettingsToDatabase() {
 
         try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {
@@ -150,6 +157,9 @@ public final class OptionsStorage {
         }
     }
 
+    /**
+     * reads the settings saved in the sqlite database
+     */
     public void readSettingsFromDatabase() {
 
         try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {
@@ -177,6 +187,13 @@ public final class OptionsStorage {
 
     }
 
+    /**
+     * Reads the AMI settings from the sqlite database
+     *
+     * @param query
+     * @param con
+     * @throws SQLException
+     */
     private void readAmiFields(String query, Connection con) throws SQLException {
         try (PreparedStatement ptsm = con.prepareStatement(query)) {
             ptsm.setString(1, "amiAdress");
@@ -200,6 +217,13 @@ public final class OptionsStorage {
         }
     }
 
+    /**
+     * Reads the LDAP settings from the sqlite database
+     *
+     * @param query
+     * @param con
+     * @throws SQLException
+     */
     private void readLdapFields(String query, Connection con) throws SQLException {
         try (PreparedStatement ptsm = con.prepareStatement(query)) {
             ptsm.setString(1, "ldapAdress");
@@ -229,6 +253,10 @@ public final class OptionsStorage {
         }
     }
 
+    /**
+     * Reads in the LDAP fields (information eg: mobile, name) the user wants to
+     * get from the LDAP Server
+     */
     private void readinLdapFields() {
         try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {
             readinLdapFieldsInner(statement, con);
@@ -237,6 +265,13 @@ public final class OptionsStorage {
         }
     }
 
+    /**
+     * sub Method of readinLdapFields to increase readability of the code
+     *
+     * @param statement
+     * @param con
+     * @throws SQLException
+     */
     private void readinLdapFieldsInner(Statement statement, Connection con) throws SQLException {
         statement.setQueryTimeout(10);
         int i = 0;
@@ -410,6 +445,14 @@ public final class OptionsStorage {
         this.ldapFields = (ArrayList<String[]>) ldapFields;
     }
 
+    /**
+     * removes temp ldap field. The user removes the fields and they are removed
+     * from sqlite database when he hits save. Until that point they are only
+     * temp. removed.
+     *
+     * @param cn
+     * @param field
+     */
     public void removeFromLdapFieldsTemp(String cn, String field) {
 
         Iterator<String[]> iter = ldapFieldsTemp.iterator();
@@ -424,6 +467,15 @@ public final class OptionsStorage {
         ldapFieldsTemp.forEach(g -> Logger.getLogger(getClass().getName()).info(g[0]));
     }
 
+    /**
+     * * adds temp ldap field. The user adds the fields and they are stored in
+     * sqlite databse when he hits save. Until that point they are only temp.
+     * saved.
+     *
+     * @param cn
+     * @param field
+     * @return
+     */
     public boolean addToLdapFieldsTemp(String cn, String field) {
         String[] a = {cn, field};
         for (String[] b : ldapFieldsTemp) {

@@ -15,19 +15,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -39,11 +32,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.VBoxBuilder;
-import javafx.scene.text.Text;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 public class FXMLController implements Initializable {
 
@@ -76,7 +64,6 @@ public class FXMLController implements Initializable {
     private Map<String, PhoneNumber> internNumbers;
     private SqlLiteConnection sqlCon;
     private String quickdialString;
-    private Tooltip customTooltip;
     private ServerConnectionHandler somo;
     private ArrayList<HistoryField> hFields;
 
@@ -86,9 +73,7 @@ public class FXMLController implements Initializable {
         sqlCon = new SqlLiteConnection("settingsAndData.db", "dataLocal.db");
         // Optionsstorage erstellen und Daten aus Settingsdatabase laden
         storage = new OptionsStorage(optionAccept, optionReject);
-        // Die Lizenz überprüfen, wenn nicht lizensiert beenden.
-        //  startUpLicenseCheck(storage);
-        customTooltip = new Tooltip();
+        Tooltip customTooltip = new Tooltip();
         panelA.setSpacing(3);
         panelB.setSpacing(3);
         panelC.setSpacing(3);
@@ -128,9 +113,8 @@ public class FXMLController implements Initializable {
         
         
         internFields = new HashMap();
-        internNumbers.entrySet().stream().forEach((g) -> {
-            internFields.put(g.getKey(),new InternField(g.getValue().getName(), g.getValue().getCount(), g.getKey(),this));
-        });
+        internNumbers.entrySet().stream().forEach(g -> 
+            internFields.put(g.getKey(),new InternField(g.getValue().getName(), g.getValue().getCount(), g.getKey(),this)));
          try {
             somo = new ServerConnectionHandler(internFields, this);
         } catch (IOException ex) {
@@ -142,12 +126,11 @@ public class FXMLController implements Initializable {
         
         paneATextIn.addEventFilter(KeyEvent.KEY_PRESSED, (javafx.scene.input.KeyEvent event) -> {
             if (event.getCode() == KeyCode.ENTER) {
-                System.out.println(quickdialString);
                 try {
-                    long l = Long.valueOf(quickdialString);
-                    System.out.println("Wähle " + l);
-                } catch (Exception e) {
-
+                    long l = Long.parseLong(quickdialString);
+                    Logger.getLogger(getClass().getName()).log(Level.INFO,null,"Dial: "+l);
+                } catch (NumberFormatException e) {
+                    Logger.getLogger(getClass().getName()).log(Level.INFO,null,e);
                 }
 
                 event.consume();
@@ -157,7 +140,7 @@ public class FXMLController implements Initializable {
         paneATextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
             try {
                 quickdialString = newValue;
-                long quickdial = Long.valueOf(newValue);
+                long quickdial = Long.parseLong(newValue);
                 customTooltip.hide();
                 customTooltip.setText("Nummer erkannt. Enter zum wählen");
                 paneATextIn.setTooltip(customTooltip);
@@ -167,8 +150,9 @@ public class FXMLController implements Initializable {
                         + paneATextIn.getScene().getX() + paneATextIn.getScene().getWindow().getX(), p.getY()
                         + paneATextIn.getScene().getY() + paneATextIn.getScene().getWindow().getY() + paneATextIn.getHeight());
 
-            } catch (Exception e) {
+            } catch (NumberFormatException e) {
                 customTooltip.hide();
+                Logger.getLogger(getClass().getName()).log(Level.INFO,null,e);
             }
             updateAnzeige(generiereReduziertesSet(internNumbers, newValue));
         });
@@ -200,9 +184,8 @@ public class FXMLController implements Initializable {
 
     private ArrayList<InternField> generiereReduziertesSet(Map<String, PhoneNumber> internNumbers, String val) {
         ArrayList<InternField> out = new ArrayList<>();
-        internNumbers.entrySet().stream().filter((g) -> (g.getValue().getName().toLowerCase().contains(val.toLowerCase()))).forEach((g) -> {
-            out.add(new InternField(g.getValue().getName(), g.getValue().getCount(), g.getKey(),this));
-        });
+        internNumbers.entrySet().stream().filter(g -> g.getValue().getName().toLowerCase().contains(val.toLowerCase())).forEach(g ->  
+                out.add(new InternField(g.getValue().getName(), g.getValue().getCount(), g.getKey(),this)));
         return out;
     }
 
@@ -230,16 +213,8 @@ public class FXMLController implements Initializable {
     private void updateAnzeige(ArrayList<InternField> i) {
         scrollPaneA.setVvalue(0);
         
-        Collections.sort(i, (InternField o1, InternField o2) -> o2.getCount() - o1.getCount() //Sortiert nach Count
-        /*  int internFields = 0;
-         while(o1.getName().charAt(internFields) == o2.getName().charAt(internFields)) {
-         ++internFields;
-         if(internFields>=o1.getName().length() || internFields>=o2.getName().length()) {
-         return 0;
-         }
-         }
-         return o1.getName().charAt(internFields) - o2.getName().charAt(internFields);*/
-        // Nach namen sortieren
+        Collections.sort(i, (InternField o1, InternField o2) -> o2.getCount() - o1.getCount() //sorted on call count
+        //UPDATE: would be nice to choose the sorting 
         );
         panelA.getChildren().clear();
         panelA.getChildren().addAll(i);
@@ -249,51 +224,9 @@ public class FXMLController implements Initializable {
     private void updateLdapFields(ArrayList<LDAPEntry> i) {
         panelB.getChildren().clear();
         ArrayList<LDAPField> ldapFields = new ArrayList<>();
-        i.stream().forEach((ent) -> {
-            ldapFields.add(new LDAPField(ent.get(0), 2, 123123, ent, storage));
-        });
+        i.stream().forEach(ent ->  ldapFields.add(new LDAPField(ent.get(0), 2, 123123, ent, storage)));
         panelB.getChildren().addAll(ldapFields);
     }
-
-    public void startUpLicenseCheck(OptionsStorage storage) {
-
-     
-            Stage dialogStage = new Stage();
-            dialogStage.setOnCloseRequest((WindowEvent event) -> {
-                System.exit(0);
-            });
-            dialogStage.setAlwaysOnTop(true);
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            final Button b = new Button("Beenden");
-            b.setOnAction((ActionEvent event) -> {
-                System.exit(0);
-            });
-            dialogStage.setScene(new Scene(VBoxBuilder.create().
-                    children(new Text("Ihre Testlizenz ist leider abgelaufen. Bitte besuchen sie www.cti.eu um das Produkt zu lizenzieren"), b).
-                    alignment(Pos.CENTER).padding(new Insets(10)).build()));
-            dialogStage.show();
-
-            Timer timer = new Timer();
-            timer.scheduleAtFixedRate(new TimerTask() {
-                int seconds = 21;
-                int i = 0;
-
-                @Override
-                public void run() {
-                    i++;
-
-                    if (i % seconds == 0) {
-                        System.exit(0);
-                    } else {
-                        Platform.runLater(() -> {
-                            b.setText("Beenden (" + (20 - i) + ")");
-                        });
-                    }
-                }
-
-            }, 1000, 1000);
-        }
-    
 
     public int getOwnExtension() {
         return ownExtension;
@@ -302,6 +235,5 @@ public class FXMLController implements Initializable {
     public ServerConnectionHandler getSomo() {
         return somo;
     }
-    
-
+   
 }
