@@ -288,8 +288,8 @@ public class SqlLiteConnection {
         try {
             statement = connection.createStatement();
             statement.setQueryTimeout(10);
-            ResultSet rs = statement.executeQuery(query);
-            rs.close();
+            statement.executeUpdate(query);
+            statement.close();
         } catch (SQLException ex) {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
         } finally {

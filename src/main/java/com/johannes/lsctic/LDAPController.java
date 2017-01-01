@@ -32,19 +32,19 @@ public class LDAPController {
     private String base;
     private OptionsStorage storage;
 
-    public LDAPController(String serverIp, int port, String dc, String dc2, String ou, OptionsStorage storage) {
+    public LDAPController(OptionsStorage storage) {
         env = new Hashtable();
 
         String sp = "com.sun.jndi.ldap.LdapCtxFactory";
         env.put(Context.INITIAL_CONTEXT_FACTORY, sp);
 
-        ldapUrl = "ldap://" + serverIp + ":" + port + "/dc=" + dc + " , dc=" + dc2;
+        ldapUrl = "ldap://" + storage.getLdapAdress() + ":" + storage.getLdapServerPort() + "/" + storage.getLdapSearchBase();
 
         env.put(Context.PROVIDER_URL, ldapUrl);
         
         this.storage = storage;
 
-        base = "ou=" + ou;
+        base =  storage.getLdapBase();
     }
 
     public LDAPController(String serverIp, int port, String dc, String ou, OptionsStorage storage) {

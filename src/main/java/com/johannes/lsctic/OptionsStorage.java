@@ -228,7 +228,7 @@ public final class OptionsStorage {
         try (PreparedStatement ptsm = con.prepareStatement(query)) {
             ptsm.setString(1, "ldapAdress");
             ResultSet amiAdressRS = ptsm.executeQuery();
-            ldapAdress = !amiAdressRS.next() ? "192.168.178.68" : amiAdressRS.getString(SETTING);
+            ldapAdress = !amiAdressRS.next() ? "localhost" : amiAdressRS.getString(SETTING);
             Logger.getLogger(getClass().getName()).info(ldapAdress);
         }
         try (PreparedStatement ptsm = con.prepareStatement(query)) {

@@ -111,19 +111,21 @@ public class FXMLController implements Initializable {
          });*/
         
         
+              internFields = new HashMap();
+        internNumbers.entrySet().stream().forEach(g -> {
+            internFields.put(g.getKey(),new InternField(g.getValue().getName(), g.getValue().getCount(), g.getKey(),this));
+        });
+     
         
-        internFields = new HashMap();
-        internNumbers.entrySet().stream().forEach(g -> 
-            internFields.put(g.getKey(),new InternField(g.getValue().getName(), g.getValue().getCount(), g.getKey(),this)));
          try {
             somo = new ServerConnectionHandler(internFields, this);
         } catch (IOException ex) {
             Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
         }
-       somo.sendBack("004201");
         updateAnzeige(new ArrayList<>(internFields.values()));
         
-        
+        internFields.entrySet().stream().forEach(g -> somo.aboExtension(g.getValue().getNumber()));
+     
         paneATextIn.addEventFilter(KeyEvent.KEY_PRESSED, (javafx.scene.input.KeyEvent event) -> {
             if (event.getCode() == KeyCode.ENTER) {
                 try {
@@ -158,7 +160,7 @@ public class FXMLController implements Initializable {
         });
         storage.setLdapSearchAmount(10);
         Logger.getLogger(getClass().getName()).log(Level.INFO, "Search Amount: {0}", String.valueOf(storage.getLdapSearchAmount()));
-        LDAPController l = new LDAPController("192.168.178.66", 389, "ldapDocker", "people", storage);
+        LDAPController l = new LDAPController(storage);
         ArrayList<LDAPEntry> ld = l.getN("", storage.getLdapSearchAmount());
         updateLdapFields(ld);
         paneBTextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
@@ -194,7 +196,9 @@ public class FXMLController implements Initializable {
         sqlCon.queryNoReturn("Insert into internfields (number,name,callcount,favorit) values ('"+p.getPhoneNumber()+"','"+p.getName()+"',"+p.getCount()+",0)");
         internNumbers.put(p.getPhoneNumber(), p);
         internFields.put(p.getPhoneNumber(), new InternField(p.getName(), p.getCount(), p.getPhoneNumber(), this));
+        somo.aboExtension(p.getPhoneNumber());
         updateAnzeige(new ArrayList<>(internFields.values()));
+        
         } else {
             //FIXME Fehler
         }
@@ -208,6 +212,7 @@ public class FXMLController implements Initializable {
         sqlCon.queryNoReturn("Delete from internfields where number="+f.getNumber()+"");
         internFields.remove(f.getNumber(), f);
         internNumbers.remove(f.getNumber());
+        somo.deAboExtension(f.getNumber());
         updateAnzeige(new ArrayList<>(internFields.values()));
     }
     private void updateAnzeige(ArrayList<InternField> i) {

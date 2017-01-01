@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.johannes.lsctic.amiapi;
 
 import com.johannes.lsctic.FXMLController;
@@ -39,6 +34,15 @@ public class ServerConnectionHandler {
     public void sendBack(String msg) {
         t.sendBack(msg);
     }
+    public void aboExtension(String ext) {
+        Logger.getLogger(getClass().getName()).log(Level.INFO, "Status abo for: {0}", ext);
+        t.sendBack("000"+ext);
+    }
+    public void deAboExtension(String ext) {
+                Logger.getLogger(getClass().getName()).log(Level.INFO, "Status deabo for: {0}", ext);
+
+        t.sendBack("001"+ext);
+    }
     
     class ClientThread implements Runnable
     {
@@ -59,7 +63,6 @@ public class ServerConnectionHandler {
             try {
                 //Create the streams
                
-                sendBack("000201");
                 //Tell the client that he/she has connected
                 BufferedReader input = new BufferedReader(new InputStreamReader(threadSocket.getInputStream()));
 
@@ -113,7 +116,6 @@ public class ServerConnectionHandler {
         }
         private void sendBack(String msg) {
             try {
-                System.out.println("abfrage geht raus: "+msg);
                 output = new PrintWriter(threadSocket.getOutputStream(), true);
                 output.println(msg);
                 output.flush();
