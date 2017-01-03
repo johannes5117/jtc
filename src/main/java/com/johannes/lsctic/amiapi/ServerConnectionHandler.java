@@ -33,6 +33,8 @@ public class ServerConnectionHandler {
     private final Map<String, InternField> internNumbers;
     private final FXMLController fcont;
     public ServerConnectionHandler(Map<String, InternField> internNumbers, FXMLController fcont) throws IOException {
+        this.internNumbers = internNumbers;
+             this.fcont = fcont;
          try {
              final SslContext sslCtx = SslContextBuilder.forClient()
                      .trustManager(InsecureTrustManagerFactory.INSTANCE).build();
@@ -42,7 +44,7 @@ public class ServerConnectionHandler {
              Bootstrap b = new Bootstrap();
              b.group(group)
                      .channel(NioSocketChannel.class)
-                     .handler(new SecureChatClientInitializer(sslCtx,  fcont));
+                     .handler(new SecureChatClientInitializer(sslCtx,  fcont, internNumbers));
              
              // Start the connection attempt.
              ch = b.connect(ADRESSE, PORT).sync().channel();
@@ -60,8 +62,7 @@ public class ServerConnectionHandler {
          } catch (InterruptedException ex) {
              Logger.getLogger(ServerConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
          }
-         this.internNumbers = internNumbers;
-             this.fcont = fcont;
+         
     }
     public void sendBack(String msg) {
          ChannelFuture lastWriteFuture = ch.writeAndFlush(msg + "\r\n");

@@ -11,12 +11,12 @@ package com.johannes.lsctic.amiapi;
  */
 import com.johannes.lsctic.FXMLController;
 import com.johannes.lsctic.fields.HistoryField;
+import com.johannes.lsctic.fields.InternField;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+
 import java.util.Date;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -24,8 +24,10 @@ import java.util.logging.Logger;
  */
 public class SecureChatClientHandler extends SimpleChannelInboundHandler<String> {
     private final FXMLController fxml;
-    public SecureChatClientHandler(FXMLController fxml) {
+    private final Map<String, InternField> internNumbers;
+    public SecureChatClientHandler(FXMLController fxml,Map<String, InternField> internNumbers) {
         this.fxml = fxml;
+        this.internNumbers = internNumbers;
     }
     @Override
     public void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {

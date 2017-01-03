@@ -6,6 +6,7 @@
 package com.johannes.lsctic.amiapi;
 
 import com.johannes.lsctic.FXMLController;
+import com.johannes.lsctic.fields.InternField;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -14,6 +15,7 @@ import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.ssl.SslContext;
+import java.util.Map;
 
 /**
  * Creates a newly configured {@link ChannelPipeline} for a new channel.
@@ -22,10 +24,12 @@ public class SecureChatClientInitializer extends ChannelInitializer<SocketChanne
 
     private final SslContext sslCtx;
     private final FXMLController fxml;
+    private final Map<String, InternField> internNumbers;
 
-    public SecureChatClientInitializer(SslContext sslCtx, FXMLController fxml) {
+    public SecureChatClientInitializer(SslContext sslCtx, FXMLController fxml,Map<String, InternField> internNumbers) {
         this.sslCtx = sslCtx;
         this.fxml = fxml;
+        this.internNumbers = internNumbers;
     }
 
     @Override
@@ -45,6 +49,6 @@ public class SecureChatClientInitializer extends ChannelInitializer<SocketChanne
         pipeline.addLast(new StringEncoder());
 
         // and then business logic.
-        pipeline.addLast(new SecureChatClientHandler(fxml));
+        pipeline.addLast(new SecureChatClientHandler(fxml, internNumbers));
     }
 }
