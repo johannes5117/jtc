@@ -120,7 +120,8 @@ public class FXMLController implements Initializable {
         } catch (IOException ex) {
             Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
         }
-       somo.sendBack("004201");
+       somo.sendBack("000201");
+       somo.sendBack("000202");
         updateAnzeige(new ArrayList<>(internFields.values()));
         
         

@@ -27,7 +27,7 @@ import java.util.logging.Logger;
  */
 public class ServerConnectionHandler {
      static final String ADRESSE = "localhost";
-     static final int PORT = 12350;
+     static final int PORT = 12345;
     
     private Channel ch;
     private final Map<String, InternField> internNumbers;

@@ -34,13 +34,11 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
         System.err.println(msg);
        
 
-                boolean notEndedYet = true;
-                while (notEndedYet) {
-                    //This will wait until a line of text has been sent
+        
+                 /*   //This will wait until a line of text has been sent
                     String chatInput = msg;
                     switch (chatInput) {
                         case "logoff":
-                            notEndedYet = false;
                            
                             break;
                         case "success":
@@ -76,7 +74,7 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
                                     System.out.println("i liegt nicht zwischen null und drei");
                             }   break;
                     }
-                }
+                */
             
     }
 
