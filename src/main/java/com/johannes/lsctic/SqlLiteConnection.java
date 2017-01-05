@@ -38,9 +38,10 @@ public class SqlLiteConnection {
             "create table phonebook (id integer, number string, name string, callcount integer, favorit boolean)"};
         createDatabase(localDatabase, createLines);
         String[] createLines2 = {"create table settings (id integer, setting string, description string)",
-           "create table internfields (id integer  Primary Key AUTOINCREMENT, number string, name string, callcount integer, favorit boolean)" };
+            "create table internfields (id integer  Primary Key AUTOINCREMENT, number string, name string, callcount integer, favorit boolean)"};
         createDatabase(database, createLines2);
     }
+
     private void createDatabase(String database, String[] createLines) {
         File f = new File(database);
         if (f.exists() && !f.isDirectory()) {
@@ -58,12 +59,11 @@ public class SqlLiteConnection {
                 statement = connection.createStatement();
                 statement.setQueryTimeout(30);
                 //Asterisk Optionen
-                for(String create: createLines) {
-                   
+                for (String create : createLines) {
+
                     statement.executeUpdate(create);
 
                 }
-               
 
             } catch (SQLException e) {
                 Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, e);
@@ -99,8 +99,10 @@ public class SqlLiteConnection {
             }
         }
     }
+
     /**
      * Runs a SQL query and returns the results
+     *
      * @param query
      * @return resultset
      */
@@ -114,7 +116,7 @@ public class SqlLiteConnection {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         } finally {
-            if(statement != null) {
+            if (statement != null) {
                 try {
                     statement.close();
                 } catch (SQLException ex) {
@@ -123,9 +125,11 @@ public class SqlLiteConnection {
             }
         }
     }
+
     /**
      * Perform a update query on the server
-     * @param update 
+     *
+     * @param update
      */
     public void update(String update) {
         Statement statement = null;
@@ -136,49 +140,7 @@ public class SqlLiteConnection {
         } catch (SQLException ex) {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
-            if(statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-    }
-/**
- * Select specific attribut where specific attribute in database
- * @param attribut
- * @param table
- * @param whereAttribut
- * @param whereValue
- * @return 
- */
-    public ResultSet selectWhere(String attribut, String table, String whereAttribut, String whereValue) {
-        PreparedStatement statement = null;
-        try {
-            if(whereAttribut == null && whereValue == null) {
-                String state = "select ? from ? where ?=?";
-                statement = connection.prepareStatement(state);
-                statement.setString(1, attribut);
-                statement.setString(2, table);
-                statement.setString(3, whereAttribut);
-                statement.setString(4, whereValue);
-                statement.setQueryTimeout(10);
-            return statement.executeQuery();
-            } else {
-                String state = "select ? from ?";
-                statement = connection.prepareStatement(state);
-                statement.setString(1, attribut);
-                statement.setString(2, table);
-                statement.setQueryTimeout(10);
-            return statement.executeQuery();
-            }
-            
-        } catch (SQLException ex) {
-            Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        } finally {
-            if(statement != null) {
+            if (statement != null) {
                 try {
                     statement.close();
                 } catch (SQLException ex) {
@@ -188,13 +150,55 @@ public class SqlLiteConnection {
         }
     }
 
-    
-    
     /**
-     * Insert values into table
-     * value beispiel: "1, 'leo', 'test'"
+     * Select specific attribut where specific attribute in database
+     *
+     * @param attribut
      * @param table
-     * @param value 
+     * @param whereAttribut
+     * @param whereValue
+     * @return
+     */
+    public ResultSet selectWhere(String attribut, String table, String whereAttribut, String whereValue) {
+        PreparedStatement statement = null;
+        try {
+            if (whereAttribut == null && whereValue == null) {
+                String state = "select ? from ? where ?=?";
+                statement = connection.prepareStatement(state);
+                statement.setString(1, attribut);
+                statement.setString(2, table);
+                statement.setString(3, whereAttribut);
+                statement.setString(4, whereValue);
+                statement.setQueryTimeout(10);
+                return statement.executeQuery();
+            } else {
+                String state = "select ? from ?";
+                statement = connection.prepareStatement(state);
+                statement.setString(1, attribut);
+                statement.setString(2, table);
+                statement.setQueryTimeout(10);
+                return statement.executeQuery();
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+
+    /**
+     * Insert values into table value beispiel: "1, 'leo', 'test'"
+     *
+     * @param table
+     * @param value
      */
     public void insert(String table, String value) {
         Statement statement = null;
@@ -205,7 +209,7 @@ public class SqlLiteConnection {
         } catch (SQLException ex) {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
-            if(statement != null) {
+            if (statement != null) {
                 try {
                     statement.close();
                 } catch (SQLException ex) {
@@ -214,13 +218,15 @@ public class SqlLiteConnection {
             }
         }
     }
+
     /**
      * Updates one attribute
+     *
      * @param table
      * @param whereAttribut
      * @param whereValue
      * @param updateAttribut
-     * @param updateValue 
+     * @param updateValue
      */
     public void updateOneAttribute(String table, String whereAttribut, String whereValue, String updateAttribut, String updateValue) {
         Statement statement = null;
@@ -231,7 +237,7 @@ public class SqlLiteConnection {
         } catch (SQLException ex) {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
-            if(statement != null) {
+            if (statement != null) {
                 try {
                     statement.close();
                 } catch (SQLException ex) {
@@ -240,15 +246,18 @@ public class SqlLiteConnection {
             }
         }
     }
+
     /**
      * get the connection
-     * @return 
+     *
+     * @return
      */
     public Connection getConnection() {
         return connection;
     }
+
     /**
-     * 
+     *
      * @return Map with all interns
      */
     Map<String, PhoneNumber> getInterns() {
@@ -267,7 +276,7 @@ public class SqlLiteConnection {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
             return internNumbers;
         } finally {
-            if(statement != null) {
+            if (statement != null) {
                 try {
                     statement.close();
                 } catch (SQLException ex) {
@@ -278,28 +287,20 @@ public class SqlLiteConnection {
 
         return internNumbers;
     }
+
     /**
      * Only a query without a return
-     * @param query 
+     *
+     * @param query
      */
     void queryNoReturn(String query) {
 
-        Statement statement = null;
-        try {
-            statement = connection.createStatement();
+        try (Statement statement = connection.createStatement()) {
             statement.setQueryTimeout(10);
-            ResultSet rs = statement.executeQuery(query);
-            rs.close();
+            statement.executeUpdate(query);
         } catch (SQLException ex) {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if(statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
         }
+
     }
 }

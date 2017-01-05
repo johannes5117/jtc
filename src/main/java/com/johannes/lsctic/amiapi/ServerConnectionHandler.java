@@ -67,5 +67,20 @@ public class ServerConnectionHandler {
     public void sendBack(String msg) {
          ChannelFuture lastWriteFuture = ch.writeAndFlush(msg + "\r\n");
     }
+
+    public void aboStatusExtension(String phoneNumber) {
+        ChannelFuture lastWriteFuture = ch.writeAndFlush("000" + phoneNumber + "\r\n");
+    }
+
+    public void deAboStatusExtension(String phoneNumber) {
+        ChannelFuture lastWriteFuture = ch.writeAndFlush("001" + phoneNumber + "\r\n");
+    }
+    
+    public void aboCdrExtension(String phoneNumber) {
+        ChannelFuture lastWriteFuture = ch.writeAndFlush("004" + phoneNumber + "\r\n");
+    }
+    public void call(String phoneNumber) {
+        ChannelFuture lastWriteFuture = ch.writeAndFlush("003" + phoneNumber + "\r\n");
+   }
     
 }
