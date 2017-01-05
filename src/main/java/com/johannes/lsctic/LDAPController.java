@@ -41,10 +41,10 @@ public class LDAPController {
         ldapUrl = "ldap://" + storage.getLdapAdress() + ":" + storage.getLdapServerPort() + "/" + storage.getLdapSearchBase();
 
         env.put(Context.PROVIDER_URL, ldapUrl);
-        
+
         this.storage = storage;
 
-        base =  storage.getLdapBase();
+        base = storage.getLdapBase();
     }
 
     public LDAPController(String serverIp, int port, String dc, String ou, OptionsStorage storage) {
@@ -61,7 +61,6 @@ public class LDAPController {
         base = "ou=" + ou;
     }
 
-    
     public ArrayList<LDAPEntry> getN(String ein, int n) {
         ArrayList<LDAPEntry> aus = new ArrayList<>();
         SearchControls sc = new SearchControls();
@@ -69,21 +68,20 @@ public class LDAPController {
         Logger.getLogger(getClass().getName()).log(Level.INFO, Arrays.toString(attributeFilter));
 
         int i = 0;
-        String filter="(|";
-        for(String[] s : storage.getLdapFields()) {
+        String filter = "(|";
+        for (String[] s : storage.getLdapFields()) {
             Logger.getLogger(getClass().getName()).log(Level.INFO, Arrays.toString(s));
             attributeFilter[i] = s[0];
-            filter = filter + "("+s[0]+"="+ein+"*)";
+            filter = filter + "(" + s[0] + "=" + ein + "*)";
             ++i;
         }
-        filter = filter +")";
+        filter = filter + ")";
         sc.setReturningAttributes(attributeFilter);
         sc.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        
-        //String filter = "(|(sn="+ein+"*)(sn="+ein+"*)(cn="+ein+"*)(o="+ein+"*))";
 
+        //String filter = "(|(sn="+ein+"*)(sn="+ein+"*)(cn="+ein+"*)(o="+ein+"*))";
         NamingEnumeration results = null;
-        
+
         dctx = null;
         try {
             dctx = new InitialDirContext(env);
@@ -97,22 +95,21 @@ public class LDAPController {
         }
         try {
             i = 0;
-            while (results.hasMore() && i<n) {
+            while (results.hasMore() && i < n) {
                 SearchResult sr = (SearchResult) results.next();
                 Attributes attrs = sr.getAttributes();
-                
+
                 ArrayList<String> data = new ArrayList<>();
-                
-                
-                for(String[] field: storage.getLdapFields()){
+
+                for (String[] field : storage.getLdapFields()) {
                     // catch if a ldap field will be not available
-                    try{
+                    try {
                         Attribute attr = (Attribute) attrs.get(field[0]);
                         data.add((String) attr.get());
                     } catch (Exception e) {
                         data.add("!Nicht gefunden!");
                     }
-                } 
+                }
                 aus.add(new LDAPEntry(data, data.get(0)));
                 ++i;
             }
@@ -124,6 +121,6 @@ public class LDAPController {
         } catch (NamingException ex) {
             Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
         }
-         return aus;
+        return aus;
     }
 }

@@ -225,8 +225,6 @@ public class InternField extends HBox {
     }
 
     private void call(String number) {
-        //TO IMPLEMENT
-    
         con.getSomo().sendBack("003"+con.getOwnExtension()+":"+number);
    }
 

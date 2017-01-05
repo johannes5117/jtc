@@ -77,11 +77,10 @@ public class FXMLController implements Initializable {
         panelA.setSpacing(3);
         panelB.setSpacing(3);
         panelC.setSpacing(3);
-        
+
         ownExtension = 201;
         internNumbers = sqlCon.getInterns();
-        
-        
+
         /*   tabPane.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {   NICHT LÖSCHEN ERSTER ANSATZ FÜR WEITERE BESCHLEUNIGUNG DES ARBEITENS
         
 
@@ -109,30 +108,28 @@ public class FXMLController implements Initializable {
          }
          }
          });*/
-        
-        
-              internFields = new HashMap();
-        internNumbers.entrySet().stream().forEach(g -> {
-            internFields.put(g.getKey(),new InternField(g.getValue().getName(), g.getValue().getCount(), g.getKey(),this));
-        });
-     
-        
-         try {
+        internFields = new HashMap();
+        internNumbers.entrySet().stream().forEach(g
+                -> internFields.put(g.getKey(), new InternField(g.getValue().getName(), g.getValue().getCount(), g.getKey(), this)));
+
+        try {
             somo = new ServerConnectionHandler(internFields, this);
         } catch (IOException ex) {
             Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        internFields.entrySet().stream().forEach(g -> somo.aboStatusExtension(g.getValue().getNumber()));
+        somo.aboCdrExtension(String.valueOf(ownExtension));
+
         updateAnzeige(new ArrayList<>(internFields.values()));
-        
-        internFields.entrySet().stream().forEach(g -> somo.aboExtension(g.getValue().getNumber()));
-     
+
         paneATextIn.addEventFilter(KeyEvent.KEY_PRESSED, (javafx.scene.input.KeyEvent event) -> {
             if (event.getCode() == KeyCode.ENTER) {
                 try {
                     long l = Long.parseLong(quickdialString);
-                    Logger.getLogger(getClass().getName()).log(Level.INFO,null,"Dial: "+l);
+                    Logger.getLogger(getClass().getName()).log(Level.INFO, null, "Dial: " + l);
                 } catch (NumberFormatException e) {
-                    Logger.getLogger(getClass().getName()).log(Level.INFO,null,e);
+                    Logger.getLogger(getClass().getName()).log(Level.INFO, null, e);
                 }
 
                 event.consume();
@@ -154,9 +151,9 @@ public class FXMLController implements Initializable {
 
             } catch (NumberFormatException e) {
                 customTooltip.hide();
-                Logger.getLogger(getClass().getName()).log(Level.INFO,null,e);
+                Logger.getLogger(getClass().getName()).log(Level.INFO, null, e);
             }
-            updateAnzeige(generiereReduziertesSet(internNumbers, newValue));
+            updateAnzeige(generiereReduziertesSet(internFields, newValue));
         });
         storage.setLdapSearchAmount(10);
         Logger.getLogger(getClass().getName()).log(Level.INFO, "Search Amount: {0}", String.valueOf(storage.getLdapSearchAmount()));
@@ -169,7 +166,6 @@ public class FXMLController implements Initializable {
         });
 
         hFields = new ArrayList();
-        
 
         panelC.getChildren().addAll(hFields);
 
@@ -184,43 +180,47 @@ public class FXMLController implements Initializable {
         selectionModel.clearSelection(); //clear your selection
     }
 
-    private ArrayList<InternField> generiereReduziertesSet(Map<String, PhoneNumber> internNumbers, String val) {
+    private ArrayList<InternField> generiereReduziertesSet(HashMap<String, InternField> internFields, String val) {
         ArrayList<InternField> out = new ArrayList<>();
-        internNumbers.entrySet().stream().filter(g -> g.getValue().getName().toLowerCase().contains(val.toLowerCase())).forEach(g ->  
-                out.add(new InternField(g.getValue().getName(), g.getValue().getCount(), g.getKey(),this)));
+        internFields.values().stream().filter((f) -> (f.getName().toLowerCase().contains(val.toLowerCase()))).forEachOrdered((f) -> out.add(f));
         return out;
     }
 
     public void addInternAndUpdate(PhoneNumber p) {
-        if(!internFields.containsKey(p.getPhoneNumber())) {
-        sqlCon.queryNoReturn("Insert into internfields (number,name,callcount,favorit) values ('"+p.getPhoneNumber()+"','"+p.getName()+"',"+p.getCount()+",0)");
-        internNumbers.put(p.getPhoneNumber(), p);
-        internFields.put(p.getPhoneNumber(), new InternField(p.getName(), p.getCount(), p.getPhoneNumber(), this));
-        somo.aboExtension(p.getPhoneNumber());
-        updateAnzeige(new ArrayList<>(internFields.values()));
-        
+        if (!internFields.containsKey(p.getPhoneNumber())) {
+            sqlCon.queryNoReturn("Insert into internfields (number,name,callcount,favorit) values ('" + p.getPhoneNumber() + "','" + p.getName() + "'," + p.getCount() + ",0)");
+            internNumbers.put(p.getPhoneNumber(), p);
+            internFields.put(p.getPhoneNumber(), new InternField(p.getName(), p.getCount(), p.getPhoneNumber(), this));
+            somo.aboStatusExtension(p.getPhoneNumber());
+            updateAnzeige(new ArrayList<>(internFields.values()));
         } else {
-            //FIXME Fehler
+            Logger.getLogger(getClass().getName()).log(Level.WARNING, "There already exists a user with that phonenumber.");
         }
     }
+
     public void addCdrAndUpdate(HistoryField f) {
         hFields.add(f);
         panelC.getChildren().clear();
         panelC.getChildren().addAll(hFields);
     }
+    
+    public void removeCdrAndUpdate(HistoryField f) {
+        hFields.remove(f);
+         panelC.getChildren().clear();
+        panelC.getChildren().addAll(hFields);
+    }
+
     public void removeInternAndUpdate(InternField f) {
-        sqlCon.queryNoReturn("Delete from internfields where number="+f.getNumber()+"");
+        sqlCon.queryNoReturn("Delete from internfields where number=" + f.getNumber() + "");
         internFields.remove(f.getNumber(), f);
         internNumbers.remove(f.getNumber());
-        somo.deAboExtension(f.getNumber());
+        somo.deAboStatusExtension(f.getNumber());
         updateAnzeige(new ArrayList<>(internFields.values()));
     }
+
     private void updateAnzeige(ArrayList<InternField> i) {
         scrollPaneA.setVvalue(0);
-        
-        Collections.sort(i, (InternField o1, InternField o2) -> o2.getCount() - o1.getCount() //sorted on call count
-        //UPDATE: would be nice to choose the sorting 
-        );
+        Collections.sort(i, (InternField o1, InternField o2) -> o2.getCount() - o1.getCount()); //UPDATE: would be nice to choose the sorting 
         panelA.getChildren().clear();
         panelA.getChildren().addAll(i);
         panelA.getChildren().add(new NewInternField(this));
@@ -229,7 +229,7 @@ public class FXMLController implements Initializable {
     private void updateLdapFields(ArrayList<LDAPEntry> i) {
         panelB.getChildren().clear();
         ArrayList<LDAPField> ldapFields = new ArrayList<>();
-        i.stream().forEach(ent ->  ldapFields.add(new LDAPField(ent.get(0), 2, 123123, ent, storage)));
+        i.stream().forEach(ent -> ldapFields.add(new LDAPField(ent.get(0), 2, 123123, ent, storage)));
         panelB.getChildren().addAll(ldapFields);
     }
 
@@ -240,5 +240,5 @@ public class FXMLController implements Initializable {
     public ServerConnectionHandler getSomo() {
         return somo;
     }
-   
+
 }
