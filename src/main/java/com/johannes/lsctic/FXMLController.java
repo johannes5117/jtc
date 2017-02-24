@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -32,6 +33,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class FXMLController implements Initializable {
 
@@ -66,9 +68,11 @@ public class FXMLController implements Initializable {
     private String quickdialString;
     private ServerConnectionHandler somo;
     private ArrayList<HistoryField> hFields;
-
+    private Stage stage;
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        
+        
         // Muss vor dem erstellen des Optionsstorage sein, da ggf. die Datenbank nicht existiert
         sqlCon = new SqlLiteConnection("settingsAndData.db", "dataLocal.db");
         // Optionsstorage erstellen und Daten aus Settingsdatabase laden
@@ -155,7 +159,7 @@ public class FXMLController implements Initializable {
             }
             updateAnzeige(generiereReduziertesSet(internFields, newValue));
         });
-        storage.setLdapSearchAmount(10);
+    /*    storage.setLdapSearchAmount(10);
         Logger.getLogger(getClass().getName()).log(Level.INFO, "Search Amount: {0}", String.valueOf(storage.getLdapSearchAmount()));
         LDAPController l = new LDAPController(storage);
         ArrayList<LDAPEntry> ld = l.getN("", storage.getLdapSearchAmount());
@@ -163,7 +167,7 @@ public class FXMLController implements Initializable {
         paneBTextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
             ArrayList<LDAPEntry> ld1 = l.getN(newValue, storage.getLdapSearchAmount());
             updateLdapFields(ld1);
-        });
+        });*/
 
         hFields = new ArrayList();
 
@@ -240,5 +244,17 @@ public class FXMLController implements Initializable {
     public ServerConnectionHandler getSomo() {
         return somo;
     }
+    
+    public void setStage(Stage stage) {
+        this.stage = stage;
+        stage.focusedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                paneATextIn.requestFocus();
+                                paneATextIn.setFocusTraversable(true);
 
+                Logger.getLogger(getClass().getName()).info("TESTSETSETSETSETSETSETTTESTSETSETSETSETSETSETSET");
+            }
+        });
+    }
 }
