@@ -3,9 +3,10 @@ package com.johannes.lsctic;
 import com.johannes.lsctic.amiapi.ServerConnectionHandler;
 import com.johannes.lsctic.fields.InternField;
 import com.johannes.lsctic.fields.HistoryField;
-import com.johannes.lsctic.fields.LDAPField;
+import com.johannes.lsctic.fields.AdressField;
 import com.johannes.lsctic.fields.NewInternField;
 import com.johannes.lsctic.settings.AsteriskSettingsField;
+import com.johannes.lsctic.settings.DataSourceSettingsField;
 import com.johannes.lsctic.settings.DeploymentSettingsField;
 import com.johannes.lsctic.settings.LDAPSettingsField;
 import java.io.IOException;
@@ -173,7 +174,7 @@ public class FXMLController implements Initializable {
 
         panelC.getChildren().addAll(hFields);
 
-        panelD.getChildren().addAll(new AsteriskSettingsField(storage), new LDAPSettingsField(storage), new DeploymentSettingsField(storage));
+        panelD.getChildren().addAll(new AsteriskSettingsField(storage), new DeploymentSettingsField(storage), new DataSourceSettingsField(storage), new LDAPSettingsField(storage));
 
     }
 
@@ -230,10 +231,10 @@ public class FXMLController implements Initializable {
         panelA.getChildren().add(new NewInternField(this));
     }
 
-    private void updateLdapFields(ArrayList<LDAPEntry> i) {
+    private void updateLdapFields(ArrayList<AdressBookEntry> i) {
         panelB.getChildren().clear();
-        ArrayList<LDAPField> ldapFields = new ArrayList<>();
-        i.stream().forEach(ent -> ldapFields.add(new LDAPField(ent.get(0), 2, 123123, ent, storage)));
+        ArrayList<AdressField> ldapFields = new ArrayList<>();
+        i.stream().forEach(ent -> ldapFields.add(new AdressField(ent.get(0), 2, 123123, ent, storage)));
         panelB.getChildren().addAll(ldapFields);
     }
 
@@ -250,10 +251,14 @@ public class FXMLController implements Initializable {
         stage.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                paneATextIn.requestFocus();
-                                paneATextIn.setFocusTraversable(true);
-
-                Logger.getLogger(getClass().getName()).info("TESTSETSETSETSETSETSETTTESTSETSETSETSETSETSETSET");
+                if(newValue) {
+                     paneATextIn.requestFocus();
+                     paneATextIn.setFocusTraversable(true);
+                } else {
+                    stage.setIconified(true);
+                    stage.toBack();
+                }
+               
             }
         });
     }

@@ -33,6 +33,7 @@ public final class OptionsStorage {
     private String ownExtension;     // eigene Extension asterisk
     private long time;               // TimeStamp
     private ArrayList<String[]> ldapFields = new ArrayList<>();  // LDAP Felder mit Namen
+    private DataSourceActivationLoader dataSources = new DataSourceActivationLoader();
 
     private String amiAdressTemp;        //AMI Server Adresse
     private int amiServerPortTemp;       //AMI Server Port
@@ -46,6 +47,7 @@ public final class OptionsStorage {
     private String ownExtensionTemp;     // eigene Extension asterisk
     private long timeTemp;               // TimeStamp
     private final ArrayList<String[]> ldapFieldsTemp = new ArrayList<>();  // LDAP Felder mit Namen
+    private DataSourceActivationLoader dataSourcesTemp = new DataSourceActivationLoader();
 
     private static final String DATABASE_CONNECTION = "jdbc:sqlite:settingsAndData.db";
     private static final String SETTING = "setting";
@@ -88,6 +90,7 @@ public final class OptionsStorage {
             String[] g = {p[0], p[1]};
             ldapFieldsTemp.add(g);
         }
+        dataSourcesTemp = dataSources;
     }
 
     /**
@@ -119,6 +122,7 @@ public final class OptionsStorage {
             String[] g = {p[0], p[1]};
             ldapFields.add(g);
         }
+        dataSources = dataSourcesTemp;
     }
 
     /**
@@ -178,8 +182,8 @@ public final class OptionsStorage {
                 ResultSet amiAdressRS = ptsm.executeQuery();
                 time = Long.valueOf(!amiAdressRS.next() ? Long.toString(System.currentTimeMillis()) : amiAdressRS.getString(SETTING));
             }
-
-            readinLdapFields();
+            readInDataSources();
+            readInLdapFields();
             setTempVariables();
         } catch (SQLException ex) {
             Logger.getLogger(OptionsStorage.class.getName()).log(Level.SEVERE, null, ex);
@@ -257,7 +261,7 @@ public final class OptionsStorage {
      * Reads in the LDAP fields (information eg: mobile, name) the user wants to
      * get from the LDAP Server
      */
-    private void readinLdapFields() {
+    private void readInLdapFields() {
         try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {
             readinLdapFieldsInner(statement, con);
         } catch (SQLException ex) {
@@ -445,6 +449,16 @@ public final class OptionsStorage {
         this.ldapFields = (ArrayList<String[]>) ldapFields;
     }
 
+    public DataSourceActivationLoader getDataSourcesTemp() {
+        return dataSourcesTemp;
+    }
+
+    public void setDataSourcesTemp(DataSourceActivationLoader dataSourcesTemp) {
+        this.dataSourcesTemp = dataSourcesTemp;
+    }
+
+    
+    
     /**
      * removes temp ldap field. The user removes the fields and they are removed
      * from sqlite database when he hits save. Until that point they are only
@@ -489,6 +503,14 @@ public final class OptionsStorage {
         ldapFieldsTemp.add(a);
         ldapFieldsTemp.forEach(b -> Logger.getLogger(getClass().getName()).log(Level.INFO, "{0} {1}", new Object[]{b[0], b[1]}));
         return true;
+    }
+
+    private void readInDataSources() {
+        try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {
+            dataSources.readDatabaseForSources(con, statement);
+        } catch (SQLException ex) {
+            Logger.getLogger(OptionsStorage.class.getName()).log(Level.WARNING, null, ex);
+        }
     }
 
 }

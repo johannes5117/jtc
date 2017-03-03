@@ -11,10 +11,10 @@ import java.util.ArrayList;
  *
  * @author johannesengler
  */
-public class LDAPEntry {
+public class AdressBookEntry {
     private String name;
     private ArrayList<String> data;
-    public LDAPEntry(ArrayList<String> data, String name) {
+    public AdressBookEntry(ArrayList<String> data, String name) {
         this.name = name;
         this.data = data;
     }

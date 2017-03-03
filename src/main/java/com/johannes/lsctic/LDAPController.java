@@ -24,7 +24,7 @@ import javax.naming.directory.SearchResult;
  *
  * @author johannesengler
  */
-public class LDAPController {
+public class LDAPController implements AdressBookInterface{
 
     private Hashtable env;
     private String ldapUrl;
@@ -61,8 +61,8 @@ public class LDAPController {
         base = "ou=" + ou;
     }
 
-    public ArrayList<LDAPEntry> getN(String ein, int n) {
-        ArrayList<LDAPEntry> aus = new ArrayList<>();
+    public ArrayList<AdressBookEntry> getN(String ein, int n) {
+        ArrayList<AdressBookEntry> aus = new ArrayList<>();
         SearchControls sc = new SearchControls();
         String[] attributeFilter = new String[storage.getLdapFields().size()];
         Logger.getLogger(getClass().getName()).log(Level.INFO, Arrays.toString(attributeFilter));
@@ -110,7 +110,7 @@ public class LDAPController {
                         data.add("!Nicht gefunden!");
                     }
                 }
-                aus.add(new LDAPEntry(data, data.get(0)));
+                aus.add(new AdressBookEntry(data, data.get(0)));
                 ++i;
             }
         } catch (NamingException ex) {

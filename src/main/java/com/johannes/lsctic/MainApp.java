@@ -35,24 +35,18 @@ public class MainApp extends Application implements NativeKeyListener {
     public void start(Stage stage) throws Exception {
         generateTray();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Scene.fxml"));
-        Parent root = (Parent)loader.load();
-        FXMLController controller = (FXMLController)loader.getController();
+        Parent root = (Parent) loader.load();
+        FXMLController controller = (FXMLController) loader.getController();
         controller.setStage(stage);
         Scene scene = new Scene(root);
         scene.setFill(null);
-
         scene.getStylesheets().add("/styles/Styles.css");
-
         stage.setTitle("JavaFX and Maven");
 
-        //stage.initStyle(StageStyle.UNDECORATED);
         stage.initStyle(StageStyle.TRANSPARENT);
-
         stage.setScene(scene);
 
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-
-        //set Stage boundaries to visible bounds of the main screen
         stage.show();
         stage.setX(primaryScreenBounds.getWidth() - scene.getWidth());
         stage.setY(primaryScreenBounds.getHeight() - scene.getHeight());
@@ -75,19 +69,9 @@ public class MainApp extends Application implements NativeKeyListener {
             }
         });
     }
-
-    /**
-     * The main() method is ignored in correctly deployed JavaFX application.
-     * main() serves only as fallback in case the application can not be
-     * launched through deployment artifacts, e.g., in IDEs with limited FX
-     * support. NetBeans ignores main().
-     *
-     * @param args the command line arguments
-     */
+    
     public static void main(String[] args) {
-
         launch(args);
-
     }
 
     private void generateTray() {
@@ -123,7 +107,6 @@ public class MainApp extends Application implements NativeKeyListener {
         displayMenu.add(infoItem);
         displayMenu.add(noneItem);
         popup.add(exitItem);
-
         trayIcon.setPopupMenu(popup);
 
         try {
@@ -131,15 +114,12 @@ public class MainApp extends Application implements NativeKeyListener {
         } catch (AWTException e) {
             System.out.println("TrayIcon could not be added.");
         }
-
     }
-    
     // Bereich für den Hook 
-    
     private boolean strg = false;
     private boolean shift = false;
     private boolean five = false;
-
+    private boolean escape = false;
     /**
      * @param e
      * @see
@@ -148,10 +128,15 @@ public class MainApp extends Application implements NativeKeyListener {
     @Override
     public void nativeKeyTyped(NativeKeyEvent e) {
     }
-
     @Override
     public void nativeKeyPressed(NativeKeyEvent nke) {
         switch (nke.getKeyCode()) {
+            case 1: //Escape Key
+                five = false;
+                strg = false;
+                shift = false;
+                escape = true;
+                break;
             case 2:
                 five = true;
                 break;
@@ -164,20 +149,24 @@ public class MainApp extends Application implements NativeKeyListener {
             default:
                 break;
         }
-        if (five & strg & shift == true) {
-            Logger.getLogger(getClass().getName()).info("TEST");
+        if (escape == true) {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
-                   
-                    stage.setAlwaysOnTop(true);
-                    stage.toFront();
-                    stage.requestFocus();
-                    stage.setAlwaysOnTop(false);
-                    
+                    stage.toBack();
+                    stage.setIconified(true);
                 }
             });
-
+            escape = false;
+        } else if (five & strg & shift == true) {
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    stage.toFront();
+                    stage.requestFocus();
+                    stage.setIconified(false);
+                }
+            });
             five = false;
             strg = false;
             shift = false;
@@ -187,6 +176,9 @@ public class MainApp extends Application implements NativeKeyListener {
     @Override
     public void nativeKeyReleased(NativeKeyEvent nke) {
         switch (nke.getKeyCode()) {
+            case 1:
+                escape = false;
+                break;
             case 2:
                 five = false;
                 break;
@@ -199,7 +191,5 @@ public class MainApp extends Application implements NativeKeyListener {
             default:
                 break;
         }
-
     }
-
 }

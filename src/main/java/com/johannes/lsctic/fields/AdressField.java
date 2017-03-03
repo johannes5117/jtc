@@ -5,7 +5,7 @@
  */
 package com.johannes.lsctic.fields;
 
-import com.johannes.lsctic.LDAPEntry;
+import com.johannes.lsctic.AdressBookEntry;
 import com.johannes.lsctic.OptionsStorage;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
@@ -29,17 +29,17 @@ import javafx.scene.layout.VBox;
  *
  * @author johannesengler
  */
-public class LDAPField extends VBox{
+public class AdressField extends VBox{
     private StackPane p;
     private String name;
     private int count;
     private int number;
-    private LDAPEntry ldapEntry;
+    private AdressBookEntry ldapEntry;
     private ImageView vUpDown;
     private boolean expanded;
     private OptionsStorage storage;
     private ArrayList<String> fieldNames ;
-        public LDAPField(String name, int count, int number , LDAPEntry ldapEntry, OptionsStorage storage) {
+        public AdressField(String name, int count, int number , AdressBookEntry ldapEntry, OptionsStorage storage) {
 
         this.name =name;
         this.count = count;
@@ -73,10 +73,10 @@ public class LDAPField extends VBox{
             @Override
             public void handle(MouseEvent event) {
                  if(event.getClickCount()==2) {
-            System.out.println(LDAPField.this.getName()+" anrufen");
+            System.out.println(AdressField.this.getName()+" anrufen");
                   
                  }
-                 LDAPField.this.requestFocus();
+                 AdressField.this.requestFocus();
                  event.consume();
             
             }
@@ -94,9 +94,9 @@ public class LDAPField extends VBox{
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
 
                 if(newValue){
-                    LDAPField.this.setStyle("-fx-border-color: #0093ff; -fx-border-width: 1px;");
+                    AdressField.this.setStyle("-fx-border-color: #0093ff; -fx-border-width: 1px;");
                 } else {
-                    LDAPField.this.setStyle("-fx-border-color: #FFFFFF; -fx-border-width: 1px;");
+                    AdressField.this.setStyle("-fx-border-color: #FFFFFF; -fx-border-width: 1px;");
                 }
  
                  
@@ -107,7 +107,7 @@ public class LDAPField extends VBox{
     @Override
     public void handle(javafx.scene.input.KeyEvent event) {
         if (event.getCode() == KeyCode.ENTER) {
-            System.out.println(LDAPField.this.getName()+" anrufen");
+            System.out.println(AdressField.this.getName()+" anrufen");
             event.consume(); // do nothing
         }
     }
@@ -127,7 +127,7 @@ public class LDAPField extends VBox{
             @Override
             public void handle(MouseEvent event) {
                 ImageView v = (ImageView) event.getSource();
-                 System.out.println(LDAPField.this.getName());
+                 System.out.println(AdressField.this.getName());
                 event.consume();
             }
         });
@@ -167,7 +167,7 @@ public class LDAPField extends VBox{
             @Override
             public void handle(MouseEvent event) {
                 ImageView v = (ImageView) event.getSource();
-                System.out.println(LDAPField.this.getName());
+                System.out.println(AdressField.this.getName());
 
                 event.consume();
             }
@@ -207,12 +207,12 @@ public class LDAPField extends VBox{
             public void handle(MouseEvent event) {
                 if(expanded){
                     Image image = new Image("/pics/down.png");
-                    LDAPField.this.requestFocus();
+                    AdressField.this.requestFocus();
                     vUpDown.setImage(image);
                     collapse();
                 } else {
                     Image image = new Image("/pics/up.png");
-                    LDAPField.this.requestFocus();
+                    AdressField.this.requestFocus();
                     vUpDown.setImage(image);
                     expand();
                 }
