@@ -183,7 +183,6 @@ public final class OptionsStorage {
                 time = Long.valueOf(!amiAdressRS.next() ? Long.toString(System.currentTimeMillis()) : amiAdressRS.getString(SETTING));
             }
             readInDataSources();
-            readInLdapFields();
             setTempVariables();
         } catch (SQLException ex) {
             Logger.getLogger(OptionsStorage.class.getName()).log(Level.SEVERE, null, ex);
@@ -257,52 +256,7 @@ public final class OptionsStorage {
         }
     }
 
-    /**
-     * Reads in the LDAP fields (information eg: mobile, name) the user wants to
-     * get from the LDAP Server
-     */
-    private void readInLdapFields() {
-        try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {
-            readinLdapFieldsInner(statement, con);
-        } catch (SQLException ex) {
-            Logger.getLogger(OptionsStorage.class.getName()).log(Level.WARNING, null, ex);
-        }
-    }
-
-    /**
-     * sub Method of readinLdapFields to increase readability of the code
-     *
-     * @param statement
-     * @param con
-     * @throws SQLException
-     */
-    private void readinLdapFieldsInner(Statement statement, Connection con) throws SQLException {
-        statement.setQueryTimeout(10);
-        int i = 0;
-        String quField = "ldapField";
-        while (true) {
-            PreparedStatement statement2 = con.prepareStatement("select setting from settings where description = ?");
-            statement2.setString(1, quField + i);
-
-            Logger.getLogger(getClass().getName()).log(Level.INFO, "{0}{1}", new Object[]{quField, i});
-
-            try (ResultSet fieldRS = statement2.executeQuery()) {
-                if (fieldRS.next()) {
-                    Logger.getLogger(getClass().getName()).log(Level.INFO, "Gefunden");
-                    String field = fieldRS.getString("setting");
-                    ldapFields.add(field.split(";"));
-                    ++i;
-                } else {
-                    Logger.getLogger(getClass().getName()).log(Level.INFO, "Break");
-                    statement2.close();
-                    break;
-                }
-            } finally {
-                statement2.close();
-            }
-        }
-    }
-
+   
     public String getAmiAdress() {
         return amiAdress;
     }
@@ -457,6 +411,9 @@ public final class OptionsStorage {
         this.dataSourcesTemp = dataSourcesTemp;
     }
 
+    public DataSourceActivationLoader getDataSources() {
+        return dataSources;
+    }
     
     
     /**

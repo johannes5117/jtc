@@ -110,7 +110,9 @@ public class LDAPController implements AdressBookInterface{
                         data.add("!Nicht gefunden!");
                     }
                 }
-                aus.add(new AdressBookEntry(data, data.get(0)));
+                DataSource s = new DataSource();
+                s.setLdap(true);
+                aus.add(new AdressBookEntry(data, data.get(0),s));
                 ++i;
             }
         } catch (NamingException ex) {

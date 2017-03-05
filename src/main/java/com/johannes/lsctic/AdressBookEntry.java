@@ -14,9 +14,13 @@ import java.util.ArrayList;
 public class AdressBookEntry {
     private String name;
     private ArrayList<String> data;
-    public AdressBookEntry(ArrayList<String> data, String name) {
+    private DataSource source;
+    
+    
+    public AdressBookEntry(ArrayList<String> data, String name, DataSource source) {
         this.name = name;
         this.data = data;
+        this.source = source;
     }
 
     public String getName() {
@@ -25,6 +29,8 @@ public class AdressBookEntry {
     public String get(int i) {
         return data.get(i);
     }
-    
+    public DataSource getSource() {
+        return source;
+    }
     
 }

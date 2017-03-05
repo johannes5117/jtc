@@ -34,11 +34,14 @@ public class AdressField extends VBox{
     private String name;
     private int count;
     private int number;
-    private AdressBookEntry ldapEntry;
+    private final AdressBookEntry ldapEntry;
     private ImageView vUpDown;
     private boolean expanded;
-    private OptionsStorage storage;
-    private ArrayList<String> fieldNames ;
+    private final OptionsStorage storage;
+    private final ArrayList<String> fieldNames ;
+    
+    //Todo: Implement count function
+    
         public AdressField(String name, int count, int number , AdressBookEntry ldapEntry, OptionsStorage storage) {
 
         this.name =name;

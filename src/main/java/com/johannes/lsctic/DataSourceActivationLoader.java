@@ -19,35 +19,10 @@ import java.util.logging.Logger;
  */
 public class DataSourceActivationLoader {
 
-    private boolean ldap = false;
-    private boolean mysql = false;
-    private boolean textFile = false;
+    DataSource generalAvailability = new DataSource();
+    DataSourceFields fields = new DataSourceFields();
 
     public DataSourceActivationLoader() {
-    }
-
-    public boolean isLdap() {
-        return ldap;
-    }
-
-    public void setLdap(boolean ldap) {
-        this.ldap = ldap;
-    }
-
-    public boolean isMysql() {
-        return mysql;
-    }
-
-    public void setMysql(boolean mysql) {
-        this.mysql = mysql;
-    }
-
-    public boolean isTextFile() {
-        return textFile;
-    }
-
-    public void setTextFile(boolean textFile) {
-        this.textFile = textFile;
     }
 
     void readDatabaseForSources(Connection con, Statement statement) throws SQLException {
@@ -61,7 +36,7 @@ public class DataSourceActivationLoader {
                 if (fieldRS.next()) {
                     Logger.getLogger(getClass().getName()).log(Level.INFO, "Gefunden");
                     String field = fieldRS.getString("setting");
-                    checkOption(field,true);
+                    checkOption(field, true, con, statement);
                     ++i;
                 } else {
                     Logger.getLogger(getClass().getName()).log(Level.INFO, "Break");
@@ -74,18 +49,28 @@ public class DataSourceActivationLoader {
         }
     }
 
-    public void checkOption(String text, boolean val) {
+    public void checkOption(String text, boolean val, Connection con, Statement statement) {
         switch (text.toLowerCase()) {
             case ("mysql"):
-                mysql = val;
+                generalAvailability.setMysql(val);
                 break;
             case ("ldap"):
-                ldap = val;
+                generalAvailability.setLdap(val);
                 break;
             case ("textFile"):
-                textFile = val;
+                generalAvailability.setTextFile(val);
                 break;
+            default:
+                return;
         }
+        if(con!=null) {
+            fields.addFieldsFromDatabase(text, con, statement);
+        }
+
+    }
+
+    public DataSource getAvailability() {
+        return generalAvailability;
     }
 
 }

@@ -12,6 +12,7 @@ import com.johannes.lsctic.settings.LDAPSettingsField;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -164,11 +165,14 @@ public class FXMLController implements Initializable {
         Logger.getLogger(getClass().getName()).log(Level.INFO, "Search Amount: {0}", String.valueOf(storage.getLdapSearchAmount()));
         LDAPController l = new LDAPController(storage);
         ArrayList<LDAPEntry> ld = l.getN("", storage.getLdapSearchAmount());
-        updateLdapFields(ld);
+        updateAdressFields(ld);
         paneBTextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
             ArrayList<LDAPEntry> ld1 = l.getN(newValue, storage.getLdapSearchAmount());
             updateLdapFields(ld1);
         });*/
+   
+        MySqlLoader l = new MySqlLoader();
+        updateAdressFields(l.getN("", 9));
 
         hFields = new ArrayList();
 
@@ -176,6 +180,11 @@ public class FXMLController implements Initializable {
 
         panelD.getChildren().addAll(new AsteriskSettingsField(storage), new DeploymentSettingsField(storage), new DataSourceSettingsField(storage), new LDAPSettingsField(storage));
 
+        Logger.getLogger(getClass().getName()).info("AT LEAST WE TRIED IT UNTIL HERE");
+        for(String[] as : storage.getDataSourcesTemp().fields.getFields("mysql")) {
+            Logger.getLogger(getClass().getName()).info(Arrays.toString(as));
+        }
+        
     }
 
     private void selectTab(int i) {
@@ -231,11 +240,11 @@ public class FXMLController implements Initializable {
         panelA.getChildren().add(new NewInternField(this));
     }
 
-    private void updateLdapFields(ArrayList<AdressBookEntry> i) {
+    private void updateAdressFields(ArrayList<AdressBookEntry> i) {
         panelB.getChildren().clear();
-        ArrayList<AdressField> ldapFields = new ArrayList<>();
-        i.stream().forEach(ent -> ldapFields.add(new AdressField(ent.get(0), 2, 123123, ent, storage)));
-        panelB.getChildren().addAll(ldapFields);
+        ArrayList<AdressField> adressFields = new ArrayList<>();
+        i.stream().forEach(ent -> adressFields.add(new AdressField(ent.get(0), 2, 123123, ent, storage)));
+        panelB.getChildren().addAll(adressFields);
     }
 
     public int getOwnExtension() {
