@@ -63,12 +63,12 @@ public class SqlLiteDeployment {
         }
         
         /*
-        statement.executeUpdate("insert into settings values(0, '"+settings.get(0)+"', 'amiAdress')");
+        statement.executeUpdate("insert into settings values(0, '"+settings.get(0)+"', 'amiAddress')");
         statement.executeUpdate("insert into settings values(1, '"+settings.get(1)+"','amiServerPort')");
         statement.executeUpdate("insert into settings values(2, '"+settings.get(2)+"','amiLogIn')");
         statement.executeUpdate("insert into settings values(3, '"+settings.get(3)+"','amiPassword')");
         // LDAP Optionen
-        statement.executeUpdate("insert into settings values(4, '"+settings.get(4)+"', 'ldapAdress')");
+        statement.executeUpdate("insert into settings values(4, '"+settings.get(4)+"', 'ldapAddress')");
         statement.executeUpdate("insert into settings values(5, '"+settings.get(5)+"','ldapServerPort')");
         statement.executeUpdate("insert into settings values(6, '"+settings.get(6)+"','ldapSearchBase')");
         statement.executeUpdate("insert into settings values(7, '"+settings.get(7)+"','ldapBase')");

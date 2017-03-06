@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.johannes.lsctic;
+package com.johannes.lsctic.address;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,15 +17,15 @@ import java.util.logging.Logger;
  *
  * @author johannes
  */
-public class DataSourceActivationLoader {
+public class DataSourceActivationDatabaseTool {
 
     DataSource generalAvailability = new DataSource();
     DataSourceFields fields = new DataSourceFields();
 
-    public DataSourceActivationLoader() {
+    public DataSourceActivationDatabaseTool() {
     }
 
-    void readDatabaseForSources(Connection con, Statement statement) throws SQLException {
+    public void readDatabaseForSources(Connection con, Statement statement) throws SQLException {
         statement.setQueryTimeout(10);
         int i = 0;
         String quField = "datasource";
@@ -50,19 +50,7 @@ public class DataSourceActivationLoader {
     }
 
     public void checkOption(String text, boolean val, Connection con, Statement statement) {
-        switch (text.toLowerCase()) {
-            case ("mysql"):
-                generalAvailability.setMysql(val);
-                break;
-            case ("ldap"):
-                generalAvailability.setLdap(val);
-                break;
-            case ("textFile"):
-                generalAvailability.setTextFile(val);
-                break;
-            default:
-                return;
-        }
+        generalAvailability.setDataSource(text); 
         if(con!=null) {
             fields.addFieldsFromDatabase(text, con, statement);
         }
@@ -72,5 +60,11 @@ public class DataSourceActivationLoader {
     public DataSource getAvailability() {
         return generalAvailability;
     }
+
+    public DataSourceFields getFields() {
+        return fields;
+    }
+    
+    
 
 }

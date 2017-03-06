@@ -37,11 +37,11 @@ public class LDAPSettingsField extends SettingsField {
         VBox.setMargin(v, new Insets(6, 0, 3, 0));
         TextField f = new TextField();
         f.setPromptText("IP Adresse (Beispiel: server)");
-        f.setText(getStorage().getLdapAdress());
+        f.setText(getStorage().getLdapAddress());
         f.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                getStorage().setLdapAdressTemp(newValue);
+                getStorage().setLdapAddressTemp(newValue);
             }
         });
         final TextField f2 = new TextField();

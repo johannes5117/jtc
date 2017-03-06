@@ -30,11 +30,11 @@ public class AsteriskSettingsField extends SettingsField {
         VBox.setMargin(v, new Insets(6, 0, 3, 0));
         TextField f = new TextField();
         f.setPromptText("IP Adresse (Beispiel: server)");
-        f.setText(getStorage().getAmiAdress());
+        f.setText(getStorage().getAmiAddress());
         f.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                getStorage().setAmiAdressTemp(newValue);
+                getStorage().setAmiAddressTemp(newValue);
             }
         });
         final TextField f1 = new TextField();

@@ -26,7 +26,7 @@ import java.util.logging.Logger;
  * @author johannesengler
  */
 public class ServerConnectionHandler {
-     static final String ADRESSE = "localhost";
+     static final String ADDRESS = "localhost";
      static final int PORT = 12345;
      
      
@@ -49,7 +49,7 @@ public class ServerConnectionHandler {
                      .handler(new SecureChatClientInitializer(sslCtx,  fcont, internNumbers));
              
              // Start the connection attempt.
-             ch = b.connect(ADRESSE, PORT).sync().channel();
+             ch = b.connect(ADDRESS, PORT).sync().channel();
              
              // Read commands from the stdin.
              

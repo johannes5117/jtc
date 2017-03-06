@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.johannes.lsctic;
+package com.johannes.lsctic.address;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -58,9 +58,10 @@ public class DataSourceFields {
      * @param fieldName
      * @param statement
      * @param con
+     * @return 
      * @throws SQLException
      */
-    private ArrayList<String[]> readinLdapFieldsInner(String fieldName, Statement statement, Connection con) throws SQLException {
+    protected ArrayList<String[]> readinLdapFieldsInner(String fieldName, Statement statement, Connection con) throws SQLException {
         statement.setQueryTimeout(10);
         ArrayList<String[]> readInFields = new ArrayList<>();
         int i = 0;

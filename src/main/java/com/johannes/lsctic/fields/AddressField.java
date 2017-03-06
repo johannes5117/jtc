@@ -5,7 +5,7 @@
  */
 package com.johannes.lsctic.fields;
 
-import com.johannes.lsctic.AdressBookEntry;
+import com.johannes.lsctic.address.AddressBookEntry;
 import com.johannes.lsctic.OptionsStorage;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
@@ -29,12 +29,12 @@ import javafx.scene.layout.VBox;
  *
  * @author johannesengler
  */
-public class AdressField extends VBox{
+public class AddressField extends VBox{
     private StackPane p;
     private String name;
     private int count;
     private int number;
-    private final AdressBookEntry ldapEntry;
+    private final AddressBookEntry ldapEntry;
     private ImageView vUpDown;
     private boolean expanded;
     private final OptionsStorage storage;
@@ -42,7 +42,7 @@ public class AdressField extends VBox{
     
     //Todo: Implement count function
     
-        public AdressField(String name, int count, int number , AdressBookEntry ldapEntry, OptionsStorage storage) {
+        public AddressField(String name, int count, int number , AddressBookEntry ldapEntry, OptionsStorage storage) {
 
         this.name =name;
         this.count = count;
@@ -57,7 +57,7 @@ public class AdressField extends VBox{
         this.storage = storage;
         this.fieldNames = new ArrayList<>();
         int i = 0;
-        for(String[] s : storage.getLdapFields()) {
+        for(String[] s : storage.getDataSources().getFields().getFields(ldapEntry.getSource().getSource())) {
             fieldNames.add(s[1]);
             ++i;
         }
@@ -76,10 +76,10 @@ public class AdressField extends VBox{
             @Override
             public void handle(MouseEvent event) {
                  if(event.getClickCount()==2) {
-            System.out.println(AdressField.this.getName()+" anrufen");
+            System.out.println(AddressField.this.getName()+" anrufen");
                   
                  }
-                 AdressField.this.requestFocus();
+                 AddressField.this.requestFocus();
                  event.consume();
             
             }
@@ -97,9 +97,9 @@ public class AdressField extends VBox{
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
 
                 if(newValue){
-                    AdressField.this.setStyle("-fx-border-color: #0093ff; -fx-border-width: 1px;");
+                    AddressField.this.setStyle("-fx-border-color: #0093ff; -fx-border-width: 1px;");
                 } else {
-                    AdressField.this.setStyle("-fx-border-color: #FFFFFF; -fx-border-width: 1px;");
+                    AddressField.this.setStyle("-fx-border-color: #FFFFFF; -fx-border-width: 1px;");
                 }
  
                  
@@ -110,7 +110,7 @@ public class AdressField extends VBox{
     @Override
     public void handle(javafx.scene.input.KeyEvent event) {
         if (event.getCode() == KeyCode.ENTER) {
-            System.out.println(AdressField.this.getName()+" anrufen");
+            System.out.println(AddressField.this.getName()+" anrufen");
             event.consume(); // do nothing
         }
     }
@@ -130,7 +130,7 @@ public class AdressField extends VBox{
             @Override
             public void handle(MouseEvent event) {
                 ImageView v = (ImageView) event.getSource();
-                 System.out.println(AdressField.this.getName());
+                 System.out.println(AddressField.this.getName());
                 event.consume();
             }
         });
@@ -170,7 +170,7 @@ public class AdressField extends VBox{
             @Override
             public void handle(MouseEvent event) {
                 ImageView v = (ImageView) event.getSource();
-                System.out.println(AdressField.this.getName());
+                System.out.println(AddressField.this.getName());
 
                 event.consume();
             }
@@ -210,12 +210,12 @@ public class AdressField extends VBox{
             public void handle(MouseEvent event) {
                 if(expanded){
                     Image image = new Image("/pics/down.png");
-                    AdressField.this.requestFocus();
+                    AddressField.this.requestFocus();
                     vUpDown.setImage(image);
                     collapse();
                 } else {
                     Image image = new Image("/pics/up.png");
-                    AdressField.this.requestFocus();
+                    AddressField.this.requestFocus();
                     vUpDown.setImage(image);
                     expand();
                 }

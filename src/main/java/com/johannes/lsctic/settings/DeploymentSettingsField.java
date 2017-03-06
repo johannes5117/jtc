@@ -131,11 +131,11 @@ public class DeploymentSettingsField extends SettingsField {
 
     public Map generateHashmap(Intern mit, boolean activated) {
         HashMap<String, String> settings = new HashMap<>();
-        settings.put("amiAdress", getStorage().getAmiAdress());
+        settings.put("amiAddress", getStorage().getAmiAddress());
         settings.put("amiServerPort", "" + Integer.toString(getStorage().getAmiServerPort()));  //AMI Server Port
         settings.put("amiLogIn", getStorage().getAmiLogIn());  //AMI LogingetStorage().getAmiLogIn());  //AMI Login
         settings.put("amiPassword", getStorage().getAmiPassword());  //AMI Password
-        settings.put("ldapAdress", getStorage().getLdapAdress());  //LDAP Server Adresse
+        settings.put("ldapAddress", getStorage().getLdapAddress());  //LDAP Server Addresse
         settings.put("ldapServerPort", "" + Integer.toString(getStorage().getLdapServerPort()));  //LDAP Server Port
         settings.put("ldapSearchBase", getStorage().getLdapSearchBase());  //LDAP Suchbasis
         settings.put("ldapBase", getStorage().getLdapBase());  //LDAP Basis

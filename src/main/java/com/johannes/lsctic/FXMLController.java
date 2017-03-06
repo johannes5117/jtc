@@ -1,9 +1,11 @@
 package com.johannes.lsctic;
 
+import com.johannes.lsctic.address.loaders.MySqlLoader;
+import com.johannes.lsctic.address.AddressBookEntry;
 import com.johannes.lsctic.amiapi.ServerConnectionHandler;
 import com.johannes.lsctic.fields.InternField;
 import com.johannes.lsctic.fields.HistoryField;
-import com.johannes.lsctic.fields.AdressField;
+import com.johannes.lsctic.fields.AddressField;
 import com.johannes.lsctic.fields.NewInternField;
 import com.johannes.lsctic.settings.AsteriskSettingsField;
 import com.johannes.lsctic.settings.DataSourceSettingsField;
@@ -165,14 +167,14 @@ public class FXMLController implements Initializable {
         Logger.getLogger(getClass().getName()).log(Level.INFO, "Search Amount: {0}", String.valueOf(storage.getLdapSearchAmount()));
         LDAPController l = new LDAPController(storage);
         ArrayList<LDAPEntry> ld = l.getN("", storage.getLdapSearchAmount());
-        updateAdressFields(ld);
+        updateAddressFields(ld);
         paneBTextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
             ArrayList<LDAPEntry> ld1 = l.getN(newValue, storage.getLdapSearchAmount());
             updateLdapFields(ld1);
         });*/
    
         MySqlLoader l = new MySqlLoader();
-        updateAdressFields(l.getN("", 9));
+        updateAddressFields(l.getN("", 9));
 
         hFields = new ArrayList();
 
@@ -180,8 +182,7 @@ public class FXMLController implements Initializable {
 
         panelD.getChildren().addAll(new AsteriskSettingsField(storage), new DeploymentSettingsField(storage), new DataSourceSettingsField(storage), new LDAPSettingsField(storage));
 
-        Logger.getLogger(getClass().getName()).info("AT LEAST WE TRIED IT UNTIL HERE");
-        for(String[] as : storage.getDataSourcesTemp().fields.getFields("mysql")) {
+        for(String[] as : storage.getDataSourcesTemp().getFields().getFields("mysql")) {
             Logger.getLogger(getClass().getName()).info(Arrays.toString(as));
         }
         
@@ -240,11 +241,11 @@ public class FXMLController implements Initializable {
         panelA.getChildren().add(new NewInternField(this));
     }
 
-    private void updateAdressFields(ArrayList<AdressBookEntry> i) {
+    private void updateAddressFields(ArrayList<AddressBookEntry> i) {
         panelB.getChildren().clear();
-        ArrayList<AdressField> adressFields = new ArrayList<>();
-        i.stream().forEach(ent -> adressFields.add(new AdressField(ent.get(0), 2, 123123, ent, storage)));
-        panelB.getChildren().addAll(adressFields);
+        ArrayList<AddressField> addressFields = new ArrayList<>();
+        i.stream().forEach(ent -> addressFields.add(new AddressField(ent.get(0), 2, 123123, ent, storage)));
+        panelB.getChildren().addAll(addressFields);
     }
 
     public int getOwnExtension() {

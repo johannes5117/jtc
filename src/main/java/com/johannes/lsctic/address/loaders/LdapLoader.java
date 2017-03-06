@@ -3,8 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.johannes.lsctic;
+package com.johannes.lsctic.address.loaders;
 
+import com.johannes.lsctic.FXMLController;
+import com.johannes.lsctic.OptionsStorage;
+import com.johannes.lsctic.address.AddressBookEntry;
+import com.johannes.lsctic.address.AddressBookEntry;
+import com.johannes.lsctic.address.DataSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -24,7 +29,7 @@ import javax.naming.directory.SearchResult;
  *
  * @author johannesengler
  */
-public class LDAPController implements AdressBookInterface{
+public class LdapLoader implements AddressLoaderInterface{
 
     private Hashtable env;
     private String ldapUrl;
@@ -32,13 +37,13 @@ public class LDAPController implements AdressBookInterface{
     private String base;
     private OptionsStorage storage;
 
-    public LDAPController(OptionsStorage storage) {
+    public LdapLoader(OptionsStorage storage) {
         env = new Hashtable();
 
         String sp = "com.sun.jndi.ldap.LdapCtxFactory";
         env.put(Context.INITIAL_CONTEXT_FACTORY, sp);
 
-        ldapUrl = "ldap://" + storage.getLdapAdress() + ":" + storage.getLdapServerPort() + "/" + storage.getLdapSearchBase();
+        ldapUrl = "ldap://" + storage.getLdapAddress() + ":" + storage.getLdapServerPort() + "/" + storage.getLdapSearchBase();
 
         env.put(Context.PROVIDER_URL, ldapUrl);
 
@@ -47,7 +52,7 @@ public class LDAPController implements AdressBookInterface{
         base = storage.getLdapBase();
     }
 
-    public LDAPController(String serverIp, int port, String dc, String ou, OptionsStorage storage) {
+    public LdapLoader(String serverIp, int port, String dc, String ou, OptionsStorage storage) {
         env = new Hashtable();
 
         String sp = "com.sun.jndi.ldap.LdapCtxFactory";
@@ -61,8 +66,8 @@ public class LDAPController implements AdressBookInterface{
         base = "ou=" + ou;
     }
 
-    public ArrayList<AdressBookEntry> getN(String ein, int n) {
-        ArrayList<AdressBookEntry> aus = new ArrayList<>();
+    public ArrayList<AddressBookEntry> getN(String ein, int n) {
+        ArrayList<AddressBookEntry> aus = new ArrayList<>();
         SearchControls sc = new SearchControls();
         String[] attributeFilter = new String[storage.getLdapFields().size()];
         Logger.getLogger(getClass().getName()).log(Level.INFO, Arrays.toString(attributeFilter));
@@ -111,8 +116,8 @@ public class LDAPController implements AdressBookInterface{
                     }
                 }
                 DataSource s = new DataSource();
-                s.setLdap(true);
-                aus.add(new AdressBookEntry(data, data.get(0),s));
+                s.setDataSource("ldap");
+                aus.add(new AddressBookEntry(data, data.get(0),s));
                 ++i;
             }
         } catch (NamingException ex) {

@@ -1,5 +1,6 @@
 package com.johannes.lsctic;
 
+import com.johannes.lsctic.address.DataSourceActivationDatabaseTool;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -21,11 +22,11 @@ import javafx.scene.control.Button;
  */
 public final class OptionsStorage {
 
-    private String amiAdress;        //AMI Server Adresse
+    private String amiAddress;        //AMI Server Address
     private int amiServerPort;       //AMI Server Port
     private String amiLogIn;         //AMI Login
     private String amiPassword;      //AMI Password
-    private String ldapAdress;       //LDAP Server Adresse
+    private String ldapAddress;       //LDAP Server Address
     private int ldapServerPort;      //LDAP Server Port
     private String ldapSearchBase;   //LDAP Suchbasis
     private String ldapBase;         //LDAP Basis
@@ -33,13 +34,13 @@ public final class OptionsStorage {
     private String ownExtension;     // eigene Extension asterisk
     private long time;               // TimeStamp
     private ArrayList<String[]> ldapFields = new ArrayList<>();  // LDAP Felder mit Namen
-    private DataSourceActivationLoader dataSources = new DataSourceActivationLoader();
+    private DataSourceActivationDatabaseTool dataSources = new DataSourceActivationDatabaseTool();
 
-    private String amiAdressTemp;        //AMI Server Adresse
+    private String amiAddressTemp;        //AMI Server Addresse
     private int amiServerPortTemp;       //AMI Server Port
     private String amiLogInTemp;         //AMI Login
     private String amiPasswordTemp;      //AMI Password
-    private String ldapAdressTemp;       //LDAP Server Adresse
+    private String ldapAddressTemp;       //LDAP Server Address
     private int ldapServerPortTemp;      //LDAP Server Port
     private String ldapSearchBaseTemp;   //LDAP Suchbasis
     private String ldapBaseTemp;         //LDAP Basis
@@ -47,7 +48,7 @@ public final class OptionsStorage {
     private String ownExtensionTemp;     // eigene Extension asterisk
     private long timeTemp;               // TimeStamp
     private final ArrayList<String[]> ldapFieldsTemp = new ArrayList<>();  // LDAP Felder mit Namen
-    private DataSourceActivationLoader dataSourcesTemp = new DataSourceActivationLoader();
+    private DataSourceActivationDatabaseTool dataSourcesTemp = new DataSourceActivationDatabaseTool();
 
     private static final String DATABASE_CONNECTION = "jdbc:sqlite:settingsAndData.db";
     private static final String SETTING = "setting";
@@ -75,11 +76,11 @@ public final class OptionsStorage {
      * Used to store the temp. vars.
      */
     public void setTempVariables() {
-        amiAdressTemp = amiAdress;
+        amiAddressTemp = amiAddress;
         amiServerPortTemp = amiServerPort;
         amiLogInTemp = amiLogIn;
         amiPasswordTemp = amiPassword;
-        ldapAdressTemp = ldapAdress;
+        ldapAddressTemp = ldapAddress;
         ldapServerPortTemp = ldapServerPort;
         ldapSearchBaseTemp = ldapSearchBase;
         ldapBaseTemp = ldapBase;
@@ -106,11 +107,11 @@ public final class OptionsStorage {
      * accept
      */
     public void setVariables() {
-        amiAdress = amiAdressTemp;
+        amiAddress = amiAddressTemp;
         amiServerPort = amiServerPortTemp;
         amiLogIn = amiLogInTemp;
         amiPassword = amiPasswordTemp;
-        ldapAdress = ldapAdressTemp;
+        ldapAddress = ldapAddressTemp;
         ldapServerPort = ldapServerPortTemp;
         ldapSearchBase = ldapSearchBaseTemp;
         ldapBase = ldapBaseTemp;
@@ -133,11 +134,11 @@ public final class OptionsStorage {
         try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {
             statement.setQueryTimeout(10);
             final String query = "UPDATE Settings SET setting = '";
-            statement.executeUpdate(query + amiAdress + "' WHERE description = 'amiAdress'");
+            statement.executeUpdate(query + amiAddress + "' WHERE description = 'amiAddress'");
             statement.executeUpdate(query + amiServerPort + "' WHERE description = 'amiServerPort'");
             statement.executeUpdate(query + amiLogIn + "' WHERE description = 'amiLogIn'");
             statement.executeUpdate(query + amiPassword + "' WHERE description = 'amiPassword'");
-            statement.executeUpdate(query + ldapAdress + "' WHERE description = 'ldapAdress'");
+            statement.executeUpdate(query + ldapAddress + "' WHERE description = 'ldapAddress'");
             statement.executeUpdate(query + ldapServerPort + "' WHERE description = 'ldapServerPort'");
             statement.executeUpdate(query + ldapSearchBase + "' WHERE description = 'ldapSearchBase'");
             statement.executeUpdate(query + ldapBase + "' WHERE description = 'ldapBase'");
@@ -174,13 +175,13 @@ public final class OptionsStorage {
             readLdapFields(query, con);
             try (PreparedStatement ptsm = con.prepareStatement(query)) {
                 ptsm.setString(1, "ownExtension");
-                ResultSet amiAdressRS = ptsm.executeQuery();
-                ownExtension = !amiAdressRS.next() ? "201" : amiAdressRS.getString(SETTING);
+                ResultSet amiAddressRS=  ptsm.executeQuery();
+                ownExtension = !amiAddressRS.next() ? "201" : amiAddressRS.getString(SETTING);
             }
             try (PreparedStatement ptsm = con.prepareStatement(query)) {
                 ptsm.setString(1, "time");
-                ResultSet amiAdressRS = ptsm.executeQuery();
-                time = Long.valueOf(!amiAdressRS.next() ? Long.toString(System.currentTimeMillis()) : amiAdressRS.getString(SETTING));
+                ResultSet amiAddressRS = ptsm.executeQuery();
+                time = Long.valueOf(!amiAddressRS.next() ? Long.toString(System.currentTimeMillis()) : amiAddressRS.getString(SETTING));
             }
             readInDataSources();
             setTempVariables();
@@ -199,24 +200,24 @@ public final class OptionsStorage {
      */
     private void readAmiFields(String query, Connection con) throws SQLException {
         try (PreparedStatement ptsm = con.prepareStatement(query)) {
-            ptsm.setString(1, "amiAdress");
-            ResultSet amiAdressRS = ptsm.executeQuery();
-            amiAdress = !amiAdressRS.next() ? "localhost" : amiAdressRS.getString(SETTING);
+            ptsm.setString(1, "amiAddress");
+            ResultSet amiAddressRS = ptsm.executeQuery();
+            amiAddress = !amiAddressRS.next() ? "localhost" : amiAddressRS.getString(SETTING);
         }
         try (PreparedStatement ptsm = con.prepareStatement(query)) {
             ptsm.setString(1, "amiServerPort");
-            ResultSet amiAdressRS = ptsm.executeQuery();
-            amiServerPort = Integer.valueOf(!amiAdressRS.next() ? "12350" : amiAdressRS.getString(SETTING));
+            ResultSet amiAddressRS = ptsm.executeQuery();
+            amiServerPort = Integer.valueOf(!amiAddressRS.next() ? "12350" : amiAddressRS.getString(SETTING));
         }
         try (PreparedStatement ptsm = con.prepareStatement(query)) {
             ptsm.setString(1, "amiLogIn");
-            ResultSet amiAdressRS = ptsm.executeQuery();
-            amiLogIn = !amiAdressRS.next() ? "admin" : amiAdressRS.getString(SETTING);
+            ResultSet amiAddressRS = ptsm.executeQuery();
+            amiLogIn = !amiAddressRS.next() ? "admin" : amiAddressRS.getString(SETTING);
         }
         try (PreparedStatement ptsm = con.prepareStatement(query)) {
             ptsm.setString(1, "amiPassword");
-            ResultSet amiAdressRS = ptsm.executeQuery();
-            amiPassword = !amiAdressRS.next() ? "" : amiAdressRS.getString(SETTING);
+            ResultSet amiAddressRS = ptsm.executeQuery();
+            amiPassword = !amiAddressRS.next() ? "" : amiAddressRS.getString(SETTING);
         }
     }
 
@@ -229,40 +230,40 @@ public final class OptionsStorage {
      */
     private void readLdapFields(String query, Connection con) throws SQLException {
         try (PreparedStatement ptsm = con.prepareStatement(query)) {
-            ptsm.setString(1, "ldapAdress");
-            ResultSet amiAdressRS = ptsm.executeQuery();
-            ldapAdress = !amiAdressRS.next() ? "localhost" : amiAdressRS.getString(SETTING);
-            Logger.getLogger(getClass().getName()).info(ldapAdress);
+            ptsm.setString(1, "ldapAddress");
+            ResultSet amiAddressRS = ptsm.executeQuery();
+            ldapAddress = !amiAddressRS.next() ? "localhost" : amiAddressRS.getString(SETTING);
+            Logger.getLogger(getClass().getName()).info(ldapAddress);
         }
         try (PreparedStatement ptsm = con.prepareStatement(query)) {
             ptsm.setString(1, "ldapServerPort");
-            ResultSet amiAdressRS = ptsm.executeQuery();
-            ldapServerPort = Integer.valueOf(!amiAdressRS.next() ? "322" : amiAdressRS.getString(SETTING));
+            ResultSet amiAddressRS = ptsm.executeQuery();
+            ldapServerPort = Integer.valueOf(!amiAddressRS.next() ? "322" : amiAddressRS.getString(SETTING));
         }
         try (PreparedStatement ptsm = con.prepareStatement(query)) {
             ptsm.setString(1, "ldapSearchBase");
-            ResultSet amiAdressRS = ptsm.executeQuery();
-            ldapSearchBase = !amiAdressRS.next() ? "cn=ldapDocker23" : amiAdressRS.getString(SETTING);
+            ResultSet amiAddressRS=  ptsm.executeQuery();
+            ldapSearchBase = !amiAddressRS.next() ? "cn=ldapDocker23" : amiAddressRS.getString(SETTING);
         }
         try (PreparedStatement ptsm = con.prepareStatement(query)) {
             ptsm.setString(1, "ldapBase");
-            ResultSet amiAdressRS = ptsm.executeQuery();
-            ldapBase = !amiAdressRS.next() ? "ou=people23" : amiAdressRS.getString(SETTING);
+            ResultSet amiAddressRS = ptsm.executeQuery();
+            ldapBase = !amiAddressRS.next() ? "ou=people23" : amiAddressRS.getString(SETTING);
         }
         try (PreparedStatement ptsm = con.prepareStatement(query)) {
             ptsm.setString(1, "ldapSearchAmount");
-            ResultSet amiAdressRS = ptsm.executeQuery();
-            ldapSearchAmount = Integer.valueOf(!amiAdressRS.next() ? "1023" : amiAdressRS.getString(SETTING));
+            ResultSet amiAddressRS = ptsm.executeQuery();
+            ldapSearchAmount = Integer.valueOf(!amiAddressRS.next() ? "1023" : amiAddressRS.getString(SETTING));
         }
     }
 
    
-    public String getAmiAdress() {
-        return amiAdress;
+    public String getAmiAddress() {
+        return amiAddress;
     }
 
-    public void setAmiAdress(String amiAdress) {
-        this.amiAdress = amiAdress;
+    public void setAmiAddress(String amiAddress) {
+        this.amiAddress = amiAddress;
     }
 
     public int getAmiServerPort() {
@@ -290,12 +291,12 @@ public final class OptionsStorage {
         this.amiPassword = amiPassword;
     }
 
-    public String getLdapAdress() {
-        return ldapAdress;
+    public String getLdapAddress() {
+        return ldapAddress;
     }
 
-    public void setLdapAdress(String ldapAdress) {
-        this.ldapAdress = ldapAdress;
+    public void setLdapAddress(String ldapAddress) {
+        this.ldapAddress = ldapAddress;
     }
 
     public int getLdapServerPort() {
@@ -322,8 +323,8 @@ public final class OptionsStorage {
         this.ldapBase = ldapBase;
     }
 
-    public void setAmiAdressTemp(String amiAdressTemp) {
-        this.amiAdressTemp = amiAdressTemp;
+    public void setAmiAddressTemp(String amiAddressTemp) {
+        this.amiAddressTemp = amiAddressTemp;
     }
 
     public void setAmiServerPortTemp(int amiServerPortTemp) {
@@ -338,8 +339,8 @@ public final class OptionsStorage {
         this.amiPasswordTemp = amiPasswordTemp;
     }
 
-    public void setLdapAdressTemp(String ldapAdressTemp) {
-        this.ldapAdressTemp = ldapAdressTemp;
+    public void setLdapAddressTemp(String ldapAddressTemp) {
+        this.ldapAddressTemp = ldapAddressTemp;
     }
 
     public void setLdapServerPortTemp(int ldapServerPortTemp) {
@@ -392,7 +393,7 @@ public final class OptionsStorage {
 
     @Override
     public String toString() {
-        return "OptionsStorage{" + "amiAdress=" + amiAdress + ", amiServerPort=" + amiServerPort + ", amiLogIn=" + amiLogIn + ", amiPassword=" + amiPassword + ", ldapAdress=" + ldapAdress + ", ldapServerPort=" + ldapServerPort + ", ldapSearchBase=" + ldapSearchBase + ", ldapBase=" + ldapBase + ", ownExtension=" + ownExtension + ", time=" + time + ", amiAdressTemp=" + amiAdressTemp + ", amiServerPortTemp=" + amiServerPortTemp + ", amiLogInTemp=" + amiLogInTemp + ", amiPasswordTemp=" + amiPasswordTemp + ", ldapAdressTemp=" + ldapAdressTemp + ", ldapServerPortTemp=" + ldapServerPortTemp + ", ldapSearchBaseTemp=" + ldapSearchBaseTemp + ", ldapBaseTemp=" + ldapBaseTemp + ", ownExtensionTemp=" + ownExtensionTemp + ", timeTemp=" + timeTemp + '}';
+        return "OptionsStorage{" + "amiAddress=" + amiAddress + ", amiServerPort=" + amiServerPort + ", amiLogIn=" + amiLogIn + ", amiPassword=" + amiPassword + ", ldapAddress=" + ldapAddress + ", ldapServerPort=" + ldapServerPort + ", ldapSearchBase=" + ldapSearchBase + ", ldapBase=" + ldapBase + ", ownExtension=" + ownExtension + ", time=" + time + ", amiAddressTemp=" + amiAddressTemp + ", amiServerPortTemp=" + amiServerPortTemp + ", amiLogInTemp=" + amiLogInTemp + ", amiPasswordTemp=" + amiPasswordTemp + ", ldapAddressTemp=" + ldapAddressTemp + ", ldapServerPortTemp=" + ldapServerPortTemp + ", ldapSearchBaseTemp=" + ldapSearchBaseTemp + ", ldapBaseTemp=" + ldapBaseTemp + ", ownExtensionTemp=" + ownExtensionTemp + ", timeTemp=" + timeTemp + '}';
     }
 
     public List<String[]> getLdapFields() {
@@ -403,15 +404,15 @@ public final class OptionsStorage {
         this.ldapFields = (ArrayList<String[]>) ldapFields;
     }
 
-    public DataSourceActivationLoader getDataSourcesTemp() {
+    public DataSourceActivationDatabaseTool getDataSourcesTemp() {
         return dataSourcesTemp;
     }
 
-    public void setDataSourcesTemp(DataSourceActivationLoader dataSourcesTemp) {
+    public void setDataSourcesTemp(DataSourceActivationDatabaseTool dataSourcesTemp) {
         this.dataSourcesTemp = dataSourcesTemp;
     }
 
-    public DataSourceActivationLoader getDataSources() {
+    public DataSourceActivationDatabaseTool getDataSources() {
         return dataSources;
     }
     

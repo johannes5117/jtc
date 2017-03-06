@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.johannes.lsctic;
+package com.johannes.lsctic.address;
 
 import java.util.ArrayList;
 
@@ -11,13 +11,13 @@ import java.util.ArrayList;
  *
  * @author johannesengler
  */
-public class AdressBookEntry {
+public class AddressBookEntry {
     private String name;
     private ArrayList<String> data;
     private DataSource source;
     
     
-    public AdressBookEntry(ArrayList<String> data, String name, DataSource source) {
+    public AddressBookEntry(ArrayList<String> data, String name, DataSource source) {
         this.name = name;
         this.data = data;
         this.source = source;
