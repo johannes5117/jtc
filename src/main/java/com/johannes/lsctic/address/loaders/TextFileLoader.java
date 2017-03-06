@@ -12,7 +12,7 @@ import java.util.ArrayList;
  *
  * @author johannes
  */
-public class TextFileLoader implements AddressLoaderInterface{
+public class TextFileLoader extends AddressLoader{
 
     @Override
     public ArrayList<AddressBookEntry> getN(String ein, int n) {

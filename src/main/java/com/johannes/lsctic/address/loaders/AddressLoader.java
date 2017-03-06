@@ -12,6 +12,11 @@ import java.util.ArrayList;
  *
  * @author johannes
  */
-public interface AddressLoaderInterface {
-    public ArrayList<AddressBookEntry> getN(String ein, int n);
+public abstract class AddressLoader {
+    public AddressLoader(){
+        
+    }
+      public abstract ArrayList<AddressBookEntry> getN(String ein, int n);
+      
+      
 }

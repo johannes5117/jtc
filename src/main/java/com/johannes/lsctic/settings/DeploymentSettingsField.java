@@ -135,10 +135,10 @@ public class DeploymentSettingsField extends SettingsField {
         settings.put("amiServerPort", "" + Integer.toString(getStorage().getAmiServerPort()));  //AMI Server Port
         settings.put("amiLogIn", getStorage().getAmiLogIn());  //AMI LogingetStorage().getAmiLogIn());  //AMI Login
         settings.put("amiPassword", getStorage().getAmiPassword());  //AMI Password
-        settings.put("ldapAddress", getStorage().getLdapAddress());  //LDAP Server Addresse
+     /*   settings.put("ldapAddress", getStorage().getLdapAddress());  //LDAP Server Addresse
         settings.put("ldapServerPort", "" + Integer.toString(getStorage().getLdapServerPort()));  //LDAP Server Port
         settings.put("ldapSearchBase", getStorage().getLdapSearchBase());  //LDAP Suchbasis
-        settings.put("ldapBase", getStorage().getLdapBase());  //LDAP Basis
+        settings.put("ldapBase", getStorage().getLdapBase());  //LDAP Basis*/
         settings.put("ownExtension", "" + Integer.toString(mit.getExtension()));  // ownExtension
         settings.put("activated", "" + Boolean.toString(activated));  // Aktiv
         settings.put("time", "" + Long.toString(System.currentTimeMillis()));  // time

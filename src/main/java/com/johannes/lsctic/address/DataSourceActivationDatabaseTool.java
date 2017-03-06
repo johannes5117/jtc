@@ -5,11 +5,16 @@
  */
 package com.johannes.lsctic.address;
 
+import com.johannes.lsctic.OptionsStorage;
+import com.johannes.lsctic.address.loaders.AddressLoader;
+import com.johannes.lsctic.address.loaders.LoaderRegister;
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.Loader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,10 +24,12 @@ import java.util.logging.Logger;
  */
 public class DataSourceActivationDatabaseTool {
 
-    DataSource generalAvailability = new DataSource();
     DataSourceFields fields = new DataSourceFields();
+    ArrayList<AddressLoader> loaders = new ArrayList();
+    private OptionsStorage os;
 
-    public DataSourceActivationDatabaseTool() {
+    public DataSourceActivationDatabaseTool(OptionsStorage os) {
+        this.os = os;
     }
 
     public void readDatabaseForSources(Connection con, Statement statement) throws SQLException {
@@ -50,15 +57,13 @@ public class DataSourceActivationDatabaseTool {
     }
 
     public void checkOption(String text, boolean val, Connection con, Statement statement) {
-        generalAvailability.setDataSource(text); 
         if(con!=null) {
             fields.addFieldsFromDatabase(text, con, statement);
+            if(fields.getFields(text).isEmpty()==false){
+                loaders.add(LoaderRegister.getLoader(text, os));
+            }
         }
 
-    }
-
-    public DataSource getAvailability() {
-        return generalAvailability;
     }
 
     public DataSourceFields getFields() {

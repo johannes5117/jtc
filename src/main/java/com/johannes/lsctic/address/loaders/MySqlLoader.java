@@ -14,7 +14,7 @@ import java.util.ArrayList;
  *
  * @author johannes
  */
-public class MySqlLoader implements AddressLoaderInterface {
+public class MySqlLoader extends AddressLoader {
 
     ArrayList<AddressBookEntry> en = new ArrayList<>();
     
