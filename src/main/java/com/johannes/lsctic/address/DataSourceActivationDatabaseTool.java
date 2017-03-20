@@ -25,7 +25,6 @@ import java.util.logging.Logger;
 public class DataSourceActivationDatabaseTool {
 
     DataSourceFields fields = new DataSourceFields();
-    ArrayList<AddressLoader> loaders = new ArrayList();
     private OptionsStorage os;
 
     public DataSourceActivationDatabaseTool(OptionsStorage os) {
@@ -60,7 +59,7 @@ public class DataSourceActivationDatabaseTool {
         if(con!=null) {
             fields.addFieldsFromDatabase(text, con, statement);
             if(fields.getFields(text).isEmpty()==false){
-                loaders.add(LoaderRegister.getLoader(text, os));
+                LoaderRegister.addNewLoader(text);
             }
         }
 

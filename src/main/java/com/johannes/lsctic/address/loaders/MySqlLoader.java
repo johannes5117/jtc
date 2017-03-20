@@ -5,6 +5,7 @@
  */
 package com.johannes.lsctic.address.loaders;
 
+import com.johannes.lsctic.OptionsStorage;
 import com.johannes.lsctic.address.AddressBookEntry;
 import com.johannes.lsctic.address.DataSource;
 import java.util.ArrayList;
@@ -25,6 +26,10 @@ public class MySqlLoader extends AddressLoader {
         DataSource s = new DataSource();
         s.setDataSource("mysql");
         en.add(new AddressBookEntry(infos, "Testname",s));
+    }
+
+    MySqlLoader(OptionsStorage op) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
     // TODO implement Funciton

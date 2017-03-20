@@ -82,6 +82,11 @@ public class LdapLoader extends AddressLoader{
         this.storage = storage;
         base = "ou=" + ou;
     }
+
+    LdapLoader() {
+        
+    }
+    
     @Override
     public ArrayList<AddressBookEntry> getN(String ein, int n) {
         ArrayList<AddressBookEntry> aus = new ArrayList<>();
