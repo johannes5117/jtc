@@ -10,8 +10,8 @@ import com.johannes.lsctic.fields.NewInternField;
 import com.johannes.lsctic.settings.AsteriskSettingsField;
 import com.johannes.lsctic.settings.DataSourceSettingsField;
 import com.johannes.lsctic.settings.DeploymentSettingsField;
-import com.johannes.lsctic.settings.LDAPSettingsField;
-import com.johannes.lsctic.settings.MysqlSettingsField;
+//import com.johannes.lsctic.settings.LDAPSettingsField;
+//import com.johannes.lsctic.settings.MysqlSettingsField;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -181,7 +181,7 @@ public class FXMLController implements Initializable {
 
         panelC.getChildren().addAll(hFields);
 
-        panelD.getChildren().addAll(new AsteriskSettingsField(storage), new DeploymentSettingsField(storage), new DataSourceSettingsField(storage), new LDAPSettingsField(storage), new MysqlSettingsField(storage));
+        panelD.getChildren().addAll(new AsteriskSettingsField(storage), new DeploymentSettingsField(storage), new DataSourceSettingsField(storage)); //, new LDAPSettingsField(storage), new MysqlSettingsField(storage));
 
         for(String[] as : storage.getDataSourcesTemp().getFields().getFields("mysql")) {
             Logger.getLogger(getClass().getName()).info(Arrays.toString(as));

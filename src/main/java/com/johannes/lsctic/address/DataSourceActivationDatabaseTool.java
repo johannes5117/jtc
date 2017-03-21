@@ -8,7 +8,6 @@ package com.johannes.lsctic.address;
 import com.johannes.lsctic.OptionsStorage;
 import com.johannes.lsctic.address.loaders.AddressLoader;
 import com.johannes.lsctic.address.loaders.LoaderRegister;
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.Loader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

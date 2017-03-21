@@ -27,10 +27,6 @@ public class MySqlLoader extends AddressLoader {
         s.setDataSource("mysql");
         en.add(new AddressBookEntry(infos, "Testname",s));
     }
-
-    MySqlLoader(OptionsStorage op) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
     
     // TODO implement Funciton
     @Override
