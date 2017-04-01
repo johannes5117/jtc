@@ -83,7 +83,7 @@ public class LdapLoader extends AddressLoader{
         base = "ou=" + ou;
     }
 
-    LdapLoader() {
+    public LdapLoader() {
         
     }
     
@@ -265,6 +265,7 @@ public class LdapLoader extends AddressLoader{
         }
     }
 
+
     public String getLdapAddress() {
         return ldapAddress;
     }
@@ -312,6 +313,9 @@ public class LdapLoader extends AddressLoader{
     public void setLdapUrl(String ldapUrl) {
         this.ldapUrl = ldapUrl;
     }
-    
-    
+
+
+    public ArrayList<String[]> getLdapFields() {
+        return ldapFields;
+    }
 }

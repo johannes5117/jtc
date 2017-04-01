@@ -19,53 +19,62 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 /**
- *
  * @author johannesengler
  */
 public abstract class SettingsField extends VBox {
-     private ImageView vUpDown;
+    private ImageView vUpDown;
     private boolean expanded;
     private OptionsStorage storage;
+    private String name;
+
     public SettingsField(String name, OptionsStorage storage) {
         this.storage = storage;
+        this.name = name;
+    }
+
+    public SettingsField(String name) {
+        this.name = name;
+    }
+
+    private void createBox() {
         this.setMaxWidth(Double.MAX_VALUE);
-        this.setPadding(new Insets(12,12, 12, 12));
+        this.setPadding(new Insets(12, 12, 12, 12));
         this.setSpacing(3);
         this.setStyle(" -fx-border-color: #FFFFFF; -fx-border-width: 1px;");
         this.setFocusTraversable(true);
-        
+
         HBox inner = new HBox();
         inner.setSpacing(5);
         inner.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(inner, Priority.ALWAYS);
-        
+
         HBox innerinner = new HBox();
         innerinner.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(innerinner, Priority.ALWAYS);
-        Label a = new Label(name);
+        Label a = new Label(this.name);
         a.setStyle(" -fx-font-size: 12px;  -fx-font-weight: bold;");
         this.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
 
             @Override
             public void handle(MouseEvent event) {
-              
-                 SettingsField.this.requestFocus();
-                 event.consume();
-            
+
+                SettingsField.this.requestFocus();
+                event.consume();
+
             }
         });
-         this.focusedProperty().addListener(new ChangeListener<Boolean> () {
+        this.focusedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
 
-                if(newValue){
+                if (newValue) {
                     SettingsField.this.setStyle("-fx-border-color: #0093ff; -fx-border-width: 1px;");
                 } else {
                     SettingsField.this.setStyle("-fx-border-color: #FFFFFF; -fx-border-width: 1px;");
                 }
- 
-                 
+
+
             }
         });
         inner.getChildren().add(a);
@@ -76,7 +85,7 @@ public abstract class SettingsField extends VBox {
         vUpDown.setFitHeight(15);
         vUpDown.setFitWidth(15);
         vUpDown.setOpacity(0.2);
-                vUpDown.setStyle("-fx-border-radius:3px");
+        vUpDown.setStyle("-fx-border-radius:3px");
 
         inner.getChildren().add(vUpDown);
 
@@ -84,7 +93,7 @@ public abstract class SettingsField extends VBox {
 
             @Override
             public void handle(MouseEvent event) {
-                if(expanded){
+                if (expanded) {
                     Image image = new Image("/pics/down.png");
                     SettingsField.this.requestFocus();
                     vUpDown.setImage(image);
@@ -95,15 +104,15 @@ public abstract class SettingsField extends VBox {
                     vUpDown.setImage(image);
                     expand();
                 }
-                
+
                 event.consume();
             }
         });
-         vUpDown.addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
+        vUpDown.addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
 
             @Override
             public void handle(MouseEvent event) {
-                                ImageView v = (ImageView) event.getSource();
+                ImageView v = (ImageView) event.getSource();
 
                 v.setOpacity(1);
                 event.consume();
@@ -118,15 +127,17 @@ public abstract class SettingsField extends VBox {
                 event.consume();
             }
         });
-    
-}
-     public void expand() {
-       expanded = true;
-     }
-    public  void collapse(){
+    }
+
+    public void expand() {
+        expanded = true;
+    }
+
+    public void collapse() {
         expanded = false;
     }
-    public OptionsStorage getStorage(){
+
+    public OptionsStorage getStorage() {
         return storage;
     }
 }

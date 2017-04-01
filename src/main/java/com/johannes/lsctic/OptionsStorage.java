@@ -274,8 +274,7 @@ public final class OptionsStorage {
     public DataSourceActivationDatabaseTool getDataSources() {
         return dataSources;
     }
-    
-  
+
 
     private void readInDataSources() {
         try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {

@@ -5,7 +5,6 @@
  */
 package com.johannes.lsctic.address.loaders;
 
-import com.johannes.lsctic.OptionsStorage;
 import com.johannes.lsctic.address.AddressBookEntry;
 import com.johannes.lsctic.address.DataSource;
 import java.util.ArrayList;
@@ -18,7 +17,9 @@ import java.util.ArrayList;
 public class MySqlLoader extends AddressLoader {
 
     ArrayList<AddressBookEntry> en = new ArrayList<>();
-    
+    MysqlLoaderStorage storageTemp;
+    MysqlLoaderStorage storage;
+
     public MySqlLoader() {
         ArrayList<String> infos = new ArrayList<>();
         infos.add("Johannes");
@@ -26,12 +27,23 @@ public class MySqlLoader extends AddressLoader {
         DataSource s = new DataSource();
         s.setDataSource("mysql");
         en.add(new AddressBookEntry(infos, "Testname",s));
+        storage = new MysqlLoaderStorage();
+
+        //load the parameters from the userdatabase (sqlite)
+        // TODO: Implement Function
+
+        storageTemp = new MysqlLoaderStorage(storage);
     }
     
-    // TODO implement Funciton
     @Override
     public ArrayList<AddressBookEntry> getN(String ein, int n) {
         return en;
     }
-    
+
+    public void saved() {
+        this.storage = this.storageTemp;
+    }
+    public void discarded() {
+        this.storageTemp = this.storage;
+    }
 }
