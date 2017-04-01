@@ -30,10 +30,12 @@ public class SettingsField extends VBox {
     public SettingsField(String name, OptionsStorage storage) {
         this.storage = storage;
         this.name = name;
+        createBox();
     }
 
     public SettingsField(String name) {
         this.name = name;
+        createBox();
     }
 
     private void createBox() {

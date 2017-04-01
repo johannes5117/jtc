@@ -16,7 +16,7 @@ public abstract class AddressLoader {
     public AddressLoader(){
         
     }
-      public abstract ArrayList<AddressBookEntry> getN(String ein, int n);
+      public abstract ArrayList<AddressBookEntry> getResults(String ein, int n);
       
       
 }

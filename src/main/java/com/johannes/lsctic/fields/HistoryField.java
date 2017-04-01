@@ -41,7 +41,7 @@ public class HistoryField extends VBox {
         this.who = who;
         this.howLong = howLong;
         this.outgoing = outgoing;
-        this.somo = fxml.getSomo();
+        this.somo = fxml.getServerConnectionHandler();
         this.fxml = fxml;
         this.setMaxWidth(Double.MAX_VALUE);
         this.setPadding(new Insets(12, 12, 12, 12));

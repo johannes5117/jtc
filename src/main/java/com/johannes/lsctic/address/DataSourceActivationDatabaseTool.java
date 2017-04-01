@@ -6,14 +6,12 @@
 package com.johannes.lsctic.address;
 
 import com.johannes.lsctic.OptionsStorage;
-import com.johannes.lsctic.address.loaders.AddressLoader;
-import com.johannes.lsctic.address.loaders.LoaderRegister;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

@@ -36,7 +36,8 @@ public class MySqlLoader extends AddressLoader {
     }
     
     @Override
-    public ArrayList<AddressBookEntry> getN(String ein, int n) {
+    public ArrayList<AddressBookEntry> getResults(String query, int number) {
+        // TODO: Implement function
         return en;
     }
 

@@ -1,15 +1,13 @@
 package com.johannes.lsctic;
 
-import com.johannes.lsctic.address.loaders.MySqlLoader;
 import com.johannes.lsctic.address.AddressBookEntry;
+import com.johannes.lsctic.address.LoaderRegister;
 import com.johannes.lsctic.amiapi.ServerConnectionHandler;
 import com.johannes.lsctic.fields.InternField;
 import com.johannes.lsctic.fields.HistoryField;
 import com.johannes.lsctic.fields.AddressField;
 import com.johannes.lsctic.fields.NewInternField;
-import com.johannes.lsctic.settings.AsteriskSettingsField;
-import com.johannes.lsctic.settings.DataSourceSettingsField;
-import com.johannes.lsctic.settings.DeploymentSettingsField;
+import com.johannes.lsctic.settings.*;
 //import com.johannes.lsctic.settings.LDAPSettingsField;
 //import com.johannes.lsctic.settings.MysqlSettingsField;
 import java.io.IOException;
@@ -23,7 +21,6 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.johannes.lsctic.settings.MysqlSettingsField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -67,30 +64,41 @@ public class FXMLController implements Initializable {
     @FXML
     private ScrollPane scrollPaneA;
 
-    private int ownExtension;
+    private String ownExtension;
     private OptionsStorage storage;
     private HashMap<String, InternField> internFields;
     private Map<String, PhoneNumber> internNumbers;
-    private SqlLiteConnection sqlCon;
+    private SqlLiteConnection sqlLiteConnection;
     private String quickdialString;
-    private ServerConnectionHandler somo;
-    private ArrayList<HistoryField> hFields;
+    private ServerConnectionHandler serverConnectionHandler;
+    private ArrayList<HistoryField> historyFields;
     private Stage stage;
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
         
-        // Muss vor dem erstellen des Optionsstorage sein, da ggf. die Datenbank nicht existiert
-        sqlCon = new SqlLiteConnection("settingsAndData.db", "dataLocal.db");
-        // Optionsstorage erstellen und Daten aus Settingsdatabase laden
+        // Sqlite connection must be established before creating the optionsstorage, because he loads data from sqlite
+        sqlLiteConnection = new SqlLiteConnection("settingsAndData.db", "dataLocal.db");
+
+        // creates optionstorage which loads data from sqlite and triggers plugin loading
         storage = new OptionsStorage(optionAccept, optionReject);
+
+        // creates loaderregister which is used to handle plugins
+        LoaderRegister loaderRegister = new LoaderRegister();
+
+        // adds the register to the optionsstorage and loads plugins which are activated in settings and available
+        storage.setLoaderRegister(loaderRegister);
+
+        // Tooltip that will be used to indicate options for the user input in the search field
         Tooltip customTooltip = new Tooltip();
+
         panelA.setSpacing(3);
         panelB.setSpacing(3);
         panelC.setSpacing(3);
 
-        ownExtension = 201;
-        internNumbers = sqlCon.getInterns();
+
+        ownExtension = storage.getOwnExtension();
+        internNumbers = sqlLiteConnection.getInterns();
 
         /*   tabPane.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {   NICHT LÖSCHEN ERSTER ANSATZ FÜR WEITERE BESCHLEUNIGUNG DES ARBEITENS
         
@@ -124,15 +132,15 @@ public class FXMLController implements Initializable {
                 -> internFields.put(g.getKey(), new InternField(g.getValue().getName(), g.getValue().getCount(), g.getKey(), this)));
 
         try {
-            somo = new ServerConnectionHandler(internFields, this);
+            serverConnectionHandler = new ServerConnectionHandler(internFields, this);
         } catch (IOException ex) {
             Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        internFields.entrySet().stream().forEach(g -> somo.aboStatusExtension(g.getValue().getNumber()));
-        somo.aboCdrExtension(String.valueOf(ownExtension));
+        internFields.entrySet().stream().forEach(g -> serverConnectionHandler.aboStatusExtension(g.getValue().getNumber()));
+        serverConnectionHandler.aboCdrExtension(String.valueOf(ownExtension));
 
-        updateAnzeige(new ArrayList<>(internFields.values()));
+        updateView(new ArrayList<>(internFields.values()));
 
         paneATextIn.addEventFilter(KeyEvent.KEY_PRESSED, (javafx.scene.input.KeyEvent event) -> {
             if (event.getCode() == KeyCode.ENTER) {
@@ -164,26 +172,27 @@ public class FXMLController implements Initializable {
                 customTooltip.hide();
                 Logger.getLogger(getClass().getName()).log(Level.INFO, null, e);
             }
-            updateAnzeige(generiereReduziertesSet(internFields, newValue));
+            updateView(generateReducedSet(internFields, newValue));
         });
     /*    storage.setLdapSearchAmount(10);
         Logger.getLogger(getClass().getName()).log(Level.INFO, "Search Amount: {0}", String.valueOf(storage.getLdapSearchAmount()));
         LDAPController l = new LDAPController(storage);
-        ArrayList<LDAPEntry> ld = l.getN("", storage.getLdapSearchAmount());
+        ArrayList<LDAPEntry> ld = l.getResults("", storage.getLdapSearchAmount());
         updateAddressFields(ld);
         paneBTextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-            ArrayList<LDAPEntry> ld1 = l.getN(newValue, storage.getLdapSearchAmount());
+            ArrayList<LDAPEntry> ld1 = l.getResults(newValue, storage.getLdapSearchAmount());
             updateLdapFields(ld1);
         });*/
-   
-        MySqlLoader l = new MySqlLoader();
-        updateAddressFields(l.getN("", 9));
 
-        hFields = new ArrayList();
 
-        panelC.getChildren().addAll(hFields);
+        historyFields = new ArrayList();
 
-        panelD.getChildren().addAll(new AsteriskSettingsField(storage), new DeploymentSettingsField(storage), new DataSourceSettingsField(storage)); //, new LDAPSettingsField(storage), new MysqlSettingsField(storage));
+        panelC.getChildren().addAll(historyFields);
+
+        //Load the standard (which are needed anyway) setting boxes
+        panelD.getChildren().addAll(new AsteriskSettingsField(storage), new DeploymentSettingsField(storage), new DataSourceSettingsField(storage));
+        //Load the setting boxes of the plugins
+        //TODO: Plugins settings box
 
         for(String[] as : storage.getDataSourcesTemp().getFields().getFields("mysql")) {
             Logger.getLogger(getClass().getName()).info(Arrays.toString(as));
@@ -198,7 +207,7 @@ public class FXMLController implements Initializable {
         selectionModel.clearSelection(); //clear your selection
     }
 
-    private ArrayList<InternField> generiereReduziertesSet(HashMap<String, InternField> internFields, String val) {
+    private ArrayList<InternField> generateReducedSet(HashMap<String, InternField> internFields, String val) {
         ArrayList<InternField> out = new ArrayList<>();
         internFields.values().stream().filter((f) -> (f.getName().toLowerCase().contains(val.toLowerCase()))).forEachOrdered((f) -> out.add(f));
         return out;
@@ -206,37 +215,37 @@ public class FXMLController implements Initializable {
 
     public void addInternAndUpdate(PhoneNumber p) {
         if (!internFields.containsKey(p.getPhoneNumber())) {
-            sqlCon.queryNoReturn("Insert into internfields (number,name,callcount,favorit) values ('" + p.getPhoneNumber() + "','" + p.getName() + "'," + p.getCount() + ",0)");
+            sqlLiteConnection.queryNoReturn("Insert into internfields (number,name,callcount,favorit) values ('" + p.getPhoneNumber() + "','" + p.getName() + "'," + p.getCount() + ",0)");
             internNumbers.put(p.getPhoneNumber(), p);
             internFields.put(p.getPhoneNumber(), new InternField(p.getName(), p.getCount(), p.getPhoneNumber(), this));
-            somo.aboStatusExtension(p.getPhoneNumber());
-            updateAnzeige(new ArrayList<>(internFields.values()));
+            serverConnectionHandler.aboStatusExtension(p.getPhoneNumber());
+            updateView(new ArrayList<>(internFields.values()));
         } else {
             Logger.getLogger(getClass().getName()).log(Level.WARNING, "There already exists a user with that phonenumber.");
         }
     }
 
     public void addCdrAndUpdate(HistoryField f) {
-        hFields.add(f);
+        historyFields.add(f);
         panelC.getChildren().clear();
-        panelC.getChildren().addAll(hFields);
+        panelC.getChildren().addAll(historyFields);
     }
     
     public void removeCdrAndUpdate(HistoryField f) {
-        hFields.remove(f);
+        historyFields.remove(f);
          panelC.getChildren().clear();
-        panelC.getChildren().addAll(hFields);
+        panelC.getChildren().addAll(historyFields);
     }
 
     public void removeInternAndUpdate(InternField f) {
-        sqlCon.queryNoReturn("Delete from internfields where number=" + f.getNumber() + "");
+        sqlLiteConnection.queryNoReturn("Delete from internfields where number=" + f.getNumber() + "");
         internFields.remove(f.getNumber(), f);
         internNumbers.remove(f.getNumber());
-        somo.deAboStatusExtension(f.getNumber());
-        updateAnzeige(new ArrayList<>(internFields.values()));
+        serverConnectionHandler.deAboStatusExtension(f.getNumber());
+        updateView(new ArrayList<>(internFields.values()));
     }
 
-    private void updateAnzeige(ArrayList<InternField> i) {
+    private void updateView(ArrayList<InternField> i) {
         scrollPaneA.setVvalue(0);
         Collections.sort(i, (InternField o1, InternField o2) -> o2.getCount() - o1.getCount()); //UPDATE: would be nice to choose the sorting 
         panelA.getChildren().clear();
@@ -251,12 +260,12 @@ public class FXMLController implements Initializable {
         panelB.getChildren().addAll(addressFields);
     }
 
-    public int getOwnExtension() {
+    public String getOwnExtension() {
         return ownExtension;
     }
 
-    public ServerConnectionHandler getSomo() {
-        return somo;
+    public ServerConnectionHandler getServerConnectionHandler() {
+        return serverConnectionHandler;
     }
     
     public void setStage(Stage stage) {

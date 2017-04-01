@@ -15,7 +15,7 @@ import java.util.ArrayList;
 public class TextFileLoader extends AddressLoader{
 
     @Override
-    public ArrayList<AddressBookEntry> getN(String ein, int n) {
+    public ArrayList<AddressBookEntry> getResults(String ein, int n) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

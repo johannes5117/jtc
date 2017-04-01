@@ -39,34 +39,21 @@ public class MysqlSettingsField extends SettingsField {
         TextField f = new TextField();
         f.setPromptText("IP Adresse (Beispiel: server)");
         f.setText(loader.getStorage().getServerAddress());
-        f.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                loader.getStorageTemp().setServerAddress(newValue);
-            }
-        });
+        f.textProperty().addListener((observable, oldValue, newValue) -> loader.getStorageTemp().setServerAddress(newValue));
         final TextField f2 = new TextField();
         f2.setPromptText("Port (Beispiel: 3306)");
         f2.setText(""+loader.getStorage().getServerPort());
-        f2.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                try{
-                    loader.getStorageTemp().setServerPort(Integer.valueOf(newValue));
-                } catch (Exception e) {
-                    f2.setPromptText("Der Port ist eine Zahl");
-                }
+        f2.textProperty().addListener((observable, oldValue, newValue) -> {
+            try{
+                loader.getStorageTemp().setServerPort(Integer.valueOf(newValue));
+            } catch (Exception e) {
+                f2.setPromptText("Der Port ist eine Zahl");
             }
         });
         TextField f3 = new TextField();
         f3.setPromptText("Datenbank (Beispiel: database)");
         f3.setText(loader.getStorage().getDatabase());
-        f3.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                loader.getStorageTemp().setDatabase(newValue);
-            }
-        });
+        f3.textProperty().addListener((observable, oldValue, newValue) -> loader.getStorageTemp().setDatabase(newValue));
 
       Separator s = new Separator();
       Label l = new Label("Mysql Felder");

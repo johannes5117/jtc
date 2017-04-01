@@ -88,7 +88,7 @@ public class LdapLoader extends AddressLoader{
     }
     
     @Override
-    public ArrayList<AddressBookEntry> getN(String ein, int n) {
+    public ArrayList<AddressBookEntry> getResults(String ein, int n) {
         ArrayList<AddressBookEntry> aus = new ArrayList<>();
         SearchControls sc = new SearchControls();
         String[] attributeFilter = new String[ldapFields.size()];

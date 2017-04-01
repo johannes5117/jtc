@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.johannes.lsctic.address.LoaderRegister;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
@@ -39,8 +40,13 @@ public final class OptionsStorage {
     private long timeTemp;               // TimeStamp
     private DataSourceActivationDatabaseTool dataSourcesTemp = new DataSourceActivationDatabaseTool(this);
 
+    private String pluginFolder ="";
+
+
     private static final String DATABASE_CONNECTION = "jdbc:sqlite:settingsAndData.db";
     private static final String SETTING = "setting";
+
+    private LoaderRegister loaderRegister;
 
     public OptionsStorage(Button accept, Button reject) {
         accept.setOnAction(new EventHandler<ActionEvent>() {
@@ -284,4 +290,15 @@ public final class OptionsStorage {
         }
     }
 
+    public LoaderRegister getLoaderRegister() {
+        return loaderRegister;
+    }
+
+    public void setLoaderRegister(LoaderRegister loaderRegister) {
+        this.loaderRegister = loaderRegister;
+        this.loaderRegister.explorePluginFolder(this.pluginFolder);
+        ArrayList<String> pl = new ArrayList<>();
+        pl.add("MysqlPlugin");
+        this.loaderRegister.loadPlugins(pl, pluginFolder);
+    }
 }

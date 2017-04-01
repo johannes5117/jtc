@@ -3,17 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.johannes.lsctic.address.loaders;
-
-import com.johannes.lsctic.OptionsStorage;
-import com.johannes.lsctic.address.AdressPlugin;
+package com.johannes.lsctic.address;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -22,41 +19,31 @@ import java.util.logging.Logger;
 public class LoaderRegister {
 
     ArrayList<String> pluginsFound;
-    ArrayList<AdressPlugin> loadedPlugins;
-    private String folderpath;
+    ArrayList<AddressPlugin> loadedPlugins;
+    private String exploredFolder;
 
     public LoaderRegister() {
 
     }
 
-    public ArrayList<String> explorePluginFolder(String folderpath) {
-        this.folderpath = folderpath;
-        this.pluginsFound = new ArrayList<>();
-        this.pluginsFound.add("MysqlPlugin");
-        //getAvailablePlugins();
-        return this.pluginsFound;
+    public void explorePluginFolder(String folderPath) {
+        this.pluginsFound = getAvailablePluginsFromFolder(folderPath);
+        exploredFolder = folderPath;
     }
 
-    public void loadPlugins(ArrayList<String> pluginsToLoad) {
+    public void loadPlugins(ArrayList<String> pluginsToLoad, String folderPath) {
+        if(!folderPath.equals(exploredFolder)) {
+            explorePluginFolder(folderPath);
+        }
         for (String pl : pluginsToLoad) {
             if (pluginsFound.contains(pl)) {
-                loadedPlugins.add(getInstantiatedClass(pl, this.folderpath));
+                loadedPlugins.add(getInstantiatedClass(pl, folderPath));
             }
         }
     }
-    
-   /* public  AddressLoader getLoader(String text, OptionsStorage op) {
-        switch(text){
-            case("ldap"):
-               return 
-            case("mysql"):
-                return new MySqlLoader(op);
-        }
-        return null;
-    }*/
 
     public static void addNewLoader(String text) {
-        Logger.getLogger("sdfaf").info(text);
+        // TODO: Implement function
     }
 
     private ArrayList<String> getAvailablePluginsFromFolder(String folder) {
@@ -67,11 +54,10 @@ public class LoaderRegister {
                 fileList.add(f.getName());
             }
         }
-
         return fileList;
     }
 
-    private AdressPlugin getInstantiatedClass(String classname, String folder) {
+    private AddressPlugin getInstantiatedClass(String classname, String folder) {
 
         try {
             File dir = new File(folder);
@@ -81,11 +67,28 @@ public class LoaderRegister {
 
             Class loadedClass = cl.loadClass(classname);
 
-            AdressPlugin modInstance = (AdressPlugin) loadedClass.newInstance();
+            AddressPlugin modInstance = (AddressPlugin) loadedClass.newInstance();
             return modInstance;
         } catch (MalformedURLException | ClassCastException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
             Logger.getLogger("Plugin konnte nicht geladen werden!");
         }
         return null;
+    }
+
+    public List<AddressBookEntry> getResultFromEveryPlugin(String query, int number) {
+        ArrayList<AddressBookEntry> filteredQuery = new ArrayList<>();
+        for(AddressPlugin plugin: loadedPlugins){
+            ArrayList<AddressBookEntry> pluginResult = plugin.getResults(query, number);
+            if(pluginResult!=null && pluginResult.isEmpty()!=false) {
+                filteredQuery.addAll(pluginResult);
+            }
+        }
+        if(!filteredQuery.isEmpty()) {
+            filteredQuery.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
+        }
+        if(filteredQuery.size()>number) {
+            return filteredQuery.subList(0,number);
+        }
+        return filteredQuery;
     }
 }

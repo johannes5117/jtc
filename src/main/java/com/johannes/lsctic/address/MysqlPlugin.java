@@ -1,24 +1,37 @@
 package com.johannes.lsctic.address;
 
-import com.johannes.lsctic.address.loaders.LdapLoader;
 import com.johannes.lsctic.address.loaders.MySqlLoader;
-import com.johannes.lsctic.settings.LDAPSettingsField;
 import com.johannes.lsctic.settings.MysqlSettingsField;
+import com.johannes.lsctic.settings.SettingsField;
 
 import java.util.ArrayList;
 
 /**
  * Created by johannes on 22.03.2017.
  */
-public class MysqlPlugin extends AdressPlugin {
+public class MysqlPlugin extends AddressPlugin {
     private MySqlLoader loader;
+    private MysqlSettingsField settingsField;
 
 
     public MysqlPlugin(String AUTHOR, String AUTHOR_CONTACT) {
         super(AUTHOR, AUTHOR_CONTACT);
         loader = new MySqlLoader();
-        MysqlSettingsField settingsField = new MysqlSettingsField(loader);
+        settingsField = new MysqlSettingsField(loader);
+
     }
+
+    @Override
+    public SettingsField getSettingsField() {
+        return settingsField;
+    }
+
+    @Override
+    public ArrayList<AddressBookEntry> getResults(String query, int number) {
+        return loader.getResults(query, number);
+    }
+
+
 
 
 }
