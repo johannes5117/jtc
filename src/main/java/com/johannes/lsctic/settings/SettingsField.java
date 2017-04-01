@@ -21,7 +21,7 @@ import javafx.scene.layout.VBox;
 /**
  * @author johannesengler
  */
-public abstract class SettingsField extends VBox {
+public class SettingsField extends VBox {
     private ImageView vUpDown;
     private boolean expanded;
     private OptionsStorage storage;
@@ -51,7 +51,7 @@ public abstract class SettingsField extends VBox {
         HBox innerinner = new HBox();
         innerinner.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(innerinner, Priority.ALWAYS);
-        Label a = new Label(this.name);
+        Label a = new Label(name);
         a.setStyle(" -fx-font-size: 12px;  -fx-font-weight: bold;");
         this.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
 

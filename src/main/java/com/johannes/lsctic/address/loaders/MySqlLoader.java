@@ -46,4 +46,12 @@ public class MySqlLoader extends AddressLoader {
     public void discarded() {
         this.storageTemp = this.storage;
     }
+
+    public MysqlLoaderStorage getStorageTemp() {
+        return storageTemp;
+    }
+
+    public MysqlLoaderStorage getStorage() {
+        return storage;
+    }
 }

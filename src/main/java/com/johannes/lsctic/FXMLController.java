@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.johannes.lsctic.settings.MysqlSettingsField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -186,7 +188,7 @@ public class FXMLController implements Initializable {
         for(String[] as : storage.getDataSourcesTemp().getFields().getFields("mysql")) {
             Logger.getLogger(getClass().getName()).info(Arrays.toString(as));
         }
-        
+
     }
 
     private void selectTab(int i) {

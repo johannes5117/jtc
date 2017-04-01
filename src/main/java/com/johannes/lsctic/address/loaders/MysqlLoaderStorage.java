@@ -7,9 +7,9 @@ import java.util.ArrayList;
  */
 public class MysqlLoaderStorage {
 
-    private String serverAddress;
-    private int serverPort;
-    private String database;
+    private String serverAddress = "localhost";
+    private int serverPort = 3306;
+    private String database = "database";
     private ArrayList<String[]> mysqlFields;
 
     /**
@@ -32,7 +32,7 @@ public class MysqlLoaderStorage {
     }
 
     public MysqlLoaderStorage() {
-
+        mysqlFields = new ArrayList<>();
     }
 
     public String getServerAddress() {
