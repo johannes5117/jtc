@@ -36,7 +36,7 @@ import javax.naming.directory.SearchResult;
  *
  * @author johannesengler
  */
-public class LdapLoader extends AddressLoader{
+public class LdapLoader implements AddressLoader{
     private static final String SETTING = "setting";
 
     
@@ -152,7 +152,17 @@ public class LdapLoader extends AddressLoader{
         }
         return aus;
     }
-    
+
+    @Override
+    public void saved() {
+        //TODO: Implement
+    }
+
+    @Override
+    public void discarded() {
+        //TODO: Implement
+    }
+
     public void writeSettings(Connection con, Statement statement){
      
             try {

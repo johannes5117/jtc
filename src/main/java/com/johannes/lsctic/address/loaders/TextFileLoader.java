@@ -12,11 +12,21 @@ import java.util.ArrayList;
  *
  * @author johannes
  */
-public class TextFileLoader extends AddressLoader{
+public class TextFileLoader implements AddressLoader{
 
     @Override
     public ArrayList<AddressBookEntry> getResults(String ein, int n) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
+    @Override
+    public void saved() {
+
+    }
+
+    @Override
+    public void discarded() {
+
+    }
+
 }

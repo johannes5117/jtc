@@ -1,5 +1,6 @@
 package com.johannes.lsctic;
 
+import com.johannes.lsctic.address.AddressPlugin;
 import com.johannes.lsctic.address.DataSourceActivationDatabaseTool;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -14,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.johannes.lsctic.address.LoaderRegister;
+import com.johannes.lsctic.address.loaders.AddressLoader;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
@@ -40,37 +42,32 @@ public final class OptionsStorage {
     private long timeTemp;               // TimeStamp
     private DataSourceActivationDatabaseTool dataSourcesTemp = new DataSourceActivationDatabaseTool(this);
 
-    private String pluginFolder ="";
-
+    private String pluginFolder ="plugin";
 
     private static final String DATABASE_CONNECTION = "jdbc:sqlite:settingsAndData.db";
     private static final String SETTING = "setting";
 
     private LoaderRegister loaderRegister;
 
-    public OptionsStorage(Button accept, Button reject) {
-        accept.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent event) {
-                accept();
-            }
-        });
-        reject.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent event) {
-                setTempVariables();
-            }
-        });
-
+    public OptionsStorage(Button accept, Button reject ) {
+        this.loaderRegister =  new LoaderRegister();
         readSettingsFromDatabase();
+        this.loaderRegister.explorePluginFolder(this.pluginFolder);
+
+        //TODO: Delete after Test -> Only for Test purpose
+        ArrayList<String> pl = new ArrayList<>();
+        pl.add("MysqlPlugin");
+        this.loaderRegister.loadPlugins(pl, pluginFolder);
+
+        accept.setOnAction(event -> accept());
+        reject.setOnAction(event -> setTempVariables());
     }
 
     /**
      * Used to store the temp. vars.
      */
     public void setTempVariables() {
+        loaderRegister.discardAllPlugins();
         amiAddressTemp = amiAddress;
         amiServerPortTemp = amiServerPort;
         amiLogInTemp = amiLogIn;
@@ -83,6 +80,7 @@ public final class OptionsStorage {
      * User accepts the changes and wants to store the changes in database
      */
     public void accept() {
+        loaderRegister.acceptAllPlugins();
         setVariables();
         writeSettingsToDatabase();
     }
@@ -96,9 +94,7 @@ public final class OptionsStorage {
         amiServerPort = amiServerPortTemp;
         amiLogIn = amiLogInTemp;
         amiPassword = amiPasswordTemp;
-      
         ownExtension = ownExtensionTemp;
-    
         dataSources = dataSourcesTemp;
     }
 
@@ -294,11 +290,4 @@ public final class OptionsStorage {
         return loaderRegister;
     }
 
-    public void setLoaderRegister(LoaderRegister loaderRegister) {
-        this.loaderRegister = loaderRegister;
-        this.loaderRegister.explorePluginFolder(this.pluginFolder);
-        ArrayList<String> pl = new ArrayList<>();
-        pl.add("MysqlPlugin");
-        this.loaderRegister.loadPlugins(pl, pluginFolder);
-    }
 }

@@ -6,9 +6,6 @@
 package com.johannes.lsctic.settings;
 
 import com.johannes.lsctic.OptionsStorage;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -50,38 +47,30 @@ public class SettingsField extends VBox {
         inner.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(inner, Priority.ALWAYS);
 
-        HBox innerinner = new HBox();
-        innerinner.setMaxWidth(Double.MAX_VALUE);
-        HBox.setHgrow(innerinner, Priority.ALWAYS);
+        HBox innerChild = new HBox();
+        innerChild.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(innerChild, Priority.ALWAYS);
         Label a = new Label(name);
         a.setStyle(" -fx-font-size: 12px;  -fx-font-weight: bold;");
-        this.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+        this.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
 
-            @Override
-            public void handle(MouseEvent event) {
+            SettingsField.this.requestFocus();
+            event.consume();
 
-                SettingsField.this.requestFocus();
-                event.consume();
-
-            }
         });
-        this.focusedProperty().addListener(new ChangeListener<Boolean>() {
+        this.focusedProperty().addListener((observable, oldValue, newValue) -> {
 
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-
-                if (newValue) {
-                    SettingsField.this.setStyle("-fx-border-color: #0093ff; -fx-border-width: 1px;");
-                } else {
-                    SettingsField.this.setStyle("-fx-border-color: #FFFFFF; -fx-border-width: 1px;");
-                }
-
-
+            if (newValue) {
+                SettingsField.this.setStyle("-fx-border-color: #0093ff; -fx-border-width: 1px;");
+            } else {
+                SettingsField.this.setStyle("-fx-border-color: #FFFFFF; -fx-border-width: 1px;");
             }
+
+
         });
         inner.getChildren().add(a);
         this.getChildren().add(inner);
-        inner.getChildren().add(innerinner);
+        inner.getChildren().add(innerChild);
         Image image = new Image("/pics/down.png");
         vUpDown = new ImageView(image);
         vUpDown.setFitHeight(15);
@@ -91,44 +80,41 @@ public class SettingsField extends VBox {
 
         inner.getChildren().add(vUpDown);
 
-        vUpDown.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-
-            @Override
-            public void handle(MouseEvent event) {
-                if (expanded) {
-                    Image image = new Image("/pics/down.png");
-                    SettingsField.this.requestFocus();
-                    vUpDown.setImage(image);
-                    collapse();
-                } else {
-                    Image image = new Image("/pics/up.png");
-                    SettingsField.this.requestFocus();
-                    vUpDown.setImage(image);
-                    expand();
-                }
-
-                event.consume();
-            }
+        this.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            clickAction(true);
+            event.consume();
         });
-        vUpDown.addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
 
-            @Override
-            public void handle(MouseEvent event) {
-                ImageView v = (ImageView) event.getSource();
-
-                v.setOpacity(1);
-                event.consume();
-            }
+        vUpDown.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            clickAction(false);
+            event.consume();
         });
-        vUpDown.addEventHandler(MouseEvent.MOUSE_EXITED, new EventHandler<MouseEvent>() {
-
-            @Override
-            public void handle(MouseEvent event) {
-                ImageView v = (ImageView) event.getSource();
-                v.setOpacity(0.2);
-                event.consume();
-            }
+        vUpDown.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> {
+            ImageView v = (ImageView) event.getSource();
+            v.setOpacity(1);
+            event.consume();
         });
+        vUpDown.addEventHandler(MouseEvent.MOUSE_EXITED, event -> {
+            ImageView v = (ImageView) event.getSource();
+            v.setOpacity(0.2);
+            event.consume();
+        });
+    }
+
+    public void clickAction(boolean fromField) {
+        if (expanded) {
+            if(!fromField) {
+                Image image1 = new Image("/pics/down.png");
+                SettingsField.this.requestFocus();
+                vUpDown.setImage(image1);
+                collapse();
+            }
+        } else {
+            Image image1 = new Image("/pics/up.png");
+            SettingsField.this.requestFocus();
+            vUpDown.setImage(image1);
+            expand();
+        }
     }
 
     public void expand() {

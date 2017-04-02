@@ -12,11 +12,12 @@ import java.util.ArrayList;
  *
  * @author johannes
  */
-public abstract class AddressLoader {
-    public AddressLoader(){
-        
-    }
-      public abstract ArrayList<AddressBookEntry> getResults(String ein, int n);
-      
+public interface AddressLoader {
+    //Fetch results from the Loader
+    public abstract ArrayList<AddressBookEntry> getResults(String ein, int n);
+    //saves the settings if user clicks on save button also for the plugin
+    public abstract void saved();
+    //discards the setting if user clicks on discard
+    public abstract void discarded();
       
 }

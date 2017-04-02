@@ -12,12 +12,7 @@ import com.johannes.lsctic.settings.*;
 //import com.johannes.lsctic.settings.MysqlSettingsField;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -80,14 +75,12 @@ public class FXMLController implements Initializable {
         // Sqlite connection must be established before creating the optionsstorage, because he loads data from sqlite
         sqlLiteConnection = new SqlLiteConnection("settingsAndData.db", "dataLocal.db");
 
+
         // creates optionstorage which loads data from sqlite and triggers plugin loading
         storage = new OptionsStorage(optionAccept, optionReject);
 
-        // creates loaderregister which is used to handle plugins
-        LoaderRegister loaderRegister = new LoaderRegister();
 
-        // adds the register to the optionsstorage and loads plugins which are activated in settings and available
-        storage.setLoaderRegister(loaderRegister);
+
 
         // Tooltip that will be used to indicate options for the user input in the search field
         Tooltip customTooltip = new Tooltip();
@@ -174,12 +167,11 @@ public class FXMLController implements Initializable {
             }
             updateView(generateReducedSet(internFields, newValue));
         });
-    /*    storage.setLdapSearchAmount(10);
-        Logger.getLogger(getClass().getName()).log(Level.INFO, "Search Amount: {0}", String.valueOf(storage.getLdapSearchAmount()));
-        LDAPController l = new LDAPController(storage);
-        ArrayList<LDAPEntry> ld = l.getResults("", storage.getLdapSearchAmount());
-        updateAddressFields(ld);
-        paneBTextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+
+
+        List<AddressBookEntry> ld = storage.getLoaderRegister().getResultFromEveryPlugin("", 10);
+        updateAddressFields((ArrayList<AddressBookEntry>) ld);
+     /*   paneBTextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
             ArrayList<LDAPEntry> ld1 = l.getResults(newValue, storage.getLdapSearchAmount());
             updateLdapFields(ld1);
         });*/

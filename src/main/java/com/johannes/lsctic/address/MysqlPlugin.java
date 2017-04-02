@@ -14,8 +14,8 @@ public class MysqlPlugin extends AddressPlugin {
     private MysqlSettingsField settingsField;
 
 
-    public MysqlPlugin(String AUTHOR, String AUTHOR_CONTACT) {
-        super(AUTHOR, AUTHOR_CONTACT);
+    public MysqlPlugin() {
+        super("Johannes Engler","engler.johannes@posteo.de");
         loader = new MySqlLoader();
         settingsField = new MysqlSettingsField(loader);
 

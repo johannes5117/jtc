@@ -4,8 +4,9 @@
  * and open the template in the editor.
  */
 package com.johannes.lsctic.address;
-
 import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -18,12 +19,13 @@ import java.util.logging.Logger;
  */
 public class LoaderRegister {
 
-    ArrayList<String> pluginsFound;
-    ArrayList<AddressPlugin> loadedPlugins;
+    private ArrayList<String> pluginsFound;
+    private ArrayList<AddressPlugin> loadedPlugins;
     private String exploredFolder;
 
     public LoaderRegister() {
-
+        loadedPlugins = new ArrayList<>();
+        pluginsFound = new ArrayList<>();
     }
 
     public void explorePluginFolder(String folderPath) {
@@ -36,9 +38,22 @@ public class LoaderRegister {
             explorePluginFolder(folderPath);
         }
         for (String pl : pluginsToLoad) {
-            if (pluginsFound.contains(pl)) {
-                loadedPlugins.add(getInstantiatedClass(pl, folderPath));
+            Logger.getLogger(getClass().getName()).info(pl);
+            try{
+                Class<?> loader = Class.forName("com.johannes.lsctic.address."+pl);
+                Constructor<?> ctor = loader.getConstructor();
+                Object object = ctor.newInstance(new Object[] { });
+                loadedPlugins.add((AddressPlugin) object);
+                Logger.getLogger(getClass().getName()).info("KLASSE ERFOLGREICH GELADEN");
+            } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                Logger.getLogger(getClass().getName()).info(e.getLocalizedMessage()+" FEHLER");
+                e.printStackTrace();
+                if (pluginsFound.contains(pl+".class")) {
+                    Logger.getLogger(getClass().getName()).info("INSTANZIERUNG WIRD EINGELEITET");
+                    loadedPlugins.add(getInstantiatedClass(pl, folderPath));
+                }
             }
+
         }
     }
 
@@ -49,9 +64,12 @@ public class LoaderRegister {
     private ArrayList<String> getAvailablePluginsFromFolder(String folder) {
         File dir = new File(folder);
         ArrayList<String> fileList = new ArrayList();
-        for (File f : dir.listFiles()) {
-            if (f.getName().endsWith(".class")) {
-                fileList.add(f.getName());
+        if(dir.isDirectory() && dir.listFiles()!=null) {
+            Logger.getLogger(getClass().getName()).info("ORDNER DURCHSUCHT");
+            for (File f : dir.listFiles()) {
+                if (f.getName().endsWith(".class")) {
+                    fileList.add(f.getName());
+                }
             }
         }
         return fileList;
@@ -77,18 +95,32 @@ public class LoaderRegister {
 
     public List<AddressBookEntry> getResultFromEveryPlugin(String query, int number) {
         ArrayList<AddressBookEntry> filteredQuery = new ArrayList<>();
+
         for(AddressPlugin plugin: loadedPlugins){
             ArrayList<AddressBookEntry> pluginResult = plugin.getResults(query, number);
-            if(pluginResult!=null && pluginResult.isEmpty()!=false) {
+
+            if(pluginResult!=null && pluginResult.isEmpty()==false) {
                 filteredQuery.addAll(pluginResult);
             }
         }
+
         if(!filteredQuery.isEmpty()) {
             filteredQuery.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
         }
         if(filteredQuery.size()>number) {
             return filteredQuery.subList(0,number);
         }
+
         return filteredQuery;
+    }
+    public void acceptAllPlugins() {
+        for(AddressPlugin l : loadedPlugins) {
+            l.getLoader().saved();
+        }
+    }
+    public void discardAllPlugins() {
+        for(AddressPlugin l : loadedPlugins) {
+            l.getLoader().discarded();
+        }
     }
 }

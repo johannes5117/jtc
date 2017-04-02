@@ -19,7 +19,7 @@ import javafx.scene.layout.VBox;
 public class DataSourceSettingsField extends SettingsField{
     
     public DataSourceSettingsField(OptionsStorage storage) {
-        super("Datenquelle", storage);
+        super("Datasource",storage);
     }
      @Override
     public void expand() {

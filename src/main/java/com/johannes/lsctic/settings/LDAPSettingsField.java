@@ -6,9 +6,6 @@
 
 package com.johannes.lsctic.settings;
 
-import com.johannes.lsctic.OptionsStorage;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import com.johannes.lsctic.address.loaders.LdapLoader;
