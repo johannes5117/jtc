@@ -4,7 +4,11 @@
  * and open the template in the editor.
  */
 package com.johannes.lsctic.address;
+import com.johannes.lsctic.settings.DataSourceSettingsField;
+import com.johannes.lsctic.settings.SettingsField;
+
 import java.io.File;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
@@ -92,6 +96,15 @@ public class LoaderRegister {
         }
         return null;
     }
+
+    public ArrayList<SettingsField> getAllSettingsfields() {
+        ArrayList<SettingsField> settingsFields = new ArrayList<>();
+        for(AddressPlugin plugin : loadedPlugins) {
+            settingsFields.add(plugin.getSettingsField());
+        }
+        return  settingsFields;
+    }
+
 
     public List<AddressBookEntry> getResultFromEveryPlugin(String query, int number) {
         ArrayList<AddressBookEntry> filteredQuery = new ArrayList<>();

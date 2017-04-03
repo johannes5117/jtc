@@ -183,6 +183,7 @@ public class FXMLController implements Initializable {
 
         //Load the standard (which are needed anyway) setting boxes
         panelD.getChildren().addAll(new AsteriskSettingsField(storage), new DeploymentSettingsField(storage), new DataSourceSettingsField(storage));
+        panelD.getChildren().addAll(storage.getLoaderRegister().getAllSettingsfields());
         //Load the setting boxes of the plugins
         //TODO: Plugins settings box
 
