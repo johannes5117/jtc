@@ -54,7 +54,10 @@ public class LdapLoader implements AddressLoader{
     private String base;
     private OptionsStorage storage;
 
+    private DataSource source;
+
     public LdapLoader(OptionsStorage storage) {
+        source = new DataSource("LdapPlugin");
         env = new Hashtable();
 
         String sp = "com.sun.jndi.ldap.LdapCtxFactory";
@@ -70,6 +73,7 @@ public class LdapLoader implements AddressLoader{
     }
 
     public LdapLoader(String serverIp, int port, String dc, String ou, OptionsStorage storage) {
+        source = new DataSource("LdapPlugin");
         env = new Hashtable();
 
         String sp = "com.sun.jndi.ldap.LdapCtxFactory";
@@ -137,9 +141,7 @@ public class LdapLoader implements AddressLoader{
                         data.add("!Nicht gefunden!");
                     }
                 }
-                DataSource s = new DataSource();
-                s.setDataSource("ldap");
-                aus.add(new AddressBookEntry(data, data.get(0),s));
+                aus.add(new AddressBookEntry(data, data.get(0),source));
                 ++i;
             }
         } catch (NamingException ex) {
@@ -161,6 +163,11 @@ public class LdapLoader implements AddressLoader{
     @Override
     public void discarded() {
         //TODO: Implement
+    }
+
+    @Override
+    public DataSource getDataSource() {
+        return source;
     }
 
     public void writeSettings(Connection con, Statement statement){

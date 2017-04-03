@@ -5,7 +5,7 @@ package com.johannes.lsctic.settings;/*
  */
 import java.util.ArrayList;
 
-import com.johannes.lsctic.address.loaders.MySqlLoader;
+import com.johannes.lsctic.address.loaders.MysqlLoader;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -21,8 +21,8 @@ import javafx.scene.layout.VBox;
  */
 public class MysqlSettingsField extends SettingsField {
     private final ArrayList<HBox> mysqlFields;
-    private MySqlLoader loader;
-    public MysqlSettingsField(MySqlLoader loader) {
+    private MysqlLoader loader;
+    public MysqlSettingsField(MysqlLoader loader) {
         super("MySql");
         this.loader = loader;
         mysqlFields = new ArrayList<>();

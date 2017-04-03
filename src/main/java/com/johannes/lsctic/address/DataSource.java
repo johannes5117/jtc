@@ -5,12 +5,27 @@
  */
 package com.johannes.lsctic.address;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author johannes
  */
 public class DataSource {
     private String source;
+    private ArrayList<String> availableFields = new ArrayList<>();
+
+    public DataSource(String source) {
+        this.source = source;
+    }
+
+    public ArrayList<String> getAvailableFields() {
+        return availableFields;
+    }
+
+    public void setAvailableFields(ArrayList<String> availableFields) {
+        this.availableFields = availableFields;
+    }
     
     public void setDataSource(String source) {
         this.source = source;
@@ -19,6 +34,4 @@ public class DataSource {
     public String getSource() {
         return source;
     }
-    
-    
 }

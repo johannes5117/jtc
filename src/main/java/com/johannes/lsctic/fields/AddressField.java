@@ -10,6 +10,8 @@ import com.johannes.lsctic.OptionsStorage;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.util.ArrayList;
+
+import com.johannes.lsctic.address.DataSource;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
@@ -37,14 +39,14 @@ public class AddressField extends VBox{
     private final AddressBookEntry ldapEntry;
     private ImageView vUpDown;
     private boolean expanded;
-    private final OptionsStorage storage;
+    private final DataSource source;
     private final ArrayList<String> fieldNames ;
     
     //Todo: Implement count function
     
-        public AddressField(String name, int count, int number , AddressBookEntry ldapEntry, OptionsStorage storage) {
+        public AddressField(int count, int number , AddressBookEntry addressBookEntry) {
 
-        this.name =name;
+        this.name = addressBookEntry.getName();
         this.count = count;
         this.number = number;
         this.setMaxWidth(Double.MAX_VALUE);
@@ -53,12 +55,12 @@ public class AddressField extends VBox{
         this.setStyle(" -fx-border-color: #FFFFFF; -fx-border-width: 1px;");
         this.setFocusTraversable(true);
         this.expanded = false;
-        this.ldapEntry = ldapEntry;
-        this.storage = storage;
+        this.ldapEntry = addressBookEntry;
+        this.source = addressBookEntry.getSource();
         this.fieldNames = new ArrayList<>();
         int i = 0;
-        for(String[] s : storage.getDataSources().getFields().getFields(ldapEntry.getSource().getSource())) {
-            fieldNames.add(s[1]);
+        for(String s :source.getAvailableFields()) {
+            fieldNames.add(s);
             ++i;
         }
 

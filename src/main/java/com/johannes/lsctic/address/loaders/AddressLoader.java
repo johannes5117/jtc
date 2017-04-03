@@ -6,7 +6,12 @@
 package com.johannes.lsctic.address.loaders;
 
 import com.johannes.lsctic.address.AddressBookEntry;
+import com.johannes.lsctic.address.DataSource;
+
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -19,5 +24,8 @@ public interface AddressLoader {
     public abstract void saved();
     //discards the setting if user clicks on discard
     public abstract void discarded();
-      
+    //get the DataSource
+    public abstract DataSource getDataSource();
+
+
 }

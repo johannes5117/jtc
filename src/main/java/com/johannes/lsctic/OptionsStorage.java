@@ -1,7 +1,6 @@
 package com.johannes.lsctic;
 
 import com.johannes.lsctic.address.AddressPlugin;
-import com.johannes.lsctic.address.DataSourceActivationDatabaseTool;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -32,7 +31,6 @@ public final class OptionsStorage {
     
     private String ownExtension;     // eigene Extension asterisk
     private long time;               // TimeStamp
-    private DataSourceActivationDatabaseTool dataSources = new DataSourceActivationDatabaseTool(this);
 
     private String amiAddressTemp;        //AMI Server Addresse
     private int amiServerPortTemp;       //AMI Server Port
@@ -40,7 +38,6 @@ public final class OptionsStorage {
     private String amiPasswordTemp;      //AMI Password
     private String ownExtensionTemp;     // eigene Extension asterisk
     private long timeTemp;               // TimeStamp
-    private DataSourceActivationDatabaseTool dataSourcesTemp = new DataSourceActivationDatabaseTool(this);
 
     private String pluginFolder ="plugin";
 
@@ -49,21 +46,30 @@ public final class OptionsStorage {
 
     private LoaderRegister loaderRegister;
 
+    private ArrayList<String> activatedDataSources = new ArrayList<>();
+    private ArrayList<String> activatedDataSourcesTemp = new ArrayList<>();
+
     public OptionsStorage(Button accept, Button reject ) {
-        this.loaderRegister =  new LoaderRegister();
+        this.loaderRegister = new LoaderRegister();
         readSettingsFromDatabase();
         this.loaderRegister.explorePluginFolder(this.pluginFolder);
 
-        //TODO: Delete after Test -> Only for Test purpose
         ArrayList<String> pl = new ArrayList<>();
         pl.add("MysqlPlugin");
-        this.loaderRegister.loadPlugins(pl, pluginFolder);
+        this.loaderRegister.registerHardCodedPlugins(pl);
+        //TODO: Delete after Test -> Only for Test purpose
 
+        this.loaderRegister.loadPlugins(activatedDataSources, pluginFolder);
+        try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {
+            this.loaderRegister.activateAllPlugins(statement,con);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         accept.setOnAction(event -> accept());
         reject.setOnAction(event -> setTempVariables());
     }
 
-    /**
+        /**
      * Used to store the temp. vars.
      */
     public void setTempVariables() {
@@ -73,7 +79,7 @@ public final class OptionsStorage {
         amiLogInTemp = amiLogIn;
         amiPasswordTemp = amiPassword;
         ownExtensionTemp = ownExtension;
-        dataSourcesTemp = dataSources;
+        activatedDataSourcesTemp = activatedDataSources;
     }
 
     /**
@@ -83,6 +89,7 @@ public final class OptionsStorage {
         loaderRegister.acceptAllPlugins();
         setVariables();
         writeSettingsToDatabase();
+        //TODO: Implement Write Back Activated Datasource
     }
 
     /**
@@ -95,7 +102,7 @@ public final class OptionsStorage {
         amiLogIn = amiLogInTemp;
         amiPassword = amiPasswordTemp;
         ownExtension = ownExtensionTemp;
-        dataSources = dataSourcesTemp;
+        activatedDataSources = activatedDataSourcesTemp;
     }
 
     /**
@@ -127,13 +134,8 @@ public final class OptionsStorage {
             //Safely read in all Settings. If a setting isnt found a default value will be taken
             final String query = "select setting from settings where description = ?";
             readAmiFields(query, con);
-            
-            
-            
-            // Enter Datasource read in here 
-            //readLdapFields(query, con);
-            
-            
+
+            readDatabaseForSources(con, statement);
             
             try (PreparedStatement ptsm = con.prepareStatement(query)) {
                 ptsm.setString(1, "ownExtension");
@@ -145,7 +147,7 @@ public final class OptionsStorage {
                 ResultSet amiAddressRS = ptsm.executeQuery();
                 time = Long.valueOf(!amiAddressRS.next() ? Long.toString(System.currentTimeMillis()) : amiAddressRS.getString(SETTING));
             }
-            readInDataSources();
+
             setTempVariables();
         } catch (SQLException ex) {
             Logger.getLogger(OptionsStorage.class.getName()).log(Level.SEVERE, null, ex);
@@ -183,7 +185,32 @@ public final class OptionsStorage {
         }
     }
 
-   
+
+
+    public void readDatabaseForSources(Connection con, Statement statement) throws SQLException {
+        statement.setQueryTimeout(10);
+        int i = 0;
+        String quField = "datasource";
+        while (true) {
+            PreparedStatement statement2 = con.prepareStatement("select setting from settings where description = ?");
+            statement2.setString(1, quField + i);
+            try (ResultSet fieldRS = statement2.executeQuery()) {
+                if (fieldRS.next()) {
+                    Logger.getLogger(getClass().getName()).log(Level.INFO, "Gefunden");
+                    String dataSourceName = fieldRS.getString("setting");
+                    activatedDataSources.add(dataSourceName);
+                    ++i;
+                } else {
+                    Logger.getLogger(getClass().getName()).log(Level.INFO, "Break");
+                    statement2.close();
+                    break;
+                }
+            } finally {
+                statement2.close();
+            }
+        }
+    }
+
 
    
     public String getAmiAddress() {
@@ -262,29 +289,13 @@ public final class OptionsStorage {
         this.timeTemp = timeTemp;
     }
 
-   
+   public void activateDatasource(String datasource) {
+        activatedDataSourcesTemp.add(datasource);
+   }
+   public void deactivateDatasource(String datasource) {
+        activatedDataSourcesTemp.remove(datasource);
+   }
 
-
-    public DataSourceActivationDatabaseTool getDataSourcesTemp() {
-        return dataSourcesTemp;
-    }
-
-    public void setDataSourcesTemp(DataSourceActivationDatabaseTool dataSourcesTemp) {
-        this.dataSourcesTemp = dataSourcesTemp;
-    }
-
-    public DataSourceActivationDatabaseTool getDataSources() {
-        return dataSources;
-    }
-
-
-    private void readInDataSources() {
-        try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {
-            dataSources.readDatabaseForSources(con, statement);
-        } catch (SQLException ex) {
-            Logger.getLogger(OptionsStorage.class.getName()).log(Level.WARNING, null, ex);
-        }
-    }
 
     public LoaderRegister getLoaderRegister() {
         return loaderRegister;

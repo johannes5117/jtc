@@ -7,30 +7,42 @@ package com.johannes.lsctic.address.loaders;/*
 import com.johannes.lsctic.address.AddressBookEntry;
 import com.johannes.lsctic.address.DataSource;
 
+import javax.xml.crypto.Data;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
  * @author johannes
  */
-public class MySqlLoader implements AddressLoader {
+public class MysqlLoader implements AddressLoader {
+    //TODO: DELTE only for Test
+    private ArrayList<AddressBookEntry> en = new ArrayList<>();
 
-    ArrayList<AddressBookEntry> en = new ArrayList<>();
-    MysqlLoaderStorage storageTemp;
-    MysqlLoaderStorage storage;
+    private String name = "MysqlPlugin";
+    private MysqlLoaderStorage storageTemp;
+    private MysqlLoaderStorage storage;
+    private DataSource source;
 
-    public MySqlLoader() {
+    public MysqlLoader() {
+        source = new DataSource("MysqlPlugin");
         ArrayList<String> infos = new ArrayList<>();
         ArrayList<String> test = new ArrayList<>();
-        test.add("Wilhelm");
-        test.add("Berlin");
-        DataSource s = new DataSource();
-        s.setDataSource("mysql");
-        en.add(new AddressBookEntry(test, "Wilhelm", s));
-        infos.add("Johannes");
-        infos.add("Bad Krozingen");
 
-        en.add(new AddressBookEntry(infos, "Testname", s));
+
+
+
+        test.add("Wilhelm");
+        test.add("Meier");
+        test.add("Berlin");
+
+        en.add(new AddressBookEntry(test, "Wilhelm Meier", source));
+        infos.add("Johannes");
+        infos.add("Engler");
+        infos.add("Bad Krozingen");
+        en.add(new AddressBookEntry(infos, "Johannes Engler", source));
 
 
         storage = new MysqlLoaderStorage();
@@ -62,4 +74,9 @@ public class MySqlLoader implements AddressLoader {
     public MysqlLoaderStorage getStorage() {
         return storage;
     }
+
+    public DataSource getDataSource() {
+        return source;
+    }
+
 }

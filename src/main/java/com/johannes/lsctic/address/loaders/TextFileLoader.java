@@ -6,6 +6,8 @@
 package com.johannes.lsctic.address.loaders;
 
 import com.johannes.lsctic.address.AddressBookEntry;
+import com.johannes.lsctic.address.DataSource;
+
 import java.util.ArrayList;
 
 /**
@@ -13,6 +15,12 @@ import java.util.ArrayList;
  * @author johannes
  */
 public class TextFileLoader implements AddressLoader{
+
+    private DataSource source;
+
+    public TextFileLoader() {
+        this.source = new DataSource("TextFilePlugin");
+    }
 
     @Override
     public ArrayList<AddressBookEntry> getResults(String ein, int n) {
@@ -27,6 +35,11 @@ public class TextFileLoader implements AddressLoader{
     @Override
     public void discarded() {
 
+    }
+
+    @Override
+    public DataSource getDataSource() {
+        return source;
     }
 
 }

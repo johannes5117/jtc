@@ -30,7 +30,9 @@ public class DataSourceSettingsField extends SettingsField{
         b.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                getStorage().getDataSourcesTemp().checkOption(b.getText(),newValue,null,null);
+                if(newValue) {
+                    getStorage().deactivateDatasource(getParent().getAccessibleText());
+                }
             }
         });
         CheckBox b2 = new CheckBox("MySql");

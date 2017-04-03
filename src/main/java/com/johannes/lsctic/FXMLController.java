@@ -79,7 +79,7 @@ public class FXMLController implements Initializable {
         // creates optionstorage which loads data from sqlite and triggers plugin loading
         storage = new OptionsStorage(optionAccept, optionReject);
 
-
+        //Hard Coded Plugins must be registered
 
 
         // Tooltip that will be used to indicate options for the user input in the search field
@@ -187,9 +187,7 @@ public class FXMLController implements Initializable {
         //Load the setting boxes of the plugins
         //TODO: Plugins settings box
 
-        for(String[] as : storage.getDataSourcesTemp().getFields().getFields("mysql")) {
-            Logger.getLogger(getClass().getName()).info(Arrays.toString(as));
-        }
+
 
     }
 
@@ -249,7 +247,7 @@ public class FXMLController implements Initializable {
     private void updateAddressFields(ArrayList<AddressBookEntry> i) {
         panelB.getChildren().clear();
         ArrayList<AddressField> addressFields = new ArrayList<>();
-        i.stream().forEach(ent -> addressFields.add(new AddressField(ent.get(0), 2, 123123, ent, storage)));
+        i.stream().forEach(ent -> addressFields.add(new AddressField(2, 123123, ent)));
         panelB.getChildren().addAll(addressFields);
     }
 

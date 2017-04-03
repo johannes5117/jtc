@@ -14,6 +14,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -35,6 +38,22 @@ public class LoaderRegister {
     public void explorePluginFolder(String folderPath) {
         this.pluginsFound = getAvailablePluginsFromFolder(folderPath);
         exploredFolder = folderPath;
+    }
+
+    public void activateAllPlugins(Statement statement, Connection con) throws SQLException {
+        for(AddressPlugin addressPlugin : loadedPlugins) {
+            addressPlugin.readFields(statement, con);
+        }
+    }
+
+    public void registerHardCodedPlugins(ArrayList<String> plugins) {
+        this.pluginsFound.addAll(plugins);
+    }
+
+    public void reloadPlugins(ArrayList<String> pluginsToLoad, String folderPath) {
+        loadedPlugins.clear();
+        explorePluginFolder(folderPath);
+        loadPlugins(pluginsToLoad,folderPath);
     }
 
     public void loadPlugins(ArrayList<String> pluginsToLoad, String folderPath) {

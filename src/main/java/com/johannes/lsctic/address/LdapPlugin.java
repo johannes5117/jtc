@@ -4,6 +4,9 @@ import com.johannes.lsctic.address.loaders.LdapLoader;
 import com.johannes.lsctic.settings.LDAPSettingsField;
 import com.johannes.lsctic.settings.SettingsField;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 
 /**
@@ -14,9 +17,11 @@ public class LdapPlugin extends AddressPlugin {
     private LDAPSettingsField settingsField;
 
     public LdapPlugin(String AUTHOR, String AUTHOR_CONTACT) {
-        super(AUTHOR, AUTHOR_CONTACT);
+        super(AUTHOR, AUTHOR_CONTACT, "LdapPlugin");
         loader = new LdapLoader();
         settingsField = new LDAPSettingsField(loader);
+        super.setLoader(loader);
+        super.setSettingsField(settingsField);
     }
 
     @Override
@@ -27,5 +32,10 @@ public class LdapPlugin extends AddressPlugin {
     @Override
     public ArrayList<AddressBookEntry> getResults(String query, int number) {
         return loader.getResults(query,number);
+    }
+
+    @Override
+    public void readFields(Statement statement, Connection con) throws SQLException {
+
     }
 }
