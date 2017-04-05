@@ -5,13 +5,13 @@
  */
 package com.johannes.lsctic.fields;
 
-import com.johannes.lsctic.address.AddressBookEntry;
-import com.johannes.lsctic.OptionsStorage;
+import com.johannes.lsctic.plugins.AddressBookEntry;
+
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.util.ArrayList;
 
-import com.johannes.lsctic.address.DataSource;
+import com.johannes.lsctic.plugins.DataSource;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;

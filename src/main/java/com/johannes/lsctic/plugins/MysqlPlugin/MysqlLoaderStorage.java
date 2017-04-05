@@ -1,4 +1,4 @@
-package com.johannes.lsctic.address.loaders;
+package com.johannes.lsctic.plugins.MysqlPlugin;
 
 import java.util.ArrayList;
 

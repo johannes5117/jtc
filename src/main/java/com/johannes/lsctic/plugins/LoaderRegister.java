@@ -3,12 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.johannes.lsctic.address;
-import com.johannes.lsctic.settings.DataSourceSettingsField;
+package com.johannes.lsctic.plugins;
 import com.johannes.lsctic.settings.SettingsField;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
@@ -63,7 +61,7 @@ public class LoaderRegister {
         for (String pl : pluginsToLoad) {
             Logger.getLogger(getClass().getName()).info(pl);
             try{
-                Class<?> loader = Class.forName("com.johannes.lsctic.address."+pl);
+                Class<?> loader = Class.forName("com.johannes.lsctic.plugins."+pl+"."+pl);
                 Constructor<?> ctor = loader.getConstructor();
                 Object object = ctor.newInstance(new Object[] { });
                 loadedPlugins.add((AddressPlugin) object);

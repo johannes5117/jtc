@@ -4,11 +4,9 @@
  * and open the template in the editor.
  */
 
-package com.johannes.lsctic.settings;
+package com.johannes.lsctic.plugins.LdapPlugin;
 
-import java.util.ArrayList;
-
-import com.johannes.lsctic.address.loaders.LdapLoader;
+import com.johannes.lsctic.settings.SettingsField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
@@ -19,6 +17,8 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+
+import java.util.ArrayList;
 
 
 /**

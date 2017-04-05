@@ -5,7 +5,6 @@
  */
 package com.johannes.lsctic.settings;
 
-import com.johannes.lsctic.OptionsStorage;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -21,14 +20,9 @@ import javafx.scene.layout.VBox;
 public class SettingsField extends VBox {
     private ImageView vUpDown;
     private boolean expanded;
-    private OptionsStorage storage;
     private String name;
 
-    public SettingsField(String name, OptionsStorage storage) {
-        this.storage = storage;
-        this.name = name;
-        createBox();
-    }
+
 
     public SettingsField(String name) {
         this.name = name;
@@ -123,9 +117,5 @@ public class SettingsField extends VBox {
 
     public void collapse() {
         expanded = false;
-    }
-
-    public OptionsStorage getStorage() {
-        return storage;
     }
 }

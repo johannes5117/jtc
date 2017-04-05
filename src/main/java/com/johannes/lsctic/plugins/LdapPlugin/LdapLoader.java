@@ -3,40 +3,29 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.johannes.lsctic.address.loaders;
+package com.johannes.lsctic.plugins.LdapPlugin;
 
-import com.johannes.lsctic.FXMLController;
-import com.johannes.lsctic.OptionsStorage;
-import com.johannes.lsctic.address.AddressBookEntry;
-import com.johannes.lsctic.address.AddressBookEntry;
-import com.johannes.lsctic.address.DataSource;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import com.johannes.lsctic.plugins.AddressBookEntry;
+import com.johannes.lsctic.plugins.DataSource;
+import com.johannes.lsctic.plugins.AddressLoader;
+
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
 /**
  *
  * @author johannesengler
  */
-public class LdapLoader implements AddressLoader{
+public class LdapLoader implements AddressLoader {
     private static final String SETTING = "setting";
 
     
@@ -52,11 +41,10 @@ public class LdapLoader implements AddressLoader{
     private String ldapUrl;
     private DirContext dctx;
     private String base;
-    private OptionsStorage storage;
 
     private DataSource source;
 
-    public LdapLoader(OptionsStorage storage) {
+    public LdapLoader() {
         source = new DataSource("LdapPlugin");
         env = new Hashtable();
 
@@ -67,12 +55,10 @@ public class LdapLoader implements AddressLoader{
 
         env.put(Context.PROVIDER_URL, ldapUrl);
 
-        this.storage = storage;
-
         base = ldapBase;
     }
 
-    public LdapLoader(String serverIp, int port, String dc, String ou, OptionsStorage storage) {
+    public LdapLoader(String serverIp, int port, String dc, String ou) {
         source = new DataSource("LdapPlugin");
         env = new Hashtable();
 
@@ -83,13 +69,9 @@ public class LdapLoader implements AddressLoader{
 
         env.put(Context.PROVIDER_URL, ldapUrl);
 
-        this.storage = storage;
         base = "ou=" + ou;
     }
 
-    public LdapLoader() {
-        
-    }
     
     @Override
     public ArrayList<AddressBookEntry> getResults(String ein, int n) {
@@ -117,12 +99,12 @@ public class LdapLoader implements AddressLoader{
         try {
             dctx = new InitialDirContext(env);
         } catch (NamingException ex) {
-            Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }
         try {
             results = dctx.search(base, filter, sc);
         } catch (NamingException ex) {
-            Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }
         try {
             i = 0;
@@ -145,12 +127,12 @@ public class LdapLoader implements AddressLoader{
                 ++i;
             }
         } catch (NamingException ex) {
-            Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }
         try {
             dctx.close();
         } catch (NamingException ex) {
-            Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }
         return aus;
     }

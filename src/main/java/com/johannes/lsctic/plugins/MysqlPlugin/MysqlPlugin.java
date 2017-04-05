@@ -1,12 +1,9 @@
-package com.johannes.lsctic.address;
+package com.johannes.lsctic.plugins.MysqlPlugin;
 
-import com.johannes.lsctic.address.loaders.MysqlLoader;
-import com.johannes.lsctic.settings.MysqlSettingsField;
+import com.johannes.lsctic.plugins.AddressBookEntry;
+import com.johannes.lsctic.plugins.AddressPlugin;
 import com.johannes.lsctic.settings.SettingsField;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 
 /**

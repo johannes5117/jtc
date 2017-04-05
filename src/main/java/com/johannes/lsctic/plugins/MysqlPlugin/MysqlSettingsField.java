@@ -1,11 +1,9 @@
-package com.johannes.lsctic.settings;/*
+package com.johannes.lsctic.plugins.MysqlPlugin;/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-import java.util.ArrayList;
-
-import com.johannes.lsctic.address.loaders.MysqlLoader;
+import com.johannes.lsctic.settings.SettingsField;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -14,6 +12,8 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+
+import java.util.ArrayList;
 
 /**
  *

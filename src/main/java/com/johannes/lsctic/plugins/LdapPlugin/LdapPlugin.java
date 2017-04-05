@@ -1,7 +1,7 @@
-package com.johannes.lsctic.address;
+package com.johannes.lsctic.plugins.LdapPlugin;
 
-import com.johannes.lsctic.address.loaders.LdapLoader;
-import com.johannes.lsctic.settings.LDAPSettingsField;
+import com.johannes.lsctic.plugins.AddressBookEntry;
+import com.johannes.lsctic.plugins.AddressPlugin;
 import com.johannes.lsctic.settings.SettingsField;
 
 import java.sql.Connection;

@@ -1,23 +1,15 @@
 package com.johannes.lsctic;
 
-import com.johannes.lsctic.address.AddressPlugin;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import com.johannes.lsctic.plugins.LoaderRegister;
+import com.johannes.lsctic.settings.AsteriskSettingsField;
+import com.johannes.lsctic.settings.DataSourceSettingsField;
+import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
+
+import java.sql.*;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.johannes.lsctic.address.LoaderRegister;
-import com.johannes.lsctic.address.loaders.AddressLoader;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.Button;
 
 /**
  * @author johannesengler
@@ -32,10 +24,7 @@ public final class OptionsStorage {
     private String ownExtension;     // eigene Extension asterisk
     private long time;               // TimeStamp
 
-    private String amiAddressTemp;        //AMI Server Addresse
-    private int amiServerPortTemp;       //AMI Server Port
-    private String amiLogInTemp;         //AMI Login
-    private String amiPasswordTemp;      //AMI Password
+
     private String ownExtensionTemp;     // eigene Extension asterisk
     private long timeTemp;               // TimeStamp
 
@@ -47,10 +36,15 @@ public final class OptionsStorage {
     private LoaderRegister loaderRegister;
 
     private ArrayList<String> activatedDataSources = new ArrayList<>();
-    private ArrayList<String> activatedDataSourcesTemp = new ArrayList<>();
 
-    public OptionsStorage(Button accept, Button reject ) {
+    private AsteriskSettingsField asteriskSettingsField;
+    private DataSourceSettingsField dataSourceSettingsField;
+
+    public OptionsStorage(Button accept, Button reject, VBox panelD ) {
+        this.asteriskSettingsField = new AsteriskSettingsField();
         this.loaderRegister = new LoaderRegister();
+        this.dataSourceSettingsField = new DataSourceSettingsField();
+
         readSettingsFromDatabase();
         this.loaderRegister.explorePluginFolder(this.pluginFolder);
 
@@ -67,6 +61,10 @@ public final class OptionsStorage {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        dataSourceSettingsField.setCheckBoxes(loaderRegister.getPluginsFound(), activatedDataSources);
+        panelD.getChildren().addAll(asteriskSettingsField, dataSourceSettingsField);
+        panelD.getChildren().addAll(this.getLoaderRegister().getAllSettingsfields());
+
         accept.setOnAction(event -> accept());
         reject.setOnAction(event -> setTempVariables());
     }
@@ -76,14 +74,14 @@ public final class OptionsStorage {
      */
     public void setTempVariables() {
         loaderRegister.discardAllPlugins();
-        amiAddressTemp = amiAddress;
-        amiServerPortTemp = amiServerPort;
-        amiLogInTemp = amiLogIn;
-        amiPasswordTemp = amiPassword;
-        ownExtensionTemp = ownExtension;
-        activatedDataSourcesTemp = activatedDataSources;
-    }
 
+        String[] options = {amiAddress, ""+amiServerPort, amiLogIn, amiPassword};
+        this.asteriskSettingsField.setOptions(options);
+
+
+        ownExtensionTemp = ownExtension;
+        dataSourceSettingsField.setCheckBoxes(loaderRegister.getPluginsFound(),activatedDataSources);
+    }
     /**
      * User accepts the changes and wants to store the changes in database
      */
@@ -99,12 +97,13 @@ public final class OptionsStorage {
      * accept
      */
     public void setVariables() {
-        amiAddress = amiAddressTemp;
-        amiServerPort = amiServerPortTemp;
-        amiLogIn = amiLogInTemp;
-        amiPassword = amiPasswordTemp;
+        String[] options = asteriskSettingsField.getOptions();
+        amiAddress = options[0];
+        amiServerPort = Integer.valueOf(options[1]);
+        amiLogIn = options[2];
+        amiPassword = options[3];
         ownExtension = ownExtensionTemp;
-        activatedDataSources = activatedDataSourcesTemp;
+        activatedDataSources = this.dataSourceSettingsField.getChecked();
     }
 
     /**
@@ -219,53 +218,19 @@ public final class OptionsStorage {
         return amiAddress;
     }
 
-    public void setAmiAddress(String amiAddress) {
-        this.amiAddress = amiAddress;
-    }
-
     public int getAmiServerPort() {
         return amiServerPort;
-    }
-
-    public void setAmiServerPort(int amiServerPort) {
-        this.amiServerPort = amiServerPort;
-
     }
 
     public String getAmiLogIn() {
         return amiLogIn;
     }
 
-    public void setAmiLogIn(String amiLogIn) {
-        this.amiLogIn = amiLogIn;
-    }
-
     public String getAmiPassword() {
         return amiPassword;
     }
 
-    public void setAmiPassword(String amiPassword) {
-        this.amiPassword = amiPassword;
-    }
 
-    
-    public void setAmiAddressTemp(String amiAddressTemp) {
-        this.amiAddressTemp = amiAddressTemp;
-    }
-
-    public void setAmiServerPortTemp(int amiServerPortTemp) {
-        this.amiServerPortTemp = amiServerPortTemp;
-    }
-
-    public void setAmiLogInTemp(String amiLogInTemp) {
-        this.amiLogInTemp = amiLogInTemp;
-    }
-
-    public void setAmiPasswordTemp(String amiPasswordTemp) {
-        this.amiPasswordTemp = amiPasswordTemp;
-    }
-
-   
 
     public String getOwnExtension() {
         return ownExtension;
@@ -291,14 +256,6 @@ public final class OptionsStorage {
         this.timeTemp = timeTemp;
     }
 
-   public void activateDatasource(String datasource) {
-        activatedDataSourcesTemp.add(datasource);
-   }
-   public void deactivateDatasource(String datasource) {
-        activatedDataSourcesTemp.remove(datasource);
-   }
-
-
    public ArrayList<String> getActivatedDataSources() {
         return this.activatedDataSources;
    }
@@ -306,6 +263,12 @@ public final class OptionsStorage {
 
     public LoaderRegister getLoaderRegister() {
         return loaderRegister;
+    }
+
+    public void setAsteriskSettingsField(AsteriskSettingsField asteriskSettingsField) {
+        this.asteriskSettingsField = asteriskSettingsField;
+        String[] options = {amiAddress, ""+amiServerPort, amiLogIn, amiPassword};
+        this.asteriskSettingsField.setOptions(options);
     }
 
 }

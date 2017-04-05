@@ -1,17 +1,14 @@
-package com.johannes.lsctic.address.loaders;/*
+package com.johannes.lsctic.plugins.MysqlPlugin;/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 
-import com.johannes.lsctic.address.AddressBookEntry;
-import com.johannes.lsctic.address.DataSource;
+import com.johannes.lsctic.plugins.AddressBookEntry;
+import com.johannes.lsctic.plugins.DataSource;
+import com.johannes.lsctic.plugins.AddressLoader;
 
-import javax.xml.crypto.Data;
-import java.sql.*;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 /**

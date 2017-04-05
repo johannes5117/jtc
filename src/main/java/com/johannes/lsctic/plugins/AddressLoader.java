@@ -3,15 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.johannes.lsctic.address.loaders;
+package com.johannes.lsctic.plugins;
 
-import com.johannes.lsctic.address.AddressBookEntry;
-import com.johannes.lsctic.address.DataSource;
-
-import java.sql.*;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *

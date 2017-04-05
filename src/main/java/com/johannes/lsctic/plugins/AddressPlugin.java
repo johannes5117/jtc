@@ -1,7 +1,5 @@
-package com.johannes.lsctic.address;
+package com.johannes.lsctic.plugins;
 
-import com.johannes.lsctic.address.loaders.AddressLoader;
-import com.johannes.lsctic.settings.DataSourceSettingsField;
 import com.johannes.lsctic.settings.SettingsField;
 
 import java.sql.*;

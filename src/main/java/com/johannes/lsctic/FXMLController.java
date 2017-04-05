@@ -1,38 +1,28 @@
 package com.johannes.lsctic;
 
-import com.johannes.lsctic.address.AddressBookEntry;
-import com.johannes.lsctic.address.LoaderRegister;
 import com.johannes.lsctic.amiapi.ServerConnectionHandler;
-import com.johannes.lsctic.fields.InternField;
-import com.johannes.lsctic.fields.HistoryField;
 import com.johannes.lsctic.fields.AddressField;
+import com.johannes.lsctic.fields.HistoryField;
+import com.johannes.lsctic.fields.InternField;
 import com.johannes.lsctic.fields.NewInternField;
-import com.johannes.lsctic.settings.*;
-//import com.johannes.lsctic.settings.LDAPSettingsField;
-//import com.johannes.lsctic.settings.MysqlSettingsField;
+import com.johannes.lsctic.plugins.AddressBookEntry;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.geometry.Point2D;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.geometry.Point2D;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SingleSelectionModel;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 public class FXMLController implements Initializable {
 
@@ -75,11 +65,10 @@ public class FXMLController implements Initializable {
         // Sqlite connection must be established before creating the optionsstorage, because he loads data from sqlite
         sqlLiteConnection = new SqlLiteConnection("settingsAndData.db", "dataLocal.db");
 
-
         // creates optionstorage which loads data from sqlite and triggers plugin loading
-        storage = new OptionsStorage(optionAccept, optionReject);
+        storage = new OptionsStorage(optionAccept, optionReject, panelD);
 
-        //Hard Coded Plugins must be registered
+        //Hard Coded plugins must be registered
 
 
         // Tooltip that will be used to indicate options for the user input in the search field
@@ -149,6 +138,9 @@ public class FXMLController implements Initializable {
             }
         });
 
+
+
+
         paneATextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
             try {
                 quickdialString = newValue;
@@ -180,14 +172,6 @@ public class FXMLController implements Initializable {
         historyFields = new ArrayList();
 
         panelC.getChildren().addAll(historyFields);
-
-        //Load the standard (which are needed anyway) setting boxes
-        panelD.getChildren().addAll(new AsteriskSettingsField(storage), new DeploymentSettingsField(storage), new DataSourceSettingsField(storage));
-        panelD.getChildren().addAll(storage.getLoaderRegister().getAllSettingsfields());
-        //Load the setting boxes of the plugins
-        //TODO: Plugins settings box
-
-
 
     }
 

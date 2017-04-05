@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.johannes.lsctic.address.loaders;
+package com.johannes.lsctic.plugins.TextfilePlugin;
 
-import com.johannes.lsctic.address.AddressBookEntry;
-import com.johannes.lsctic.address.DataSource;
+import com.johannes.lsctic.plugins.AddressBookEntry;
+import com.johannes.lsctic.plugins.AddressLoader;
+import com.johannes.lsctic.plugins.DataSource;
 
 import java.util.ArrayList;
 
@@ -14,7 +15,7 @@ import java.util.ArrayList;
  *
  * @author johannes
  */
-public class TextFileLoader implements AddressLoader{
+public class TextFileLoader implements AddressLoader {
 
     private DataSource source;
 
