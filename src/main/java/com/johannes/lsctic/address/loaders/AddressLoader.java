@@ -26,6 +26,4 @@ public interface AddressLoader {
     public abstract void discarded();
     //get the DataSource
     public abstract DataSource getDataSource();
-
-
 }

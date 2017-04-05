@@ -56,6 +56,8 @@ public final class OptionsStorage {
 
         ArrayList<String> pl = new ArrayList<>();
         pl.add("MysqlPlugin");
+        pl.add("LdapPlugin");
+        pl.add("TextFilePlugin");
         this.loaderRegister.registerHardCodedPlugins(pl);
         //TODO: Delete after Test -> Only for Test purpose
 
@@ -294,6 +296,11 @@ public final class OptionsStorage {
    }
    public void deactivateDatasource(String datasource) {
         activatedDataSourcesTemp.remove(datasource);
+   }
+
+
+   public ArrayList<String> getActivatedDataSources() {
+        return this.activatedDataSources;
    }
 
 

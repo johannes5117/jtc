@@ -140,6 +140,7 @@ public class FXMLController implements Initializable {
                 try {
                     long l = Long.parseLong(quickdialString);
                     Logger.getLogger(getClass().getName()).log(Level.INFO, null, "Dial: " + l);
+                    this.getServerConnectionHandler().sendBack("003"+getOwnExtension()+":"+quickdialString);
                 } catch (NumberFormatException e) {
                     Logger.getLogger(getClass().getName()).log(Level.INFO, null, e);
                 }
@@ -163,7 +164,6 @@ public class FXMLController implements Initializable {
 
             } catch (NumberFormatException e) {
                 customTooltip.hide();
-                Logger.getLogger(getClass().getName()).log(Level.INFO, null, e);
             }
             updateView(generateReducedSet(internFields, newValue));
         });
@@ -229,7 +229,7 @@ public class FXMLController implements Initializable {
     }
 
     public void removeInternAndUpdate(InternField f) {
-        sqlLiteConnection.queryNoReturn("Delete from internfields where number=" + f.getNumber() + "");
+        sqlLiteConnection.queryNoReturn("Delete from internfields where number='" + f.getNumber() + "'");
         internFields.remove(f.getNumber(), f);
         internNumbers.remove(f.getNumber());
         serverConnectionHandler.deAboStatusExtension(f.getNumber());

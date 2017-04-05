@@ -155,4 +155,8 @@ public class LoaderRegister {
             l.getLoader().discarded();
         }
     }
+
+    public ArrayList<String> getPluginsFound() {
+        return pluginsFound;
+    }
 }
