@@ -1,10 +1,13 @@
 package com.johannes.lsctic;
 
+import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.amiapi.ServerConnectionHandler;
 import com.johannes.lsctic.fields.AddressField;
 import com.johannes.lsctic.fields.HistoryField;
 import com.johannes.lsctic.fields.InternField;
 import com.johannes.lsctic.fields.NewInternField;
+import com.johannes.lsctic.panels.InternEvent;
+import com.johannes.lsctic.panels.FieldRegister;
 import com.johannes.lsctic.plugins.AddressBookEntry;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -69,8 +72,10 @@ public class FXMLController implements Initializable {
         storage = new OptionsStorage(optionAccept, optionReject, panelD);
 
         //Hard Coded plugins must be registered
+        EventBus bus = new EventBus();
+        FieldRegister fieldRegister = new FieldRegister(bus);
 
-
+        bus.post(new InternEvent());
         // Tooltip that will be used to indicate options for the user input in the search field
         Tooltip customTooltip = new Tooltip();
 
