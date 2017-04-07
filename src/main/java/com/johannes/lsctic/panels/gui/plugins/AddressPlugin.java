@@ -2,10 +2,11 @@ package com.johannes.lsctic.panels.gui.plugins;
 
 import com.johannes.lsctic.panels.gui.settings.SettingsField;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Created by johannes on 22.03.2017.
@@ -52,27 +53,26 @@ public abstract class AddressPlugin {
         ArrayList<String> nameOfOrderedEntryPoint = new ArrayList<>();
         int i = 0;
         String quField = this.pluginName;
-        Logger.getLogger(getClass().getName()).log(Level.INFO, quField);
         while (true) {
-            PreparedStatement statement2 = con.prepareStatement("select setting from settings where description = ?");
-            statement2.setString(1, quField + i);
-            Logger.getLogger(getClass().getName()).log(Level.INFO, "{0}{1}", new Object[]{quField, i});
-            try (ResultSet fieldRS = statement2.executeQuery()) {
+            PreparedStatement statement = con.prepareStatement("select setting from settings where description = ?");
+            statement.setString(1, quField + i);
+            try (ResultSet fieldRS = statement.executeQuery()) {
                 if (fieldRS.next()) {
-                    Logger.getLogger(getClass().getName()).log(Level.INFO, "Gefunden");
                     String field = fieldRS.getString("setting");
                     String[] parameter = field.split(";");
                     nameOfOrderedView.add(parameter[1]);
                     nameOfOrderedEntryPoint.add(parameter[0]);
-                    statement2.close();
+                    statement.close();
                     ++i;
                 } else {
-                    Logger.getLogger(getClass().getName()).log(Level.INFO, "Break");
-                    statement2.close();
+                    statement.close();
                     break;
                 }
+            }catch (SQLException e){
+                statement.close();
+                throw e;
             } finally {
-                statement2.close();
+                statement.close();
             }
         }
         loader.getDataSource().setAvailableFields(nameOfOrderedView);

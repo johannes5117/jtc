@@ -196,15 +196,17 @@ public final class OptionsStorage {
             statement.setString(1, quField + i);
             try (ResultSet fieldRS = statement.executeQuery()) {
                 if (fieldRS.next()) {
-                    Logger.getLogger(getClass().getName()).log(Level.INFO, "Gefunden");
                     String dataSourceName = fieldRS.getString("setting");
                     activatedDataSources.add(dataSourceName);
+                    statement.close();
                     ++i;
                 } else {
-                    Logger.getLogger(getClass().getName()).log(Level.INFO, "Break");
                     statement.close();
                     break;
                 }
+            }catch (SQLException e){
+                statement.close();
+                throw e;
             } finally {
                 statement.close();
             }
