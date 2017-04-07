@@ -14,6 +14,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -38,12 +40,12 @@ public class MysqlSettingsField extends SettingsField {
         f.textProperty().addListener((observable, oldValue, newValue) -> loader.getStorageTemp().setServerAddress(newValue));
         final TextField f2 = new TextField();
         f2.setPromptText("Port (Beispiel: 3306)");
-        f2.setText(""+loader.getStorage().getServerPort());
+        f2.setText(Integer.toString(loader.getStorage().getServerPort()));
         f2.textProperty().addListener((observable, oldValue, newValue) -> {
             try{
                 loader.getStorageTemp().setServerPort(Integer.valueOf(newValue));
             } catch (Exception e) {
-                f2.setPromptText("Der Port ist eine Zahl");
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE,null, e);
             }
         });
         TextField f3 = new TextField();
@@ -98,13 +100,13 @@ public class MysqlSettingsField extends SettingsField {
        TextField t2 = new TextField(b);
        t2.setPromptText("Anzeigename");
        Button but = new Button(sign);
-       if(sign.equals("+")) {
+       if("+".equals(sign)) {
            but.setStyle("-fx-font-size:13.5;");
        }
        but.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
            @Override
            public void handle(javafx.event.ActionEvent event) {
-               if(but.getText().equals("X")) {
+               if(("X").equals(but.getText())) {
                HBox b = (HBox) but.getParent();
                TextField t1  = (TextField) b.getChildren().get(0);
                TextField t2  = (TextField) b.getChildren().get(2);

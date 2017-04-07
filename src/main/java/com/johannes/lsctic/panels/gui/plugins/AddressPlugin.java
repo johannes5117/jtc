@@ -47,20 +47,16 @@ public abstract class AddressPlugin {
 
     public abstract ArrayList<AddressBookEntry> getResults(String query, int number);
 
-    public void readFields(Statement statement, Connection con) throws SQLException {
-        statement.setQueryTimeout(10);
+    public void readFields(Connection con) throws SQLException {
         ArrayList<String> nameOfOrderedView = new ArrayList<>();
         ArrayList<String> nameOfOrderedEntryPoint = new ArrayList<>();
-
         int i = 0;
         String quField = this.pluginName;
-        Logger.getLogger(getClass().getName()).info("TamTamTam: "+quField);
+        Logger.getLogger(getClass().getName()).log(Level.INFO, quField);
         while (true) {
             PreparedStatement statement2 = con.prepareStatement("select setting from settings where description = ?");
             statement2.setString(1, quField + i);
-
             Logger.getLogger(getClass().getName()).log(Level.INFO, "{0}{1}", new Object[]{quField, i});
-
             try (ResultSet fieldRS = statement2.executeQuery()) {
                 if (fieldRS.next()) {
                     Logger.getLogger(getClass().getName()).log(Level.INFO, "Gefunden");
@@ -68,6 +64,7 @@ public abstract class AddressPlugin {
                     String[] parameter = field.split(";");
                     nameOfOrderedView.add(parameter[1]);
                     nameOfOrderedEntryPoint.add(parameter[0]);
+                    statement2.close();
                     ++i;
                 } else {
                     Logger.getLogger(getClass().getName()).log(Level.INFO, "Break");

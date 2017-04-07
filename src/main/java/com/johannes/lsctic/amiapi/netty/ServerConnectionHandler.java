@@ -22,40 +22,40 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author johannesengler
  */
 public class ServerConnectionHandler {
-     static final String ADDRESS = "localhost";
-     static final int PORT = 12345;
-     private final EventBus bus;
-     private final String  ownExtension;
-    
+    static final String ADDRESS = "localhost";
+    static final int PORT = 12345;
+    private final EventBus bus;
+    private final String ownExtension;
     private Channel ch;
+
     public ServerConnectionHandler(EventBus bus, String ownExtension) throws IOException {
         this.bus = bus;
         this.ownExtension = ownExtension;
         bus.register(this);
-         try {
-             final SslContext sslCtx = SslContextBuilder.forClient()
-                     .trustManager(InsecureTrustManagerFactory.INSTANCE).build();
-             
-             EventLoopGroup group = new NioEventLoopGroup();
-             
-             Bootstrap b = new Bootstrap();
-             b.group(group)
-                     .channel(NioSocketChannel.class)
-                     .handler(new SecureChatClientInitializer(sslCtx,this.bus, this.ownExtension));
+        try {
+            final SslContext sslCtx = SslContextBuilder.forClient()
+                    .trustManager(InsecureTrustManagerFactory.INSTANCE).build();
 
-             // Start the connection attempt.
-             ch = b.connect(ADDRESS, PORT).sync().channel();
+            EventLoopGroup group = new NioEventLoopGroup();
 
-         } catch (InterruptedException ex) {
-             Logger.getLogger(ServerConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
-             Thread.currentThread().interrupt();
-         }
-         
+            Bootstrap b = new Bootstrap();
+            b.group(group)
+                    .channel(NioSocketChannel.class)
+                    .handler(new SecureChatClientInitializer(sslCtx, this.bus, this.ownExtension));
+
+            // Start the connection attempt.
+            ch = b.connect(ADDRESS, PORT).sync().channel();
+
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ServerConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Thread.currentThread().interrupt();
+        }
+
     }
+
     @Subscribe
     public void sendBack(SendBackEvent event) {
         ch.writeAndFlush(event.getMessage() + "\r\n");
@@ -73,13 +73,14 @@ public class ServerConnectionHandler {
 
     @Subscribe
     public void aboCdrExtension(AboCdrExtensionEvent event) {
-       ch.writeAndFlush("004" + event.getPhoneNumber() + "\r\n");
+        ch.writeAndFlush("004" + event.getPhoneNumber() + "\r\n");
     }
 
     @Subscribe
     public void call(CallEvent event) {
-        Logger.getLogger(getClass().getName()).info("Versucht: "+ event.getPhoneNumber()+ " anzurufen");
-        ch.writeAndFlush("003" + event.getPhoneNumber() + "\r\n");
-   }
-    
+        Logger.getLogger(getClass().getName()).info("Versucht: " + event.getPhoneNumber() + " anzurufen");
+        ch.writeAndFlush("003" + ownExtension+":"+event.getPhoneNumber() + "\r\n");
+
+    }
+
 }

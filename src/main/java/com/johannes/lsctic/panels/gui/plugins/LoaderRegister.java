@@ -7,9 +7,9 @@ package com.johannes.lsctic.panels.gui.plugins;
 import com.johannes.lsctic.panels.gui.settings.SettingsField;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Connection;
@@ -41,7 +41,7 @@ public class LoaderRegister {
 
     public void activateAllPlugins(Statement statement, Connection con) throws SQLException {
         for(AddressPlugin addressPlugin : loadedPlugins) {
-            addressPlugin.readFields(statement, con);
+            addressPlugin.readFields(con);
         }
     }
 
@@ -102,14 +102,13 @@ public class LoaderRegister {
             File dir = new File(folder);
             URL loadPath = dir.toURI().toURL();
             URL[] classUrl = new URL[]{loadPath};
-            ClassLoader cl = new URLClassLoader(classUrl);
-
+            URLClassLoader cl = new URLClassLoader(classUrl);
             Class loadedClass = cl.loadClass(classname);
-
+            cl.close();
             AddressPlugin modInstance = (AddressPlugin) loadedClass.newInstance();
             return modInstance;
-        } catch (MalformedURLException | ClassCastException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-            Logger.getLogger("Plugin konnte nicht geladen werden!");
+        } catch ( IOException | ClassCastException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }

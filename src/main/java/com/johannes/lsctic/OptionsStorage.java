@@ -136,7 +136,7 @@ public final class OptionsStorage {
             final String query = "select setting from settings where description = ?";
             readAmiFields(query, con);
 
-            readDatabaseForSources(con, statement);
+            readDatabaseForSources(con);
             
             try (PreparedStatement ptsm = con.prepareStatement(query)) {
                 ptsm.setString(1, "ownExtension");
@@ -188,14 +188,13 @@ public final class OptionsStorage {
 
 
 
-    public void readDatabaseForSources(Connection con, Statement statement) throws SQLException {
-        statement.setQueryTimeout(10);
+    public void readDatabaseForSources(Connection con) throws SQLException {
         int i = 0;
         String quField = "datasource";
         while (true) {
-            PreparedStatement statement2 = con.prepareStatement("select setting from settings where description = ?");
-            statement2.setString(1, quField + i);
-            try (ResultSet fieldRS = statement2.executeQuery()) {
+            PreparedStatement statement = con.prepareStatement("select setting from settings where description = ?");
+            statement.setString(1, quField + i);
+            try (ResultSet fieldRS = statement.executeQuery()) {
                 if (fieldRS.next()) {
                     Logger.getLogger(getClass().getName()).log(Level.INFO, "Gefunden");
                     String dataSourceName = fieldRS.getString("setting");
@@ -203,11 +202,11 @@ public final class OptionsStorage {
                     ++i;
                 } else {
                     Logger.getLogger(getClass().getName()).log(Level.INFO, "Break");
-                    statement2.close();
+                    statement.close();
                     break;
                 }
             } finally {
-                statement2.close();
+                statement.close();
             }
         }
     }

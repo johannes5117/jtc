@@ -6,7 +6,6 @@ import com.johannes.lsctic.panels.gui.settings.SettingsField;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 
 /**
@@ -35,7 +34,7 @@ public class LdapPlugin extends AddressPlugin {
     }
 
     @Override
-    public void readFields(Statement statement, Connection con) throws SQLException {
+    public void readFields(Connection con) throws SQLException {
 
     }
 }

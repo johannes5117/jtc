@@ -29,10 +29,8 @@ public class AsteriskSettingsField extends SettingsField {
         portTextField = new TextField();
         portTextField.setPromptText("Port (Beispiel: 5038)");
         portTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-                Integer.valueOf(newValue);
-            } catch (Exception e) {
-                portTextField.setPromptText("Der Port ist eine Zahl");
+            if(!newValue.matches("^[0-9]*$")){
+                portTextField.setText("Der Port ist eine Zahl");
             }
         });
         userTextField = new TextField();
@@ -56,11 +54,10 @@ public class AsteriskSettingsField extends SettingsField {
     public String[] getOptions() {
         String[] options = new String[4];
         options[0] = ipTextField.getText();
-        try {
-            String z =portTextField.getText();
-            Integer.valueOf(z);
+        String z =portTextField.getText();
+        if(z.matches("^[0-9]*$")){
             options[1] = z;
-        } catch (Exception e) {
+        } else {
             options[1] = "5038";
         }
         options[2] = userTextField.getText();

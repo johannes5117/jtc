@@ -19,6 +19,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -50,14 +52,14 @@ public class LDAPSettingsField extends SettingsField {
         });
         final TextField f2 = new TextField();
         f2.setPromptText("Port (Beispiel: 389)");
-        f2.setText(""+loader.getLdapServerPort());
+        f2.setText(Integer.toString(loader.getLdapServerPort()));
         f2.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 try{
                     loader.setLdapServerPort(Integer.valueOf(newValue));
                 } catch (Exception e) {
-                    f2.setPromptText("Der Port ist eine Zahl");
+                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, null,e);
                 }
             }
         });
@@ -127,13 +129,13 @@ public class LDAPSettingsField extends SettingsField {
        TextField t2 = new TextField(b);
        t2.setPromptText("Anzeigename");
        Button but = new Button(sign);
-       if(sign.equals("+")) {
+       if(("+").equals(sign)) {
            but.setStyle("-fx-font-size:13.5;");
        }
        but.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
            @Override
            public void handle(javafx.event.ActionEvent event) {
-               if(but.getText().equals("X")) {
+               if(("X").equals(but.getText())) {
                HBox b = (HBox) but.getParent();
                TextField t1  = (TextField) b.getChildren().get(0);
                TextField t2  = (TextField) b.getChildren().get(2);
@@ -142,7 +144,6 @@ public class LDAPSettingsField extends SettingsField {
 
                vLdapFields.getChildren().remove(but.getParent());
                }else {
-
                    boolean r = loader.addToLdapFields(t1.getText(), t2.getText());
                    if(r) {
                         makeAdditionalField("", "", vLdapFields,"+");

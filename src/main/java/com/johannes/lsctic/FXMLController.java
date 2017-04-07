@@ -4,6 +4,7 @@ import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.amiapi.netty.ServerConnectionHandler;
 import com.johannes.lsctic.panels.gui.DataPanelsRegister;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.AboCdrExtensionEvent;
+import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.CallEvent;
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -52,6 +53,7 @@ public class FXMLController implements Initializable {
     private String quickdialString;
     private DataPanelsRegister dataPanelsRegister;
     private Stage stage;
+    private ServerConnectionHandler serverConnectionHandler;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -70,7 +72,7 @@ public class FXMLController implements Initializable {
         EventBus bus = new EventBus();
 
         try {
-            ServerConnectionHandler serverConnectionHandler = new ServerConnectionHandler(bus,ownExtension);
+            serverConnectionHandler = new ServerConnectionHandler(bus,ownExtension);
             VBox[] panels = {panelA, panelB, panelC, panelD};
             dataPanelsRegister = new DataPanelsRegister(bus, sqlLiteConnection, panels);
             bus.post(new AboCdrExtensionEvent(ownExtension));
@@ -85,15 +87,9 @@ public class FXMLController implements Initializable {
         //Add listener for number enterd in search field of paneA which will be used as quickdial field for phonenumbers
         paneATextIn.addEventFilter(KeyEvent.KEY_PRESSED, (javafx.scene.input.KeyEvent event) -> {
             if (event.getCode() == KeyCode.ENTER) {
-                try {
-                    long l = Long.parseLong(quickdialString);
-                    Logger.getLogger(getClass().getName()).log(Level.INFO, null, "Dial: " + l);
-                    //this.getServerConnectionHandler().sendBack("003"+getOwnExtension()+":"+quickdialString);
-                    // USE EVENTBUS
-                } catch (NumberFormatException e) {
-                    Logger.getLogger(getClass().getName()).log(Level.INFO, null, e);
+                if(quickdialString.matches("^[0-9]*$")){
+                    serverConnectionHandler.call(new CallEvent(quickdialString));
                 }
-
                 event.consume();
             }
         });
@@ -104,9 +100,8 @@ public class FXMLController implements Initializable {
 
         //listener to search the intern on new entry
         paneATextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-            try {
-                quickdialString = newValue;
-                long quickdial = Long.parseLong(newValue);
+            quickdialString = newValue;
+            if(quickdialString.matches("^[0-9]*$") && quickdialString.length()>0){
                 customTooltip.hide();
                 customTooltip.setText("Nummer erkannt. Enter zum wählen");
                 paneATextIn.setTooltip(customTooltip);
@@ -116,7 +111,7 @@ public class FXMLController implements Initializable {
                         + paneATextIn.getScene().getX() + paneATextIn.getScene().getWindow().getX(), p.getY()
                         + paneATextIn.getScene().getY() + paneATextIn.getScene().getWindow().getY() + paneATextIn.getHeight());
 
-            } catch (NumberFormatException e) {
+            } else {
                 customTooltip.hide();
             }
             dataPanelsRegister.updateView(dataPanelsRegister.generateReducedSet(newValue));
