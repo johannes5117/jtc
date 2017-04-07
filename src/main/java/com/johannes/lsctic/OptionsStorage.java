@@ -193,7 +193,6 @@ public final class OptionsStorage {
         String quField = "datasource";
         while (true) {
             try(PreparedStatement statement = con.prepareStatement("select setting from settings where description = ?")) {
-                ;
                 statement.setString(1, quField + i);
                 try (ResultSet fieldRS = statement.executeQuery()) {
                     if (fieldRS.next()) {

@@ -42,7 +42,7 @@ public abstract class AddressPlugin {
         this.loader = loader;
     }
 
-    public void setSettingsField (SettingsField settingsField) {
+    public void setSettingsField(SettingsField settingsField) {
         this.settingsField = settingsField;
     }
 
@@ -54,25 +54,22 @@ public abstract class AddressPlugin {
         int i = 0;
         String quField = this.pluginName;
         while (true) {
-            PreparedStatement statement = con.prepareStatement("select setting from settings where description = ?");
-            statement.setString(1, quField + i);
-            try (ResultSet fieldRS = statement.executeQuery()) {
-                if (fieldRS.next()) {
-                    String field = fieldRS.getString("setting");
-                    String[] parameter = field.split(";");
-                    nameOfOrderedView.add(parameter[1]);
-                    nameOfOrderedEntryPoint.add(parameter[0]);
-                    statement.close();
-                    ++i;
-                } else {
-                    statement.close();
-                    break;
+            try (PreparedStatement statement = con.prepareStatement("select setting from settings where description = ?")) {
+                statement.setString(1, quField + i);
+                try (ResultSet fieldRS = statement.executeQuery()) {
+                    if (fieldRS.next()) {
+                        String field = fieldRS.getString("setting");
+                        String[] parameter = field.split(";");
+                        nameOfOrderedView.add(parameter[1]);
+                        nameOfOrderedEntryPoint.add(parameter[0]);
+                        ++i;
+                    } else {
+                        break;
+                    }
+                } catch (SQLException e) {
+                    throw e;
                 }
-            }catch (SQLException e){
-                statement.close();
-                throw e;
-            } finally {
-                statement.close();
+
             }
         }
         loader.getDataSource().setAvailableFields(nameOfOrderedView);
