@@ -79,7 +79,6 @@ public class LdapLoader implements AddressLoader {
 
         int i = 0;
         StringBuilder builder = new StringBuilder();
-        String filter = "(|";
         builder.append("(|");
         for (String[] s : ldapFields) {
             attributeFilter[i] = s[0];
@@ -91,7 +90,7 @@ public class LdapLoader implements AddressLoader {
             ++i;
         }
         builder.append(")");
-        filter = builder.toString();
+        String filter = builder.toString();
         sc.setReturningAttributes(attributeFilter);
         sc.setSearchScope(SearchControls.SUBTREE_SCOPE);
 

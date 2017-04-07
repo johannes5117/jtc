@@ -51,7 +51,7 @@ public class SqlLiteDeployment {
                     try {
                         statement.close();
                     } catch (SQLException e) {
-                        e.printStackTrace();
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE,null,e);
                     }
                 }
             }

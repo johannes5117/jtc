@@ -53,7 +53,6 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
                     String destination = d[1];
                     Date startTime = new Date(Long.parseLong(d[2]));
                     Long duration = Long.parseLong(d[3]);
-                    int disposition = Integer.parseInt(d[4]);
                     Logger.getLogger(getClass().getName()).log(Level.INFO, "New CDR");
                     Platform.runLater(() -> {
                         if (source.equals(ownExtension)) {

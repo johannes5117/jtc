@@ -192,23 +192,20 @@ public final class OptionsStorage {
         int i = 0;
         String quField = "datasource";
         while (true) {
-            PreparedStatement statement = con.prepareStatement("select setting from settings where description = ?");
-            statement.setString(1, quField + i);
-            try (ResultSet fieldRS = statement.executeQuery()) {
-                if (fieldRS.next()) {
-                    String dataSourceName = fieldRS.getString("setting");
-                    activatedDataSources.add(dataSourceName);
-                    statement.close();
-                    ++i;
-                } else {
-                    statement.close();
-                    break;
+            try(PreparedStatement statement = con.prepareStatement("select setting from settings where description = ?")) {
+                ;
+                statement.setString(1, quField + i);
+                try (ResultSet fieldRS = statement.executeQuery()) {
+                    if (fieldRS.next()) {
+                        String dataSourceName = fieldRS.getString("setting");
+                        activatedDataSources.add(dataSourceName);
+                        ++i;
+                    } else {
+                        break;
+                    }
+                } catch (SQLException e) {
+                    throw e;
                 }
-            }catch (SQLException e){
-                statement.close();
-                throw e;
-            } finally {
-                statement.close();
             }
         }
     }
