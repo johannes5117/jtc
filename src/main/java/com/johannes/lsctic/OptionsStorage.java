@@ -75,7 +75,7 @@ public final class OptionsStorage {
     public void setTempVariables() {
         loaderRegister.discardAllPlugins();
 
-        String[] options = {amiAddress, ""+amiServerPort, amiLogIn, amiPassword};
+        String[] options = {amiAddress, Integer.toString(amiServerPort), amiLogIn, amiPassword};
         this.asteriskSettingsField.setOptions(options);
 
 
@@ -267,7 +267,7 @@ public final class OptionsStorage {
 
     public void setAsteriskSettingsField(AsteriskSettingsField asteriskSettingsField) {
         this.asteriskSettingsField = asteriskSettingsField;
-        String[] options = {amiAddress, ""+amiServerPort, amiLogIn, amiPassword};
+        String[] options = {amiAddress, Integer.toString(amiServerPort), amiLogIn, amiPassword};
         this.asteriskSettingsField.setOptions(options);
     }
 

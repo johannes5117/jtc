@@ -188,18 +188,14 @@ public class InternField extends HBox {
 
     public void setStatus(int status) {
         switch (status) {
-            case -1:
-                setNotFoundUnavailable();
-                break;
             case 0:
                 setIdle();
                 break;
             case 1:
-                setBusyInUse();
-                break;
             case 2:
                 setBusyInUse();
                 break;
+            case -1:
             case 4:
                 setNotFoundUnavailable();
                 break;

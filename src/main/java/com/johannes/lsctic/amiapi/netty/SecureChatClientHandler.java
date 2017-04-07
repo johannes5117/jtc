@@ -83,8 +83,7 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
                     break;
             }
         } catch (Exception e) {
-            Logger.getLogger(getClass().getName()).log(Level.INFO, "Fehler Hier");
-            Logger.getLogger(getClass().getName()).log(Level.INFO, e.getMessage());
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage());
         }
 
     }
