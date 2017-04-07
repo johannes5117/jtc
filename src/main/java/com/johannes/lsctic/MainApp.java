@@ -63,7 +63,9 @@ public class MainApp extends Application implements NativeKeyListener {
                 } catch (NativeHookException ex) {
                     Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                System.exit(0);
+                stage.close();
+                Platform.exit();
+                //TODO: Find way to securely shutdown program
             }
         });
     }
@@ -156,7 +158,7 @@ public class MainApp extends Application implements NativeKeyListener {
                 }
             });
             escape = false;
-        } else if (five & strg & shift == true) {
+        } else if (five && strg && shift == true) {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {

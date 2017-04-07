@@ -6,8 +6,8 @@
 package com.johannes.lsctic.panels.gui.plugins.LdapPlugin;
 
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
-import com.johannes.lsctic.panels.gui.plugins.DataSource;
 import com.johannes.lsctic.panels.gui.plugins.AddressLoader;
+import com.johannes.lsctic.panels.gui.plugins.DataSource;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -15,7 +15,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.*;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.logging.Level;
@@ -39,7 +38,6 @@ public class LdapLoader implements AddressLoader {
     
     private Hashtable env;
     private String ldapUrl;
-    private DirContext dctx;
     private String base;
 
     private DataSource source;
@@ -78,24 +76,29 @@ public class LdapLoader implements AddressLoader {
         ArrayList<AddressBookEntry> aus = new ArrayList<>();
         SearchControls sc = new SearchControls();
         String[] attributeFilter = new String[ldapFields.size()];
-        Logger.getLogger(getClass().getName()).log(Level.INFO, Arrays.toString(attributeFilter));
 
         int i = 0;
+        StringBuilder builder = new StringBuilder();
         String filter = "(|";
+        builder.append("(|");
         for (String[] s : ldapFields) {
-            Logger.getLogger(getClass().getName()).log(Level.INFO, Arrays.toString(s));
             attributeFilter[i] = s[0];
-            filter = filter + "(" + s[0] + "=" + ein + "*)";
+            builder.append("(");
+            builder.append(s[0]);
+            builder.append("=");
+            builder.append(ein);
+            builder.append("*)");
             ++i;
         }
-        filter = filter + ")";
+        builder.append(")");
+        filter = builder.toString();
         sc.setReturningAttributes(attributeFilter);
         sc.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
         //String filter = "(|(sn="+ein+"*)(sn="+ein+"*)(cn="+ein+"*)(o="+ein+"*))";
         NamingEnumeration results = null;
 
-        dctx = null;
+        DirContext dctx = null;
         try {
             dctx = new InitialDirContext(env);
         } catch (NamingException ex) {
@@ -108,7 +111,7 @@ public class LdapLoader implements AddressLoader {
         }
         try {
             i = 0;
-            while (results.hasMore() && i < n) {
+            while (results!=null && results.hasMore() && i < n) {
                 SearchResult sr = (SearchResult) results.next();
                 Attributes attrs = sr.getAttributes();
 
@@ -120,7 +123,7 @@ public class LdapLoader implements AddressLoader {
                         Attribute attr = (Attribute) attrs.get(field[0]);
                         data.add((String) attr.get());
                     } catch (Exception e) {
-                        data.add("!Nicht gefunden!");
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, null,e);
                     }
                 }
                 aus.add(new AddressBookEntry(data, data.get(0),source));

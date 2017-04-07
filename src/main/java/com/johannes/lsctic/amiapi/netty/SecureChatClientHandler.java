@@ -6,7 +6,6 @@
 package com.johannes.lsctic.amiapi.netty;
 
 /**
- *
  * @author Johannes
  */
 
@@ -27,6 +26,7 @@ import java.util.logging.Logger;
 public class SecureChatClientHandler extends SimpleChannelInboundHandler<String> {
     private EventBus bus;
     private String ownExtension;
+
     public SecureChatClientHandler(EventBus bus, String ownExtension) {
         this.bus = bus;
         this.ownExtension = ownExtension;
@@ -36,49 +36,41 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
     public void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
         try {
             String chatInput = msg;
-            switch (chatInput) {
-                case "logoff":
+            int op = Integer.parseInt(chatInput.substring(0, 3));
+            String param = chatInput.substring(3, chatInput.length());
+            switch (op) {
+                case 0: {
+                    String[] d = param.split(":");
+                    String intern = d[0];
+                    int state = Integer.parseInt(d[1]);
+                    bus.post(new SetStatusEvent(state, intern));
+                    Logger.getLogger(getClass().getName()).log(Level.INFO, "New State");
                     break;
-                case "success":
+                }
+                case 10: {
+                    String[] d = param.split(":");
+                    String source = d[0];
+                    String destination = d[1];
+                    Date startTime = new Date(Long.parseLong(d[2]));
+                    Long duration = Long.parseLong(d[3]);
+                    int disposition = Integer.parseInt(d[4]);
+                    Logger.getLogger(getClass().getName()).log(Level.INFO, "New CDR");
+                    Platform.runLater(() -> {
+                        if (source.equals(ownExtension)) {
+                            bus.post(new AddCdrAndUpdateEvent(destination, startTime.toString(), duration.toString(), true, bus));
+                        } else {
+                            bus.post(new AddCdrAndUpdateEvent(destination, startTime.toString(), duration.toString(), false, bus));
+                        }
+                    });
                     break;
-                default:
-                    int op = Integer.parseInt(chatInput.substring(0, 3));
-                    String param = chatInput.substring(3, chatInput.length());
-                    switch (op) {
-                        case 0: {
-                            String[] d = param.split(":");
-                            String intern = d[0];
-                            int state = Integer.parseInt(d[1]);
-                            bus.post(new SetStatusEvent(state,intern));
-                            Logger.getLogger(getClass().getName()).log(Level.INFO, "New State for "+intern+" : "+state);
-                            break;
-                        }
-                        case 10: {
-                            String[] d = param.split(":");
-                            String source = d[0];
-                            String destination = d[1];
-                            Date startTime = new Date(Long.parseLong(d[2]));
-                            Long duration = Long.parseLong(d[3]);
-                            int disposition = Integer.parseInt(d[4]);
-                            Logger.getLogger(getClass().getName()).log(Level.INFO,"CDR: from: " + source + " to: " + destination + " at " + startTime.toString() + " duration " + duration + " dispo: " + disposition);
-                            Platform.runLater(() -> {
-                                if (source.equals(ownExtension)) {
-                                    bus.post(new AddCdrAndUpdateEvent(destination, startTime.toString(), duration.toString(), true,bus));
-                                } else {
-                                    bus.post(new AddCdrAndUpdateEvent(destination, startTime.toString(), duration.toString(), false, bus));
-                                }
-                            });
-                            break;
-                        }
-                        default: {
-                            Logger.getLogger(getClass().getName()).log(Level.WARNING, "Command not recognized");
-                            break;
-                        }
-                    }
+                }
+                default: {
+                    Logger.getLogger(getClass().getName()).log(Level.WARNING, "Command not recognized");
                     break;
+                }
             }
         } catch (Exception e) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null,e);
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
         }
 
     }

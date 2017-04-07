@@ -109,7 +109,9 @@ public class LoaderRegister {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
-                cl.close();
+                if(cl!=null) {
+                    cl.close();
+                }
             } catch (IOException e) {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
             }

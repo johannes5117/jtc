@@ -13,52 +13,60 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- *
  * @author johannesengler
  */
 public class SqlLiteDeployment {
     private Connection connection;
     private String database;
+
     public SqlLiteDeployment(String database) {
         this.database = database;
         File f = new File(database);
         if (f.exists() && !f.isDirectory()) {
-            
+
             try {
-                connection = DriverManager.getConnection("jdbc:sqlite:"+database);
+                connection = DriverManager.getConnection("jdbc:sqlite:" + database);
             } catch (SQLException ex) {
                 System.err.println(ex.getMessage());
             }
-          
+
         } else {
+            Statement statement = null;
             try {
                 // Erstelle die Datenbank für das Programm
-                connection = DriverManager.getConnection("jdbc:sqlite:"+database);
-                Statement statement = connection.createStatement();
+                connection = DriverManager.getConnection("jdbc:sqlite:" + database);
+                statement = connection.createStatement();
                 statement.setQueryTimeout(30);
                 //Asterisk Optionen
                 statement.executeUpdate("create table settings (id integer, setting string, description string)");
-                
-                
                 statement.executeUpdate("create table internfields (id integer, number string, name string, callcount integer, favorit boolean)");
-                            
-               
             } catch (SQLException e) {
-                System.err.println(e.getMessage());
-            } 
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+            } finally {
+                if(statement!=null) {
+                    try {
+                        statement.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
-        
+
     }
+
     public boolean writeSettingsToDatabase(HashMap<String, String> settings) throws SQLException {
-        connection = DriverManager.getConnection("jdbc:sqlite:"+database);
+        connection = DriverManager.getConnection("jdbc:sqlite:" + database);
         Statement statement = connection.createStatement();
         statement.setQueryTimeout(10);
         int i = 0;
-        for(Entry<String, String> entry : settings.entrySet()) {
-              statement.executeUpdate("insert into settings values("+i+", '"+entry.getValue()+"', '"+entry.getKey()+"')");
-              ++i;
+        for (Entry<String, String> entry : settings.entrySet()) {
+            statement.executeUpdate("insert into settings values(" + i + ", '" + entry.getValue() + "', '" + entry.getKey() + "')");
+            ++i;
         }
         
         /*
@@ -76,19 +84,21 @@ public class SqlLiteDeployment {
         statement.executeUpdate("insert into settings values(9, '"+settings.get(9)+"','activated')");
         statement.executeUpdate("insert into settings values(10, '"+settings.get(10)+"','time')");
              */
-
+        statement.close();
         return true;
     }
-    public boolean writeInternsToDatabase(ArrayList<Intern> interns) throws SQLException{
-        connection = DriverManager.getConnection("jdbc:sqlite:"+database);
+
+    public boolean writeInternsToDatabase(ArrayList<Intern> interns) throws SQLException {
+        connection = DriverManager.getConnection("jdbc:sqlite:" + database);
         Statement statement = connection.createStatement();
         statement.setQueryTimeout(10);
-        int i= 0;
-        for(Intern intern : interns) {
-            statement.executeUpdate("insert into internfields values("+i+", '"+intern.getExtension()+"', '"+intern.getName()+"', 0, 0 )");
+        int i = 0;
+        for (Intern intern : interns) {
+            statement.executeUpdate("insert into internfields values(" + i + ", '" + intern.getExtension() + "', '" + intern.getName() + "', 0, 0 )");
             ++i;
         }
+        statement.close();
         return true;
     }
-    
+
 }
