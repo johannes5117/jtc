@@ -1,8 +1,8 @@
 package com.johannes.lsctic;
 
-import com.johannes.lsctic.plugins.LoaderRegister;
-import com.johannes.lsctic.settings.AsteriskSettingsField;
-import com.johannes.lsctic.settings.DataSourceSettingsField;
+import com.johannes.lsctic.panels.gui.plugins.LoaderRegister;
+import com.johannes.lsctic.panels.gui.settings.AsteriskSettingsField;
+import com.johannes.lsctic.panels.gui.settings.DataSourceSettingsField;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 

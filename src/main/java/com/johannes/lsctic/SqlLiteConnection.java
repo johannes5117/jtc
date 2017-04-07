@@ -260,7 +260,7 @@ public class SqlLiteConnection {
      *
      * @return Map with all interns
      */
-    Map<String, PhoneNumber> getInterns() {
+    public Map<String, PhoneNumber> getInterns() {
         Map<String, PhoneNumber> internNumbers = new TreeMap<>();
 
         Statement statement = null;
@@ -293,7 +293,7 @@ public class SqlLiteConnection {
      *
      * @param query
      */
-    void queryNoReturn(String query) {
+    public void queryNoReturn(String query) {
 
         try (Statement statement = connection.createStatement()) {
             statement.setQueryTimeout(10);
