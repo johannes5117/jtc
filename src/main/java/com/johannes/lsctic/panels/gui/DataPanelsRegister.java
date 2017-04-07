@@ -79,7 +79,6 @@ public class DataPanelsRegister {
             sqlLiteConnection.queryNoReturn("Insert into internfields (number,name,callcount,favorit) values ('" + p.getPhoneNumber() + "','" + p.getName() + "'," + p.getCount() + ",0)");
             internNumbers.put(p.getPhoneNumber(), p);
             internFields.put(p.getPhoneNumber(), new InternField(p.getName(), p.getCount(), p.getPhoneNumber(), eventBus));
-            //serverConnectionHandler.aboStatusExtension(p.getPhoneNumber());
             eventBus.post(new AboStatusExtensionEvent(p.getPhoneNumber()));
             updateView(new ArrayList<>(internFields.values()));
         } else {
@@ -118,7 +117,6 @@ public class DataPanelsRegister {
         sqlLiteConnection.queryNoReturn("Delete from internfields where number='" +event.getNumber() + "'");
         internFields.remove(event.getNumber());
         internNumbers.remove(event.getNumber());
-        //serverConnectionHandler.deAboStatusExtension(f.getNumber());
         eventBus.post(new DeAboStatusExtension(event.getNumber()));
         updateView(new ArrayList<>(internFields.values()));
     }

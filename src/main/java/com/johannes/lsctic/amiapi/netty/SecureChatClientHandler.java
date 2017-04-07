@@ -45,14 +45,14 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
                     System.out.println("Erfolgreich Verbunden");
                     break;
                 default:
-                    int op = Integer.valueOf(chatInput.substring(0, 3));
+                    int op = Integer.parseInt(chatInput.substring(0, 3));
                     String param = chatInput.substring(3, chatInput.length());
                     Logger.getLogger(getClass().getName()).info(chatInput);
                     switch (op) {
                         case 0: {
                             String[] d = param.split(":");
                             String intern = d[0];
-                            int status = Integer.valueOf(d[1]);
+                            int status = Integer.parseInt(d[1]);
                             bus.post(new SetStatusEvent(status,intern));
                             break;
                         }
@@ -62,7 +62,7 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
                             String destinatnion = d[1];
                             Date startTime = new Date(Long.parseLong(d[2]));
                             Long duration = Long.parseLong(d[3]);
-                            int disposition = Integer.valueOf(d[4]);
+                            int disposition = Integer.parseInt(d[4]);
                             System.out.println("CDR: von: " + source + " nach: " + destinatnion + " am " + startTime.toString() + " dauer " + duration + " dispo: " + disposition);
                             Platform.runLater(() -> {
                                 if (source.equals(ownExtension)) {

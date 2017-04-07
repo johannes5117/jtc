@@ -31,12 +31,10 @@ import java.util.ArrayList;
 public class AddressField extends VBox {
     private StackPane p;
     private String name;
-    private int count;
     private int number;
     private final AddressBookEntry addressBookEntry;
     private ImageView vUpDown;
     private boolean expanded;
-    private final DataSource source;
     private final ArrayList<String> fieldNames;
     private final EventBus eventBus;
 
@@ -45,7 +43,7 @@ public class AddressField extends VBox {
     public AddressField(int count, int number, AddressBookEntry addressBookEntry, EventBus eventBus) {
 
         this.name = addressBookEntry.getName();
-        this.count = count;
+        int count1 = count;
         this.number = number;
         this.eventBus = eventBus;
         this.setMaxWidth(Double.MAX_VALUE);
@@ -55,7 +53,7 @@ public class AddressField extends VBox {
         this.setFocusTraversable(true);
         this.expanded = false;
         this.addressBookEntry = addressBookEntry;
-        this.source = addressBookEntry.getSource();
+        DataSource source = addressBookEntry.getSource();
         this.fieldNames = new ArrayList<>();
         int i = 0;
         for (String s : source.getAvailableFields()) {
