@@ -8,19 +8,12 @@ import com.johannes.lsctic.panels.gui.fields.*;
 import com.johannes.lsctic.panels.gui.fields.internevents.AddInternEvent;
 import com.johannes.lsctic.panels.gui.fields.internevents.NewInternField;
 import com.johannes.lsctic.panels.gui.fields.internevents.RemoveInternAndUpdateEvent;
-import com.johannes.lsctic.panels.gui.fields.AddCdrAndUpdateEvent;
-import com.johannes.lsctic.panels.gui.fields.HistoryField;
-import com.johannes.lsctic.panels.gui.fields.RemoveCdrAndUpdateEvent;
-import com.johannes.lsctic.panels.gui.fields.SetStatusEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.AboStatusExtensionEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.DeAboStatusExtension;
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import javafx.scene.layout.VBox;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,11 +25,9 @@ public class DataPanelsRegister {
     private Map<String, PhoneNumber> internNumbers;
     private ArrayList<HistoryField> historyFields;
     private SqlLiteConnection sqlLiteConnection;
-    private String quickdialString;
     private VBox panelA;
     private VBox panelB;
     private VBox panelC;
-    private VBox panelD;
 
     private EventBus eventBus;
 
@@ -45,7 +36,6 @@ public class DataPanelsRegister {
         this.panelA = panels[0];
         this.panelB = panels[1];
         this.panelC = panels[2];
-        this.panelD = panels[3];
 
         this.eventBus = bus;
         this.eventBus.register(this);
@@ -66,10 +56,6 @@ public class DataPanelsRegister {
         historyFields = new ArrayList();
 
         panelC.getChildren().addAll(historyFields);
-        //internNumbers = sqlLiteConnection.getInterns();
-       // internFields = new HashMap();
-       // internNumbers.entrySet().stream().forEach(g
-       //         -> internFields.put(g.getKey(), new InternField(g.getValue().getName(), g.getValue().getCount(), g.getKey())));
     }
 
     @Subscribe
@@ -85,9 +71,9 @@ public class DataPanelsRegister {
             Logger.getLogger(getClass().getName()).log(Level.WARNING, "There already exists a user with that phonenumber.");
         }
     }
-    public ArrayList<InternField> generateReducedSet(String val) {
+    public List<InternField> generateReducedSet(String val) {
         ArrayList<InternField> out = new ArrayList<>();
-        internFields.values().stream().filter((f) -> (f.getName().toLowerCase().contains(val.toLowerCase()))).forEachOrdered((f) -> out.add(f));
+        internFields.values().stream().filter(f -> f.getName().toLowerCase().contains(val.toLowerCase())).forEachOrdered(f -> out.add(f));
         return out;
     }
 
@@ -121,15 +107,14 @@ public class DataPanelsRegister {
         updateView(new ArrayList<>(internFields.values()));
     }
 
-    public void updateView(ArrayList<InternField> i) {
-        //scrollPaneA.setVvalue(0);
+    public void updateView(List<InternField> i) {
         Collections.sort(i, (InternField o1, InternField o2) -> o2.getCount() - o1.getCount()); //UPDATE: would be nice to choose the sorting
         panelA.getChildren().clear();
         panelA.getChildren().addAll(i);
         panelA.getChildren().add(new NewInternField(eventBus));
     }
 
-    public void updateAddressFields(ArrayList<AddressBookEntry> i) {
+    public void updateAddressFields(List<AddressBookEntry> i) {
         panelB.getChildren().clear();
         ArrayList<AddressField> addressFields = new ArrayList<>();
         i.stream().forEach(ent -> addressFields.add(new AddressField(2, 123123, ent, eventBus)));

@@ -18,7 +18,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.awt.*;
@@ -29,7 +28,6 @@ import java.util.ArrayList;
  * @author johannesengler
  */
 public class AddressField extends VBox {
-    private StackPane p;
     private String name;
     private int number;
     private final AddressBookEntry addressBookEntry;
@@ -37,13 +35,12 @@ public class AddressField extends VBox {
     private boolean expanded;
     private final ArrayList<String> fieldNames;
     private final EventBus eventBus;
+    private final String BORDER_RADIUS = "-fx-border-radius:3px";
 
     //Todo: Implement count function
 
     public AddressField(int count, int number, AddressBookEntry addressBookEntry, EventBus eventBus) {
-
         this.name = addressBookEntry.getName();
-        int count1 = count;
         this.number = number;
         this.eventBus = eventBus;
         this.setMaxWidth(Double.MAX_VALUE);
@@ -55,10 +52,8 @@ public class AddressField extends VBox {
         this.addressBookEntry = addressBookEntry;
         DataSource source = addressBookEntry.getSource();
         this.fieldNames = new ArrayList<>();
-        int i = 0;
         for (String s : source.getAvailableFields()) {
             fieldNames.add(s);
-            ++i;
         }
 
         HBox inner = new HBox();
@@ -108,17 +103,15 @@ public class AddressField extends VBox {
             v.setFitHeight(15);
             v.setFitWidth(15);
             v.setOpacity(0.2);
-            v.setStyle("-fx-border-radius:3px");
+            v.setStyle(BORDER_RADIUS);
 
             inner.getChildren().add(v);
             v.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-                ImageView v16 = (ImageView) event.getSource();
                 this.eventBus.post(new CallEvent(this.getName()));
                 event.consume();
             });
             v.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> {
                 ImageView v15 = (ImageView) event.getSource();
-
                 v15.setOpacity(1);
                 event.consume();
             });
@@ -135,12 +128,11 @@ public class AddressField extends VBox {
 
             v.setFitHeight(15);
             v.setFitWidth(15);
-            v.setStyle("-fx-border-radius:3px");
+            v.setStyle(BORDER_RADIUS);
             v.setOpacity(0.2);
             inner.getChildren().add(v);
 
             v.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-                ImageView v13 = (ImageView) event.getSource();
                 this.eventBus.post(new CallEvent(this.getName()));
                 event.consume();
             });
@@ -161,7 +153,7 @@ public class AddressField extends VBox {
         vUpDown.setFitHeight(15);
         vUpDown.setFitWidth(15);
         vUpDown.setOpacity(0.2);
-        vUpDown.setStyle("-fx-border-radius:3px");
+        vUpDown.setStyle(BORDER_RADIUS);
 
         inner.getChildren().add(vUpDown);
 
@@ -217,10 +209,10 @@ public class AddressField extends VBox {
         VBox v = new VBox();
         v.setSpacing(3);
         int i = 0;
-        for (String name : fieldNames) {
+        for (String fieldName : fieldNames) {
             HBox h = new HBox();
             h.setSpacing(0);
-            Label field = new Label(name + ": ");
+            Label field = new Label(fieldName + ": ");
             field.setWrapText(true);
             h.getChildren().add(field);
             HBox space = new HBox();

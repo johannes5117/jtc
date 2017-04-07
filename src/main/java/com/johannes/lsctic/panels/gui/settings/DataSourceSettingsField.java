@@ -10,6 +10,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author johannes
@@ -23,7 +24,7 @@ public class DataSourceSettingsField extends SettingsField {
         checkBoxes = new ArrayList<>();
     }
 
-    public void setCheckBoxes(ArrayList<String> foundList, ArrayList<String> activatedList) {
+    public void setCheckBoxes(List<String> foundList, List<String> activatedList) {
         checkBoxes.clear();
         for (String found : foundList) {
             CheckBox b = new CheckBox(found);
@@ -36,7 +37,7 @@ public class DataSourceSettingsField extends SettingsField {
         }
     }
 
-    public ArrayList<String> getChecked() {
+    public List<String> getChecked() {
         ArrayList<String> checked = new ArrayList<>();
         for(CheckBox checkBox: checkBoxes){
             if(checkBox.selectedProperty().getValue()) {

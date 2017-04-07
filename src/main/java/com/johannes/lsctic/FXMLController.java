@@ -47,10 +47,7 @@ public class FXMLController implements Initializable {
     @FXML
     private TabPane tabPane;
 
-
-    private String ownExtension;
-    private OptionsStorage storage;
-    private String quickdialString;
+    private String quickfireString;
     private DataPanelsRegister dataPanelsRegister;
     private Stage stage;
     private ServerConnectionHandler serverConnectionHandler;
@@ -63,16 +60,16 @@ public class FXMLController implements Initializable {
         SqlLiteConnection sqlLiteConnection = new SqlLiteConnection("settingsAndData.db", "dataLocal.db");
 
         // creates optionstorage which loads data from sqlite and triggers plugin loading
-        storage = new OptionsStorage(optionAccept, optionReject, panelD);
+        OptionsStorage storage = new OptionsStorage(optionAccept, optionReject, panelD);
 
         // set ownextension
-        ownExtension = storage.getOwnExtension();
+        String ownExtension = storage.getOwnExtension();
 
         //Hard Coded plugins must be registered
         EventBus bus = new EventBus();
 
         try {
-            serverConnectionHandler = new ServerConnectionHandler(bus,ownExtension);
+            serverConnectionHandler = new ServerConnectionHandler(bus, ownExtension);
             VBox[] panels = {panelA, panelB, panelC, panelD};
             dataPanelsRegister = new DataPanelsRegister(bus, sqlLiteConnection, panels);
             bus.post(new AboCdrExtensionEvent(ownExtension));
@@ -87,8 +84,8 @@ public class FXMLController implements Initializable {
         //Add listener for number enterd in search field of paneA which will be used as quickdial field for phonenumbers
         paneATextIn.addEventFilter(KeyEvent.KEY_PRESSED, (javafx.scene.input.KeyEvent event) -> {
             if (event.getCode() == KeyCode.ENTER) {
-                if(quickdialString.matches("^[0-9]*$")){
-                    serverConnectionHandler.call(new CallEvent(quickdialString));
+                if (quickfireString.matches("^[0-9]*$")) {
+                    serverConnectionHandler.call(new CallEvent(quickfireString));
                 }
                 event.consume();
             }
@@ -100,8 +97,8 @@ public class FXMLController implements Initializable {
 
         //listener to search the intern on new entry
         paneATextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-            quickdialString = newValue;
-            if(quickdialString.matches("^[0-9]*$") && quickdialString.length()>0){
+            quickfireString = newValue;
+            if (quickfireString.matches("^[0-9]*$") && quickfireString.length() > 0) {
                 customTooltip.hide();
                 customTooltip.setText("Nummer erkannt. Enter zum wählen");
                 paneATextIn.setTooltip(customTooltip);
@@ -120,46 +117,9 @@ public class FXMLController implements Initializable {
         //listener to search in the Address sources
         paneBTextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
             List<AddressBookEntry> ld1 = storage.getLoaderRegister().getResultFromEveryPlugin(newValue, 10);
-            dataPanelsRegister.updateAddressFields((ArrayList<AddressBookEntry>)ld1);
+            dataPanelsRegister.updateAddressFields((ArrayList<AddressBookEntry>) ld1);
         });
 
-
-        /*   tabPane.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {   NICHT LÖSCHEN ERSTER ANSATZ FÜR WEITERE BESCHLEUNIGUNG DES ARBEITENS
-        
-
-         @Override
-         public void handle(javafx.scene.input.KeyEvent event) {
-         if (event.getCode() == KeyCode.I && event.isControlDown()) {
-         selectTab(0);
-         System.out.println(0);
-         event.consume(); 
-         } if(event.getCode() == KeyCode.L && event.isControlDown()) {
-         selectTab(1);
-         System.out.println(1);
-
-         event.consume();
-         }  if(event.getCode() == KeyCode.A && event.isControlDown()) {
-         selectTab(2);
-         System.out.println(2);
-
-         event.consume();
-         }  if (event.getCode() == KeyCode.O && event.isControlDown()) {
-         selectTab(3);
-         System.out.println(3);
-
-         event.consume();
-         }
-         }
-         });*/
-
-
-    }
-
-    private void selectTab(int i) {
-        SingleSelectionModel<Tab> selectionModel = tabPane.getSelectionModel();
-        selectionModel.select(i); //select by index starting with 0
-        tabPane.setSelectionModel(selectionModel);
-        selectionModel.clearSelection(); //clear your selection
     }
 
     public void setStage(Stage stage) {

@@ -5,7 +5,7 @@
  */
 package com.johannes.lsctic.panels.gui.plugins;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -13,7 +13,7 @@ import java.util.ArrayList;
  */
 public interface AddressLoader {
     //Fetch results from the Loader
-    public abstract ArrayList<AddressBookEntry> getResults(String ein, int n);
+    public abstract List<AddressBookEntry> getResults(String ein, int n);
     //saves the settings if user clicks on save button also for the plugin
     public abstract void saved();
     //discards the setting if user clicks on discard

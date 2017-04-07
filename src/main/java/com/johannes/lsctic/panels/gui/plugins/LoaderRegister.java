@@ -15,7 +15,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -40,23 +39,23 @@ public class LoaderRegister {
         exploredFolder = folderPath;
     }
 
-    public void activateAllPlugins(Statement statement, Connection con) throws SQLException {
+    public void activateAllPlugins(Connection con) throws SQLException {
         for (AddressPlugin addressPlugin : loadedPlugins) {
             addressPlugin.readFields(con);
         }
     }
 
-    public void registerHardCodedPlugins(ArrayList<String> plugins) {
+    public void registerHardCodedPlugins(List<String> plugins) {
         this.pluginsFound.addAll(plugins);
     }
 
-    public void reloadPlugins(ArrayList<String> pluginsToLoad, String folderPath) {
+    public void reloadPlugins(List<String> pluginsToLoad, String folderPath) {
         loadedPlugins.clear();
         explorePluginFolder(folderPath);
         loadPlugins(pluginsToLoad, folderPath);
     }
 
-    public void loadPlugins(ArrayList<String> pluginsToLoad, String folderPath) {
+    public void loadPlugins(List<String> pluginsToLoad, String folderPath) {
         if (!folderPath.equals(exploredFolder)) {
             explorePluginFolder(folderPath);
         }
@@ -95,31 +94,23 @@ public class LoaderRegister {
     }
 
     private AddressPlugin getInstantiatedClass(String classname, String folder) {
-        URLClassLoader cl = null;
+
         try {
             File dir = new File(folder);
             URL loadPath = dir.toURI().toURL();
             URL[] classUrl = new URL[]{loadPath};
-            cl = new URLClassLoader(classUrl);
-            Class loadedClass = cl.loadClass(classname);
-            cl.close();
-            AddressPlugin modInstance = (AddressPlugin) loadedClass.newInstance();
-            return modInstance;
+            Class loadedClass;
+            try(URLClassLoader cl = new URLClassLoader(classUrl)) {
+                loadedClass = cl.loadClass(classname);
+            }
+            return (AddressPlugin) loadedClass.newInstance();
         } catch (IOException | ClassCastException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                if(cl!=null) {
-                    cl.close();
-                }
-            } catch (IOException e) {
-                Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
-            }
         }
         return null;
     }
 
-    public ArrayList<SettingsField> getAllSettingsfields() {
+    public List<SettingsField> getAllSettingsfields() {
         ArrayList<SettingsField> settingsFields = new ArrayList<>();
         for (AddressPlugin plugin : loadedPlugins) {
             settingsFields.add(plugin.getSettingsField());
@@ -134,7 +125,7 @@ public class LoaderRegister {
         for (AddressPlugin plugin : loadedPlugins) {
             ArrayList<AddressBookEntry> pluginResult = plugin.getResults(query, number);
 
-            if (pluginResult != null && pluginResult.isEmpty() == false) {
+            if (pluginResult != null && !pluginResult.isEmpty()) {
                 filteredQuery.addAll(pluginResult);
             }
         }
@@ -161,7 +152,7 @@ public class LoaderRegister {
         }
     }
 
-    public ArrayList<String> getPluginsFound() {
+    public List<String> getPluginsFound() {
         return pluginsFound;
     }
 }

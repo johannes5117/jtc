@@ -104,7 +104,6 @@ public class InternField extends HBox {
             }
         });
 
-        // p.getChildren().add(v);
         Label a = new Label(name);
         a.setStyle(" -fx-font-size: 12px;  -fx-font-weight: bold;");
 
@@ -202,6 +201,9 @@ public class InternField extends HBox {
                 break;
             case 8:
                 setRinging();
+                break;
+            default:
+                setNotFoundUnavailable();
                 break;
         }
     }

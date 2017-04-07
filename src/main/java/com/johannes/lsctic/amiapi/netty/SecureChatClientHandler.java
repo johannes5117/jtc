@@ -40,27 +40,11 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
             String param = chatInput.substring(3, chatInput.length());
             switch (op) {
                 case 0: {
-                    String[] d = param.split(":");
-                    String intern = d[0];
-                    int state = Integer.parseInt(d[1]);
-                    bus.post(new SetStatusEvent(state, intern));
-                    Logger.getLogger(getClass().getName()).log(Level.INFO, "New State");
+                    updateStatus(param);
                     break;
                 }
                 case 10: {
-                    String[] d = param.split(":");
-                    String source = d[0];
-                    String destination = d[1];
-                    Date startTime = new Date(Long.parseLong(d[2]));
-                    Long duration = Long.parseLong(d[3]);
-                    Logger.getLogger(getClass().getName()).log(Level.INFO, "New CDR");
-                    Platform.runLater(() -> {
-                        if (source.equals(ownExtension)) {
-                            bus.post(new AddCdrAndUpdateEvent(destination, startTime.toString(), duration.toString(), true, bus));
-                        } else {
-                            bus.post(new AddCdrAndUpdateEvent(destination, startTime.toString(), duration.toString(), false, bus));
-                        }
-                    });
+                    createAndPropagateCdrField(param);
                     break;
                 }
                 default: {
@@ -77,6 +61,30 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         ctx.close();
+    }
+
+    private void updateStatus(String param) {
+        String[] d = param.split(":");
+        String intern = d[0];
+        int state = Integer.parseInt(d[1]);
+        bus.post(new SetStatusEvent(state, intern));
+        Logger.getLogger(getClass().getName()).log(Level.INFO, "New State");
+    }
+
+    private void createAndPropagateCdrField(String param) {
+        String[] d = param.split(":");
+        String source = d[0];
+        String destination = d[1];
+        Date startTime = new Date(Long.parseLong(d[2]));
+        Long duration = Long.parseLong(d[3]);
+        Logger.getLogger(getClass().getName()).log(Level.INFO, "New CDR");
+        Platform.runLater(() -> {
+            if (source.equals(ownExtension)) {
+                bus.post(new AddCdrAndUpdateEvent(destination, startTime.toString(), duration.toString(), true, bus));
+            } else {
+                bus.post(new AddCdrAndUpdateEvent(destination, startTime.toString(), duration.toString(), false, bus));
+            }
+        });
     }
 
 }

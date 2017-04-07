@@ -8,6 +8,7 @@ import javafx.scene.layout.VBox;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,7 +58,7 @@ public final class OptionsStorage {
 
         this.loaderRegister.loadPlugins(activatedDataSources, pluginFolder);
         try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {
-            this.loaderRegister.activateAllPlugins(statement,con);
+            this.loaderRegister.activateAllPlugins(con);
         } catch (SQLException e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
         }
@@ -103,7 +104,7 @@ public final class OptionsStorage {
         amiLogIn = options[2];
         amiPassword = options[3];
         ownExtension = ownExtensionTemp;
-        activatedDataSources = this.dataSourceSettingsField.getChecked();
+        activatedDataSources = (ArrayList<String>) this.dataSourceSettingsField.getChecked();
     }
 
     /**
@@ -253,7 +254,7 @@ public final class OptionsStorage {
         this.timeTemp = timeTemp;
     }
 
-   public ArrayList<String> getActivatedDataSources() {
+   public List<String> getActivatedDataSources() {
         return this.activatedDataSources;
    }
 
