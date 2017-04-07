@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -67,8 +68,7 @@ public class LoaderRegister {
                 loadedPlugins.add((AddressPlugin) object);
                 Logger.getLogger(getClass().getName()).info("KLASSE ERFOLGREICH GELADEN");
             } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                Logger.getLogger(getClass().getName()).info(e.getLocalizedMessage()+" FEHLER");
-                e.printStackTrace();
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
                 if (pluginsFound.contains(pl+".class")) {
                     Logger.getLogger(getClass().getName()).info("INSTANZIERUNG WIRD EINGELEITET");
                     loadedPlugins.add(getInstantiatedClass(pl, folderPath));

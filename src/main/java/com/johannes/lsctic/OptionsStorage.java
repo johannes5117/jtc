@@ -59,7 +59,7 @@ public final class OptionsStorage {
         try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {
             this.loaderRegister.activateAllPlugins(statement,con);
         } catch (SQLException e) {
-            e.printStackTrace();
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
         }
         dataSourceSettingsField.setCheckBoxes(loaderRegister.getPluginsFound(), activatedDataSources);
         panelD.getChildren().addAll(asteriskSettingsField, dataSourceSettingsField);

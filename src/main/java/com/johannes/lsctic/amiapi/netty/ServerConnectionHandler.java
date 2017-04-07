@@ -10,7 +10,6 @@ import com.google.common.eventbus.Subscribe;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.*;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -53,33 +52,34 @@ public class ServerConnectionHandler {
 
          } catch (InterruptedException ex) {
              Logger.getLogger(ServerConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
+             Thread.currentThread().interrupt();
          }
          
     }
     @Subscribe
     public void sendBack(SendBackEvent event) {
-        ChannelFuture lastWriteFuture = ch.writeAndFlush(event.getMessage() + "\r\n");
+        ch.writeAndFlush(event.getMessage() + "\r\n");
     }
 
     @Subscribe
     public void aboStatusExtension(AboStatusExtensionEvent event) {
-        ChannelFuture lastWriteFuture = ch.writeAndFlush("000" + event.getPhonenumber() + "\r\n");
+        ch.writeAndFlush("000" + event.getPhonenumber() + "\r\n");
     }
 
     @Subscribe
     public void deAboStatusExtension(DeAboStatusExtension event) {
-        ChannelFuture lastWriteFuture = ch.writeAndFlush("001" + event.getPhonenumber() + "\r\n");
+        ch.writeAndFlush("001" + event.getPhonenumber() + "\r\n");
     }
 
     @Subscribe
     public void aboCdrExtension(AboCdrExtensionEvent event) {
-        ChannelFuture lastWriteFuture = ch.writeAndFlush("004" + event.getPhoneNumber() + "\r\n");
+       ch.writeAndFlush("004" + event.getPhoneNumber() + "\r\n");
     }
 
     @Subscribe
     public void call(CallEvent event) {
         Logger.getLogger(getClass().getName()).info("Versucht: "+ event.getPhoneNumber()+ " anzurufen");
-        ChannelFuture lastWriteFuture = ch.writeAndFlush("003" + event.getPhoneNumber() + "\r\n");
+        ch.writeAndFlush("003" + event.getPhoneNumber() + "\r\n");
    }
     
 }
