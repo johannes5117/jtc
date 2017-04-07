@@ -45,7 +45,7 @@ public class SqlLiteDeployment {
                     statement.executeUpdate("create table internfields (id integer, number string, name string, callcount integer, favorit boolean)");
                 }
             } catch (SQLException e) {
-                e.printStackTrace();
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE,null,e);
             }
         }
 
@@ -53,13 +53,13 @@ public class SqlLiteDeployment {
 
     public boolean writeSettingsToDatabase(HashMap<String, String> settings) throws SQLException {
         connection = DriverManager.getConnection("jdbc:sqlite:" + database);
-        Statement statement = connection.createStatement();
-        statement.setQueryTimeout(10);
-        int i = 0;
-        for (Entry<String, String> entry : settings.entrySet()) {
-            statement.executeUpdate("insert into settings values(" + i + ", '" + entry.getValue() + "', '" + entry.getKey() + "')");
-            ++i;
-        }
+        try(Statement statement = connection.createStatement()){
+            statement.setQueryTimeout(10);
+            int i = 0;
+            for (Entry<String, String> entry : settings.entrySet()) {
+                statement.executeUpdate("insert into settings values(" + i + ", '" + entry.getValue() + "', '" + entry.getKey() + "')");
+                ++i;
+            }
         
         /*
         statement.executeUpdate("insert into settings values(0, '"+settings.get(0)+"', 'amiAddress')");
@@ -76,7 +76,7 @@ public class SqlLiteDeployment {
         statement.executeUpdate("insert into settings values(9, '"+settings.get(9)+"','activated')");
         statement.executeUpdate("insert into settings values(10, '"+settings.get(10)+"','time')");
              */
-        statement.close();
+        }
         return true;
     }
 
