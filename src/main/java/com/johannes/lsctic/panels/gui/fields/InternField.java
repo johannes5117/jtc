@@ -197,13 +197,11 @@ public class InternField extends HBox {
             case -1:
             case 4:
             case 5:
+            default:
                 setNotFoundUnavailable();
                 break;
             case 8:
                 setRinging();
-                break;
-            default:
-                setNotFoundUnavailable();
                 break;
         }
     }
