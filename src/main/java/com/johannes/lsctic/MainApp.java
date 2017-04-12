@@ -1,31 +1,24 @@
 package com.johannes.lsctic;
 
-import java.awt.AWTException;
-import java.awt.CheckboxMenuItem;
-import java.awt.Menu;
-import java.awt.MenuItem;
-import java.awt.PopupMenu;
-import java.awt.SystemTray;
-import java.awt.Toolkit;
-import java.awt.TrayIcon;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Application;
-import static javafx.application.Application.launch;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.stage.Stage;
 import javafx.stage.Screen;
+import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
+
+import java.awt.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MainApp extends Application implements NativeKeyListener {
 
@@ -51,9 +44,14 @@ public class MainApp extends Application implements NativeKeyListener {
         stage.setX(primaryScreenBounds.getWidth() - scene.getWidth());
         stage.setY(primaryScreenBounds.getHeight() - scene.getHeight());
         this.stage = stage;
-        GlobalScreen.registerNativeHook();
+
+        // Get the logger for "org.jnativehook" and set the level to warning.
         Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
-        logger.setLevel(Level.WARNING);
+        logger.setLevel(Level.OFF);
+        // Don't forget to disable the parent handlers.
+        logger.setUseParentHandlers(false);
+
+        GlobalScreen.registerNativeHook();
         GlobalScreen.addNativeKeyListener(this);
 
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
@@ -65,7 +63,9 @@ public class MainApp extends Application implements NativeKeyListener {
                 } catch (NativeHookException ex) {
                     Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                System.exit(0);
+                stage.close();
+                Platform.exit();
+                //TODO: Find way to securely shutdown program
             }
         });
     }
@@ -112,7 +112,7 @@ public class MainApp extends Application implements NativeKeyListener {
         try {
             tray.add(trayIcon);
         } catch (AWTException e) {
-            System.out.println("TrayIcon could not be added.");
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
         }
     }
     // Bereich für den Hook 
@@ -158,7 +158,7 @@ public class MainApp extends Application implements NativeKeyListener {
                 }
             });
             escape = false;
-        } else if (five & strg & shift == true) {
+        } else if (five && strg && shift == true) {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
