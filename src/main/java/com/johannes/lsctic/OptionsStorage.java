@@ -54,7 +54,7 @@ public final class OptionsStorage {
         pl.add("LdapPlugin");
         pl.add("TextFilePlugin");
         this.loaderRegister.registerHardCodedPlugins(pl);
-        //TODO: Delete after Test -> Only for Test purpose
+        //TODO: Delete after manual Test -> Only for Test purpose
 
         this.loaderRegister.loadPlugins(activatedDataSources, pluginFolder);
         try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {

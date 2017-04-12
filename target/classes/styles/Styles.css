@@ -41,3 +41,56 @@
 .scroll-pane > .viewport {
    -fx-background-color: transparent;
 }
+
+
+.button {
+    -fx-background-color: indianred;
+    -fx-text-fill: white;
+    -fx-padding: 8 26 8 26;
+    -fx-border-color: indianred;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-focus-color: transparent;
+    -fx-border-insets: -1;
+    -fx-skin: "com.sun.javafx.scene.control.skin.ButtonSkin";
+    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+    -fx-background-radius: 5, 5, 4, 3;
+}
+
+.button:hover {
+    -fx-background-color: white;
+    -fx-text-fill: indianred;
+    -fx-padding: 8 26 8 26;
+     -fx-border-color: indianred;
+     -fx-focus-color: transparent;
+    -fx-border-insets: -1;
+
+}
+.button:focused{
+    -fx-background-insets: -1.4, 0, 1, 2;
+    -fx-background-radius:  6.4, 5, 4, 3;
+}
+.button-accept {
+    -fx-background-color: teal;
+    -fx-text-fill: white;
+    -fx-padding: 8 26 8 26;
+    -fx-border-color: teal;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-focus-color: transparent;
+    -fx-skin: "com.sun.javafx.scene.control.skin.ButtonSkin";
+    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+    -fx-background-radius: 5, 5, 4, 3;
+}
+.button-accept:hover {
+    -fx-background-color: white;
+    -fx-text-fill: teal;
+    -fx-padding: 8 26 8 26;
+    -fx-border-color: teal;
+    -fx-border-insets: -1;
+    -fx-focus-color: transparent;
+}
+.button-accept:focused{
+    -fx-background-insets: -1.4, 0, 1, 2;
+    -fx-background-radius:  6.4, 5, 4, 3;
+}

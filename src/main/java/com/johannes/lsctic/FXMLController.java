@@ -11,7 +11,10 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point2D;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
@@ -119,7 +122,6 @@ public class FXMLController implements Initializable {
             List<AddressBookEntry> ld1 = storage.getLoaderRegister().getResultFromEveryPlugin(newValue, 10);
             dataPanelsRegister.updateAddressFields((ArrayList<AddressBookEntry>) ld1);
         });
-
     }
 
     public void setStage(Stage stage) {
