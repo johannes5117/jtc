@@ -61,7 +61,7 @@ public class PluginRegister {
             } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
                 // If its not integrated search in the folder given from the user
-                if (pluginsFound.contains(pl + ".jar")) {
+                if (pluginsFound.contains(pl.toLowerCase() + ".jar")) {
                     try {
                         loadedPlugins.add(getInstantiatedClass(pl, folderPath));
                     } catch (IOException e1) {
@@ -135,7 +135,7 @@ public class PluginRegister {
         for (int i = 0; i < flist.length; i++)
             urls[i] = flist[i].toURI().toURL();
         URLClassLoader ucl = new URLClassLoader(urls);
-        ServiceLoader<AddressPlugin> sl = ServiceLoader.load(AddressPlugin.class, ucl);
+        ServiceLoader<AddressPlugin> sl = ServiceLoader.load()
         Iterator<AddressPlugin> apit = sl.iterator();
         while (apit.hasNext())
             return apit.next();
