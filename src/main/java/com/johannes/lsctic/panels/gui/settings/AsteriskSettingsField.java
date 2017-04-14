@@ -6,7 +6,6 @@
 package com.johannes.lsctic.panels.gui.settings;
 
 import javafx.geometry.Insets;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
 /**
@@ -16,27 +15,29 @@ import javafx.scene.layout.VBox;
 public class AsteriskSettingsField extends SettingsField {
 
 
-    private TextField ipTextField;
-    private TextField portTextField;
-    private TextField userTextField;
-    private TextField passwordTextField;
+    private ToolTipTextField ipTextField;
+    private ToolTipTextField portTextField;
+    private ToolTipTextField userTextField;
+    private ToolTipTextField passwordTextField;
+    private boolean changed;
 
 
     public AsteriskSettingsField() {
         super("Asterisk (AMI)");
-        ipTextField = new TextField();
+        ipTextField = new ToolTipTextField("Address of the server");
         ipTextField.setPromptText("IP Adresse (Beispiel: server)");
-        portTextField = new TextField();
+        portTextField = new ToolTipTextField("Port on the server");
         portTextField.setPromptText("Port (Beispiel: 5038)");
         portTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             if(!newValue.matches("^[0-9]*$")){
                 portTextField.setText("Der Port ist eine Zahl");
             }
         });
-        userTextField = new TextField();
+        userTextField = new ToolTipTextField("Your username");
         userTextField.setPromptText("AMI Benutzer (Beispiel: user)");
-        passwordTextField = new TextField();
+        passwordTextField = new ToolTipTextField("Your password");
         passwordTextField.setPromptText("AMI Passwort (Beispiel: vogel)");
+        changed = false;
     }
 
 
@@ -51,7 +52,7 @@ public class AsteriskSettingsField extends SettingsField {
         super.expand();
     }
 
-    public String[] getOptions() {
+    public String[] getOptions(String[] optionsCompare) {
         String[] options = new String[4];
         options[0] = ipTextField.getText();
         String z =portTextField.getText();
@@ -62,6 +63,14 @@ public class AsteriskSettingsField extends SettingsField {
         }
         options[2] = userTextField.getText();
         options[3] = passwordTextField.getText();
+
+        for(int i = 0; i<options.length; i++) {
+           if(!(options[i].equals(optionsCompare[i]))) {
+               changed = true;
+               break;
+           }
+        }
+
         return options;
     }
 
@@ -76,5 +85,11 @@ public class AsteriskSettingsField extends SettingsField {
     public void collapse() {
         this.getChildren().remove(this.getChildren().size() - 1);
         super.collapse();
+    }
+
+    public boolean hasChanged(){
+        boolean out = changed;
+        changed = false;
+        return out;
     }
 }

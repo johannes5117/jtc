@@ -5,7 +5,6 @@
  */
 package com.johannes.lsctic.panels.gui.plugins;
 
-import com.johannes.lsctic.messagestage.ErrorMessage;
 import com.johannes.lsctic.panels.gui.settings.SettingsField;
 
 import java.io.File;
@@ -17,21 +16,23 @@ import java.net.URLClassLoader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * @author johannes
  */
-public class LoaderRegister {
+public class PluginRegister {
 
     private ArrayList<String> pluginsFound;
     private ArrayList<AddressPlugin> loadedPlugins;
     private String exploredFolder;
 
 
-    public LoaderRegister() {
+    public PluginRegister() {
         loadedPlugins = new ArrayList<>();
         pluginsFound = new ArrayList<>();
     }
@@ -50,6 +51,8 @@ public class LoaderRegister {
         }
         for (String pl : pluginsToLoad) {
             Logger.getLogger(getClass().getName()).info(pl);
+
+            // First search the class in the tool. It may be included. Depending on build.
             try {
                 Class<?> loader = Class.forName("com.johannes.lsctic.panels.gui.plugins." + pl + "." + pl);
                 Constructor<?> ctor = loader.getConstructor();
@@ -57,8 +60,13 @@ public class LoaderRegister {
                 loadedPlugins.add((AddressPlugin) object);
             } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
-                if (pluginsFound.contains(pl + ".class")) {
-                    loadedPlugins.add(getInstantiatedClass(pl, folderPath));
+                // If its not integrated search in the folder given from the user
+                if (pluginsFound.contains(pl + ".jar")) {
+                    try {
+                        loadedPlugins.add(getInstantiatedClass(pl, folderPath));
+                    } catch (IOException e1) {
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE,null,e1);
+                    }
                 }
             }
 
@@ -94,7 +102,7 @@ public class LoaderRegister {
         ArrayList<String> fileList = new ArrayList();
         if (dir.isDirectory() && dir.listFiles() != null) {
             for (File f : dir.listFiles()) {
-                if (f.getName().endsWith(".class")) {
+                if (f.getName().endsWith(".jar")) {
                     fileList.add(f.getName());
                 }
             }
@@ -103,8 +111,8 @@ public class LoaderRegister {
     }
 
 
-    private AddressPlugin getInstantiatedClass(String classname, String folder) {
-
+    private AddressPlugin getInstantiatedClass(String classname, String folder) throws IOException {
+/*
         try {
             File dir = new File(folder);
             URL loadPath = dir.toURI().toURL();
@@ -119,7 +127,21 @@ public class LoaderRegister {
             new ErrorMessage("Plugin "+classname+" could not be loaded. Not found internal or in plugin path");
         }
         return null;
+        */
+        File loc = new File(folder);
+
+        File[] flist = loc.listFiles(file -> file.getPath().toLowerCase().endsWith(".jar"));
+        URL[] urls = new URL[flist.length];
+        for (int i = 0; i < flist.length; i++)
+            urls[i] = flist[i].toURI().toURL();
+        URLClassLoader ucl = new URLClassLoader(urls);
+        ServiceLoader<AddressPlugin> sl = ServiceLoader.load(AddressPlugin.class, ucl);
+        Iterator<AddressPlugin> apit = sl.iterator();
+        while (apit.hasNext())
+            return apit.next();
+        throw new IOException("Fehler");
     }
+
 
 
     public List<SettingsField> getAllSettingsFields() {

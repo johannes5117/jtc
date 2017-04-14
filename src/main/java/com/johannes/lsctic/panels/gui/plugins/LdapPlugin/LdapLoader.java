@@ -42,8 +42,8 @@ public class LdapLoader implements AddressLoader {
 
     private DataSource source;
 
-    public LdapLoader() {
-        source = new DataSource("LdapPlugin");
+    public LdapLoader(DataSource source) {
+        this.source = source;
         env = new Hashtable();
 
         String sp = "com.sun.jndi.ldap.LdapCtxFactory";
@@ -55,7 +55,7 @@ public class LdapLoader implements AddressLoader {
 
         base = ldapBase;
     }
-
+/* TO delete if function can be guaranteed without this lines
     public LdapLoader(String serverIp, int port, String dc, String ou) {
         source = new DataSource("LdapPlugin");
         env = new Hashtable();
@@ -69,7 +69,7 @@ public class LdapLoader implements AddressLoader {
 
         base = "ou=" + ou;
     }
-
+    */
     
     @Override
     public ArrayList<AddressBookEntry> getResults(String ein, int n) {

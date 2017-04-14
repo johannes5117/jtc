@@ -2,8 +2,7 @@ package com.johannes.lsctic;
 
 import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.panels.gui.fields.StartConnectionEvent;
-import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.AboCdrExtensionEvent;
-import com.johannes.lsctic.panels.gui.plugins.LoaderRegister;
+import com.johannes.lsctic.panels.gui.plugins.PluginRegister;
 import com.johannes.lsctic.panels.gui.settings.AsteriskSettingsField;
 import com.johannes.lsctic.panels.gui.settings.DataSourceSettingsField;
 import javafx.scene.control.Button;
@@ -28,10 +27,10 @@ public final class OptionsStorage {
     private long time;               // TimeStamp
     private String ownExtensionTemp;     // eigene Extension asterisk
     private long timeTemp;               // TimeStamp
-    private String pluginFolder ="plugin";
+    private String pluginFolder;
     private static final String DATABASE_CONNECTION = "jdbc:sqlite:settingsAndData.db";
     private static final String SETTING = "setting";
-    private LoaderRegister loaderRegister;
+    private PluginRegister pluginRegister;
     private ArrayList<String> activatedDataSources = new ArrayList<>();
     private AsteriskSettingsField asteriskSettingsField;
     private DataSourceSettingsField dataSourceSettingsField;
@@ -40,28 +39,28 @@ public final class OptionsStorage {
 
     public OptionsStorage(Button accept, Button reject, VBox panelD, EventBus bus) {
         this.asteriskSettingsField = new AsteriskSettingsField();
-        this.loaderRegister = new LoaderRegister();
+        this.pluginRegister = new PluginRegister();
         this.dataSourceSettingsField = new DataSourceSettingsField();
         this.bus = bus;
         readSettingsFromDatabase();
-        this.loaderRegister.explorePluginFolder(this.pluginFolder);
+        this.pluginRegister.explorePluginFolder(this.pluginFolder);
 
         ArrayList<String> pl = new ArrayList<>();
         pl.add("MysqlPlugin");
         pl.add("LdapPlugin");
         pl.add("TextFilePlugin");
-        this.loaderRegister.registerHardCodedPlugins(pl);
+        this.pluginRegister.registerHardCodedPlugins(pl);
         //TODO: Delete after manual Test -> Only for Test purpose
 
-        this.loaderRegister.loadPlugins(activatedDataSources, pluginFolder);
+        this.pluginRegister.loadPlugins(activatedDataSources, pluginFolder);
         try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {
-            this.loaderRegister.activateAllPlugins(con);
+            this.pluginRegister.activateAllPlugins(con);
         } catch (SQLException e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
         }
-        dataSourceSettingsField.setCheckBoxes(loaderRegister.getPluginsFound(), activatedDataSources);
+        dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(), activatedDataSources);
         panelD.getChildren().addAll(asteriskSettingsField, dataSourceSettingsField);
-        panelD.getChildren().addAll(this.getLoaderRegister().getAllSettingsFields());
+        panelD.getChildren().addAll(this.getPluginRegister().getAllSettingsFields());
 
         accept.setOnAction(event -> accept());
         reject.setOnAction(event -> setTempVariables());
@@ -71,20 +70,18 @@ public final class OptionsStorage {
      * Used to store the temp. vars.
      */
     public void setTempVariables() {
-        loaderRegister.discardAllPlugins();
-
+        pluginRegister.discardAllPlugins();
         String[] options = {amiAddress, Integer.toString(amiServerPort), amiLogIn, amiPassword};
         this.asteriskSettingsField.setOptions(options);
-
-
         ownExtensionTemp = ownExtension;
-        dataSourceSettingsField.setCheckBoxes(loaderRegister.getPluginsFound(),activatedDataSources);
+        dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(),activatedDataSources);
+        dataSourceSettingsField.setPluginFolder(pluginFolder);
     }
     /**
      * User accepts the changes and wants to store the changes in database
      */
     public void accept() {
-        loaderRegister.acceptAllPlugins();
+        pluginRegister.acceptAllPlugins();
         setVariables();
         writeSettingsToDatabase();
         refreshProgram();
@@ -92,7 +89,13 @@ public final class OptionsStorage {
     }
 
     private void refreshProgram() {
-        bus.post(new StartConnectionEvent("localhost", 12345, "Tset", "Test"));
+        if(asteriskSettingsField.hasChanged()) {
+            bus.post(new StartConnectionEvent("localhost", 12345, "Tset", "Test"));
+        } else if(dataSourceSettingsField.hasChanged()) {
+            //TODO: Implement Reload for Plugins
+            Logger.getLogger(getClass().getName()).info("ÄNDERUNG");
+        }
+
     }
 
     /**
@@ -100,13 +103,19 @@ public final class OptionsStorage {
      * accept
      */
     public void setVariables() {
-        String[] options = asteriskSettingsField.getOptions();
+        // compare the old with the new values -> if no change happened its not necessary to restart server connection
+        String[] optionsCompare = {amiAddress, Integer.toString(amiServerPort), amiLogIn, amiPassword};
+        String[] options = asteriskSettingsField.getOptions(optionsCompare);
         amiAddress = options[0];
         amiServerPort = Integer.valueOf(options[1]);
         amiLogIn = options[2];
         amiPassword = options[3];
+
         ownExtension = ownExtensionTemp;
-        activatedDataSources = (ArrayList<String>) this.dataSourceSettingsField.getChecked();
+
+        // compare the old with the new values -> if no change happened its not necessary to reload the plugins
+        activatedDataSources = (ArrayList<String>) this.dataSourceSettingsField.getChecked(activatedDataSources);
+        pluginFolder = this.dataSourceSettingsField.getPluginFolder(pluginFolder);
     }
 
     /**
@@ -121,8 +130,7 @@ public final class OptionsStorage {
             statement.executeUpdate(query + amiServerPort + "' WHERE description = 'amiServerPort'");
             statement.executeUpdate(query + amiLogIn + "' WHERE description = 'amiLogIn'");
             statement.executeUpdate(query + amiPassword + "' WHERE description = 'amiPassword'");
-            
-
+            statement.executeUpdate(query + pluginFolder+"'WHERE description = 'pluginFolder'");
         } catch (SQLException ex) {
             Logger.getLogger(getClass().getName()).log(Level.WARNING, null, ex);
         }
@@ -150,6 +158,11 @@ public final class OptionsStorage {
                 ptsm.setString(1, "time");
                 ResultSet amiAddressRS = ptsm.executeQuery();
                 time = Long.valueOf(!amiAddressRS.next() ? Long.toString(System.currentTimeMillis()) : amiAddressRS.getString(SETTING));
+            }
+            try (PreparedStatement ptsm = con.prepareStatement(query)) {
+                ptsm.setString(1, "pluginFolder");
+                ResultSet amiAddressRS = ptsm.executeQuery();
+                pluginFolder = !amiAddressRS.next() ? "" : amiAddressRS.getString(SETTING);
             }
 
             setTempVariables();
@@ -261,8 +274,8 @@ public final class OptionsStorage {
    }
 
 
-    public LoaderRegister getLoaderRegister() {
-        return loaderRegister;
+    public PluginRegister getPluginRegister() {
+        return pluginRegister;
     }
 
     public void setAsteriskSettingsField(AsteriskSettingsField asteriskSettingsField) {

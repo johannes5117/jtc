@@ -18,10 +18,14 @@ import java.util.List;
 public class DataSourceSettingsField extends SettingsField {
 
     private ArrayList<CheckBox> checkBoxes;
+    private ToolTipTextField pluginFolderTextField;
+    private boolean changed;
 
     public DataSourceSettingsField() {
         super("Datasource");
         checkBoxes = new ArrayList<>();
+        pluginFolderTextField = new ToolTipTextField("Plugin Folder");
+        changed = false;
     }
 
     public void setCheckBoxes(List<String> foundList, List<String> activatedList) {
@@ -37,12 +41,20 @@ public class DataSourceSettingsField extends SettingsField {
         }
     }
 
-    public List<String> getChecked() {
+    public List<String> getChecked(List<String> activatedDataSources) {
         ArrayList<String> checked = new ArrayList<>();
         for(CheckBox checkBox: checkBoxes){
             if(checkBox.selectedProperty().getValue()) {
                 checked.add(checkBox.getText());
             }
+        }
+        if(checked.containsAll(activatedDataSources)) {
+            if(activatedDataSources.containsAll(checked)) {
+            } else {
+                changed = true;
+            }
+        } else {
+            changed = true;
         }
         return checked;
     }
@@ -50,9 +62,10 @@ public class DataSourceSettingsField extends SettingsField {
     @Override
     public void expand() {
         VBox v = new VBox();
-        v.setSpacing(3);
         VBox.setMargin(v, new Insets(6, 0, 3, 0));
         v.getChildren().addAll(checkBoxes);
+        v.setSpacing(10);
+        v.getChildren().add(pluginFolderTextField);
         this.getChildren().add(v);
         super.expand();
     }
@@ -63,5 +76,21 @@ public class DataSourceSettingsField extends SettingsField {
         super.collapse();
     }
 
+    public void setPluginFolder(String pathTextPath) {
+        pluginFolderTextField.setText(pathTextPath);
+    }
+
+    public String getPluginFolder(String pluginFolder) {
+        if(!(pluginFolder.equals(pluginFolderTextField.getText()))) {
+            changed = true;
+        }
+        return pluginFolderTextField.getText();
+    }
+
+    public boolean hasChanged(){
+        boolean out = changed;
+        changed = false;
+        return out;
+    }
 
 }

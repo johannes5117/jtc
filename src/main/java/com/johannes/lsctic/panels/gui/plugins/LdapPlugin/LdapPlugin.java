@@ -2,6 +2,7 @@ package com.johannes.lsctic.panels.gui.plugins.LdapPlugin;
 
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import com.johannes.lsctic.panels.gui.plugins.AddressPlugin;
+import com.johannes.lsctic.panels.gui.plugins.DataSource;
 import com.johannes.lsctic.panels.gui.settings.SettingsField;
 
 import java.sql.Connection;
@@ -17,7 +18,8 @@ public class LdapPlugin extends AddressPlugin {
 
     public LdapPlugin(String AUTHOR, String AUTHOR_CONTACT) {
         super(AUTHOR, AUTHOR_CONTACT, "LdapPlugin");
-        loader = new LdapLoader();
+        DataSource source = new DataSource("LdapPlugin", "LDAP");
+        loader = new LdapLoader(source);
         settingsField = new LDAPSettingsField(loader);
         super.setLoader(loader);
         super.setSettingsField(settingsField);

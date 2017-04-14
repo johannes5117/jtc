@@ -18,6 +18,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 import java.awt.*;
@@ -29,7 +30,7 @@ import java.util.ArrayList;
  */
 public class AddressField extends VBox {
     private String name;
-    private int number;
+    private String tag;
     private final AddressBookEntry addressBookEntry;
     private ImageView vUpDown;
     private boolean expanded;
@@ -39,9 +40,9 @@ public class AddressField extends VBox {
 
     //Todo: Implement count function
 
-    public AddressField(int count, int number, AddressBookEntry addressBookEntry, EventBus eventBus) {
+    public AddressField(int count, AddressBookEntry addressBookEntry, EventBus eventBus) {
         this.name = addressBookEntry.getName();
-        this.number = number;
+        this.tag = addressBookEntry.getSource().getTag();
         this.eventBus = eventBus;
         this.setMaxWidth(Double.MAX_VALUE);
         this.setPadding(new Insets(12, 12, 12, 12));
@@ -62,7 +63,6 @@ public class AddressField extends VBox {
         HBox.setHgrow(inner, Priority.ALWAYS);
 
         HBox innerinner = new HBox();
-        innerinner.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(innerinner, Priority.ALWAYS);
 
         this.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
@@ -71,24 +71,19 @@ public class AddressField extends VBox {
             }
             AddressField.this.requestFocus();
             event.consume();
-
         });
 
         Label a = new Label(name);
         a.setStyle(" -fx-font-size: 12px;  -fx-font-weight: bold;");
-
         inner.getChildren().add(a);
         this.getChildren().add(inner);
         inner.getChildren().add(innerinner);
         this.focusedProperty().addListener((observable, oldValue, newValue) -> {
-
             if (newValue) {
                 AddressField.this.setStyle("-fx-border-color: #0093ff; -fx-border-width: 1px;");
             } else {
                 AddressField.this.setStyle("-fx-border-color: #FFFFFF; -fx-border-width: 1px;");
             }
-
-
         });
         this.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.ENTER) {
@@ -107,7 +102,7 @@ public class AddressField extends VBox {
 
             inner.getChildren().add(v);
             v.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-                this.eventBus.post(new CallEvent(this.getName()));
+                this.eventBus.post(new CallEvent(String.valueOf(addressBookEntry.get(3))));
                 event.consume();
             });
             v.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> {
@@ -148,6 +143,12 @@ public class AddressField extends VBox {
                 event.consume();
             });
         }
+
+        Label tagLabel = new Label("("+this.tag+")");
+        tagLabel.setMinWidth(Region.USE_PREF_SIZE);
+        tagLabel.setStyle(" -fx-font-size: 10px;");
+        inner.getChildren().add(tagLabel);
+
         Image image = new Image("/pics/down.png");
         vUpDown = new ImageView(image);
         vUpDown.setFitHeight(15);
@@ -197,13 +198,6 @@ public class AddressField extends VBox {
         this.name = name;
     }
 
-    public int getNumber() {
-        return number;
-    }
-
-    public void setNumber(int number) {
-        this.number = number;
-    }
 
     public void expand() {
         VBox v = new VBox();

@@ -19,8 +19,8 @@ public class TextFileLoader implements AddressLoader {
 
     private DataSource source;
 
-    public TextFileLoader() {
-        this.source = new DataSource("TextFilePlugin");
+    public TextFileLoader(DataSource source) {
+        this.source = source;
     }
 
     @Override

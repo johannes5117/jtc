@@ -14,9 +14,11 @@ import java.util.ArrayList;
 public class DataSource {
     private String source;
     private ArrayList<String> availableFields = new ArrayList<>();
+    private String tag;
 
-    public DataSource(String source) {
+    public DataSource(String source, String tag) {
         this.source = source;
+        this.tag = tag;
     }
 
     public ArrayList<String> getAvailableFields() {
@@ -26,6 +28,8 @@ public class DataSource {
     public void setAvailableFields(ArrayList<String> availableFields) {
         this.availableFields = availableFields;
     }
+    
+    public String getTag() {return this.tag;}
     
     public void setDataSource(String source) {
         this.source = source;

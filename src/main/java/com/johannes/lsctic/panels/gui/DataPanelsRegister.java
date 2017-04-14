@@ -119,7 +119,7 @@ public class DataPanelsRegister {
     public void updateAddressFields(List<AddressBookEntry> i) {
         panelB.getChildren().clear();
         ArrayList<AddressField> addressFields = new ArrayList<>();
-        i.stream().forEach(ent -> addressFields.add(new AddressField(2, 123123, ent, eventBus)));
+        i.stream().forEach(ent -> addressFields.add(new AddressField(2, ent, eventBus)));
         panelB.getChildren().addAll(addressFields);
     }
 

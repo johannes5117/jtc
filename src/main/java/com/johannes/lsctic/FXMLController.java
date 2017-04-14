@@ -67,13 +67,13 @@ public class FXMLController implements Initializable {
         String ownExtension = storage.getOwnExtension();
 
         new ServerConnectionHandler(bus, ownExtension);
-        bus.post(new StartConnectionEvent("localhost", 123456, "Tset", "Test"));
+        bus.post(new StartConnectionEvent("localhost", 12345, "Tset", "Test"));
 
         VBox[] panels = {panelA, panelB, panelC, panelD};
         dataPanelsRegister = new DataPanelsRegister(bus, sqlLiteConnection, panels);
 
         //Initally show 10 first entries in the Addressbook View
-        List<AddressBookEntry> ld = storage.getLoaderRegister().getResultFromEveryPlugin("", 10);
+        List<AddressBookEntry> ld = storage.getPluginRegister().getResultFromEveryPlugin("", 10);
         dataPanelsRegister.updateAddressFields((ArrayList<AddressBookEntry>) ld);
 
         //Add listener for number enterd in search field of paneA which will be used as quickdial field for phonenumbers
@@ -111,7 +111,7 @@ public class FXMLController implements Initializable {
 
         //listener to search in the Address sources
         paneBTextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-            List<AddressBookEntry> ld1 = storage.getLoaderRegister().getResultFromEveryPlugin(newValue, 10);
+            List<AddressBookEntry> ld1 = storage.getPluginRegister().getResultFromEveryPlugin(newValue, 10);
             dataPanelsRegister.updateAddressFields(ld1);
         });
     }

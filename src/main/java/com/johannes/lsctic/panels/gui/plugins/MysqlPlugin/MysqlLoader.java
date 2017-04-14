@@ -23,23 +23,23 @@ public class MysqlLoader implements AddressLoader {
     private MysqlLoaderStorage storage;
     private DataSource source;
 
-    public MysqlLoader() {
-        source = new DataSource("MysqlPlugin");
+    public MysqlLoader(DataSource source) {
+        this.source = source;
+
         ArrayList<String> infos = new ArrayList<>();
         ArrayList<String> test = new ArrayList<>();
-
-
-
 
         test.add("Wilhelm");
         test.add("Meier");
         test.add("Berlin");
+        test.add("0132323");
 
         en.add(new AddressBookEntry(test, "Wilhelm Meier", source));
         infos.add("Johannes");
         infos.add("Engler");
         infos.add("Bad Krozingen");
-        en.add(new AddressBookEntry(infos, "Johannes Engler", source));
+        infos.add("O76641234");
+        en.add(new AddressBookEntry(infos, "Johannes Minister Prinz und König von Swasiland", source));
 
 
         storage = new MysqlLoaderStorage();
@@ -80,6 +80,10 @@ public class MysqlLoader implements AddressLoader {
 
     public DataSource getDataSource() {
         return source;
+    }
+
+    protected void setTag(String tag) {
+
     }
 
 }
