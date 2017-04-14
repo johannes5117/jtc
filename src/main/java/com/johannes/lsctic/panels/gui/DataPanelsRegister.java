@@ -4,6 +4,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.johannes.lsctic.PhoneNumber;
 import com.johannes.lsctic.SqlLiteConnection;
+import com.johannes.lsctic.messagestage.ErrorMessage;
 import com.johannes.lsctic.panels.gui.fields.*;
 import com.johannes.lsctic.panels.gui.fields.internevents.AddInternEvent;
 import com.johannes.lsctic.panels.gui.fields.internevents.NewInternField;
@@ -69,6 +70,7 @@ public class DataPanelsRegister {
             updateView(new ArrayList<>(internFields.values()));
         } else {
             Logger.getLogger(getClass().getName()).log(Level.WARNING, "There already exists a user with that phonenumber.");
+            new ErrorMessage("There already exists a user with the same phone number");
         }
     }
     public List<InternField> generateReducedSet(String val) {
@@ -119,6 +121,11 @@ public class DataPanelsRegister {
         ArrayList<AddressField> addressFields = new ArrayList<>();
         i.stream().forEach(ent -> addressFields.add(new AddressField(2, 123123, ent, eventBus)));
         panelB.getChildren().addAll(addressFields);
+    }
+
+    @Subscribe
+    public void aboForNewConnection(StartConnectionEvent event){
+        internFields.entrySet().stream().forEach(g -> eventBus.post(new AboStatusExtensionEvent(g.getValue().getNumber())));
     }
 
 }

@@ -5,6 +5,7 @@
  */
 package com.johannes.lsctic.panels.gui.plugins;
 
+import com.johannes.lsctic.messagestage.ErrorMessage;
 import com.johannes.lsctic.panels.gui.settings.SettingsField;
 
 import java.io.File;
@@ -29,31 +30,19 @@ public class LoaderRegister {
     private ArrayList<AddressPlugin> loadedPlugins;
     private String exploredFolder;
 
+
     public LoaderRegister() {
         loadedPlugins = new ArrayList<>();
         pluginsFound = new ArrayList<>();
     }
 
-    public void explorePluginFolder(String folderPath) {
-        this.pluginsFound = getAvailablePluginsFromFolder(folderPath);
-        exploredFolder = folderPath;
-    }
-
-    public void activateAllPlugins(Connection con) throws SQLException {
-        for (AddressPlugin addressPlugin : loadedPlugins) {
-            addressPlugin.readFields(con);
-        }
-    }
-
-    public void registerHardCodedPlugins(List<String> plugins) {
-        this.pluginsFound.addAll(plugins);
-    }
 
     public void reloadPlugins(List<String> pluginsToLoad, String folderPath) {
         loadedPlugins.clear();
         explorePluginFolder(folderPath);
         loadPlugins(pluginsToLoad, folderPath);
     }
+
 
     public void loadPlugins(List<String> pluginsToLoad, String folderPath) {
         if (!folderPath.equals(exploredFolder)) {
@@ -76,9 +65,29 @@ public class LoaderRegister {
         }
     }
 
+
+    public void explorePluginFolder(String folderPath) {
+        this.pluginsFound = getAvailablePluginsFromFolder(folderPath);
+        exploredFolder = folderPath;
+    }
+
+
+    public void activateAllPlugins(Connection con) throws SQLException {
+        for (AddressPlugin addressPlugin : loadedPlugins) {
+            addressPlugin.readFields(con);
+        }
+    }
+
+
+    public void registerHardCodedPlugins(List<String> plugins) {
+        this.pluginsFound.addAll(plugins);
+    }
+
+
     public static void addNewLoader(String text) {
         // TODO: Implement function
     }
+
 
     private ArrayList<String> getAvailablePluginsFromFolder(String folder) {
         File dir = new File(folder);
@@ -93,6 +102,7 @@ public class LoaderRegister {
         return fileList;
     }
 
+
     private AddressPlugin getInstantiatedClass(String classname, String folder) {
 
         try {
@@ -106,11 +116,13 @@ public class LoaderRegister {
             return (AddressPlugin) loadedClass.newInstance();
         } catch (IOException | ClassCastException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
+            new ErrorMessage("Plugin "+classname+" could not be loaded. Not found internal or in plugin path");
         }
         return null;
     }
 
-    public List<SettingsField> getAllSettingsfields() {
+
+    public List<SettingsField> getAllSettingsFields() {
         ArrayList<SettingsField> settingsFields = new ArrayList<>();
         for (AddressPlugin plugin : loadedPlugins) {
             settingsFields.add(plugin.getSettingsField());
@@ -124,21 +136,19 @@ public class LoaderRegister {
 
         for (AddressPlugin plugin : loadedPlugins) {
             ArrayList<AddressBookEntry> pluginResult = plugin.getResults(query, number);
-
             if (pluginResult != null && !pluginResult.isEmpty()) {
                 filteredQuery.addAll(pluginResult);
             }
         }
-
         if (!filteredQuery.isEmpty()) {
             filteredQuery.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
         }
         if (filteredQuery.size() > number) {
             return filteredQuery.subList(0, number);
         }
-
         return filteredQuery;
     }
+
 
     public void acceptAllPlugins() {
         for (AddressPlugin l : loadedPlugins) {
@@ -146,11 +156,13 @@ public class LoaderRegister {
         }
     }
 
+
     public void discardAllPlugins() {
         for (AddressPlugin l : loadedPlugins) {
             l.getLoader().discarded();
         }
     }
+
 
     public List<String> getPluginsFound() {
         return pluginsFound;

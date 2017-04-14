@@ -5,13 +5,11 @@
  */
 package com.johannes.lsctic;
 
+import com.johannes.lsctic.messagestage.ErrorMessage;
+
 import java.io.File;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -24,19 +22,16 @@ import java.util.logging.Logger;
 public class SqlLiteConnection {
 
     private Connection connection;
-    private Connection localConnection;
+    private String database;
     private static final String JDBC = "jdbc:sqlite:";
 
     /**
      * Beispiel database: "settingsAndData.db"
      *
      * @param database
-     * @param localDatabase
      */
-    public SqlLiteConnection(String database, String localDatabase) {
-        String[] createLines = {"create table callhistory (id integer, number string, outgoing boolean)",
-            "create table phonebook (id integer, number string, name string, callcount integer, favorit boolean)"};
-        createDatabase(localDatabase, createLines);
+    public SqlLiteConnection(String database) {
+        this.database = database;
         String[] createLines2 = {"create table settings (id integer, setting string, description string)",
             "create table internfields (id integer  Primary Key AUTOINCREMENT, number string, name string, callcount integer, favorit boolean)"};
         createDatabase(database, createLines2);
@@ -45,60 +40,44 @@ public class SqlLiteConnection {
     private void createDatabase(String database, String[] createLines) {
         File f = new File(database);
         if (f.exists() && !f.isDirectory()) {
-            try {
-                connection = DriverManager.getConnection(JDBC + database);
+            try(Connection connection = DriverManager.getConnection(JDBC + database)) {
+                String query = "SELECT name FROM sqlite_master WHERE type=?";
+                try (PreparedStatement ptsm = connection.prepareStatement(query)) {
+                    ptsm.setString(1, "table");
+                    ResultSet table = ptsm.executeQuery();
+                    ArrayList<String> check = new ArrayList<>();
+                    while(table.next()) {
+                        Logger.getLogger(getClass().getName()).info(table.getString("name"));
+                        check.add(table.getString("name"));
+                    }
+                    if(!(check.contains("settings") && check.contains("internfields") || (check.contains("callhistory") && check.contains("phonebook")))){
+                        throw new SQLException("Database seems not to have the right scheme");
+                    }
+                }
             } catch (SQLException ex) {
                 Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
+                new ErrorMessage("Database seems to exist but is not readable. Please check database integrity and if necessary delete it");
             }
 
         } else {
-            Statement statement = null;
-            try {
-                // Erstelle die Datenbank für das Programm
-                connection = DriverManager.getConnection(JDBC + database);
-                statement = connection.createStatement();
-                statement.setQueryTimeout(30);
-                //Asterisk Optionen
-                for (String create : createLines) {
-
-                    statement.executeUpdate(create);
-
-                }
-
-            } catch (SQLException e) {
-                Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, e);
-            } finally {
-                if (statement != null) {
-                    try {
-                        statement.close();
-                    } catch (SQLException ex) {
-                        Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
+            try (Connection connection = DriverManager.getConnection(JDBC + database)) {
+                try( Statement statement = connection.createStatement()) {
+                    // Erstelle die Datenbank für das Programm
+                    statement.setQueryTimeout(30);
+                    //Asterisk Optionen
+                    for (String create : createLines) {
+                        statement.executeUpdate(create);
                     }
                 }
-            }
+            } catch (SQLException e) {
+                new ErrorMessage("Could not create local database in folder " + f.getAbsolutePath());
+                Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, e);            }
+
+
         }
 
     }
 
-    /**
-     * Closes the Connections to the SQLite Databases
-     */
-    public void closeConnections() {
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException ex) {
-                Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        if (localConnection != null) {
-            try {
-                localConnection.close();
-            } catch (SQLException ex) {
-                Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
 
     /**
      * Runs a SQL query and returns the results
@@ -107,48 +86,16 @@ public class SqlLiteConnection {
      * @return resultset
      */
     public ResultSet query(String query) {
-        Statement statement = null;
-        try {
-            statement = connection.createStatement();
+        try(Connection connection = DriverManager.getConnection(JDBC + database); Statement statement = connection.createStatement()) {
             statement.setQueryTimeout(10);
             return statement.executeQuery(query);
         } catch (SQLException ex) {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
+            new ErrorMessage("There was a database error with the query: \""+query+"\"");
             return null;
-        } finally {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
         }
     }
 
-    /**
-     * Perform a update query on the server
-     *
-     * @param update
-     */
-    public void update(String update) {
-        Statement statement = null;
-        try {
-            statement = connection.createStatement();
-            statement.setQueryTimeout(10);
-            statement.executeUpdate(update);
-        } catch (SQLException ex) {
-            Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-    }
 
     /**
      * Select specific attribut where specific attribute in database
@@ -160,11 +107,12 @@ public class SqlLiteConnection {
      * @return
      */
     public ResultSet selectWhere(String attribut, String table, String whereAttribut, String whereValue) {
-        PreparedStatement statement = null;
-        try {
+        String state = "select ? from ? where ?=?";
+        if(!(whereAttribut == null && whereValue == null)) {
+            state = "select ? from ?";
+        }
+        try(Connection connection = DriverManager.getConnection(JDBC + database); PreparedStatement statement = connection.prepareStatement(state)) {
             if (whereAttribut == null && whereValue == null) {
-                String state = "select ? from ? where ?=?";
-                statement = connection.prepareStatement(state);
                 statement.setString(1, attribut);
                 statement.setString(2, table);
                 statement.setString(3, whereAttribut);
@@ -172,25 +120,15 @@ public class SqlLiteConnection {
                 statement.setQueryTimeout(10);
                 return statement.executeQuery();
             } else {
-                String state = "select ? from ?";
-                statement = connection.prepareStatement(state);
                 statement.setString(1, attribut);
                 statement.setString(2, table);
                 statement.setQueryTimeout(10);
                 return statement.executeQuery();
             }
-
         } catch (SQLException ex) {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
+            new ErrorMessage("There was a database error with the query");
             return null;
-        } finally {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
         }
     }
 
@@ -201,22 +139,14 @@ public class SqlLiteConnection {
      * @param value
      */
     public void insert(String table, String value) {
-        Statement statement = null;
-        try {
-            statement = connection.createStatement();
+        try(Connection connection = DriverManager.getConnection(JDBC + database); Statement statement = connection.createStatement()) {
             statement.setQueryTimeout(10);
             statement.executeUpdate("insert into " + table + " values(" + value + ")");
         } catch (SQLException ex) {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
         }
+        new ErrorMessage("There was a database error with the query");
+
     }
 
     /**
@@ -229,21 +159,12 @@ public class SqlLiteConnection {
      * @param updateValue
      */
     public void updateOneAttribute(String table, String whereAttribut, String whereValue, String updateAttribut, String updateValue) {
-        Statement statement = null;
-        try {
-            statement = connection.createStatement();
+        try(Connection connection = DriverManager.getConnection(JDBC + database); Statement statement = connection.createStatement()) {
             statement.setQueryTimeout(10);
             statement.executeUpdate("UPDATE " + table + " SET " + updateAttribut + " = " + updateValue + " WHERE " + whereAttribut + " = " + whereValue);
         } catch (SQLException ex) {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
+            new ErrorMessage("There was a database error with the query");
         }
     }
 
@@ -263,9 +184,7 @@ public class SqlLiteConnection {
     public Map<String, PhoneNumber> getInterns() {
         Map<String, PhoneNumber> internNumbers = new TreeMap<>();
 
-        Statement statement = null;
-        try {
-            statement = connection.createStatement();
+        try(Connection connection = DriverManager.getConnection(JDBC + database); Statement statement = connection.createStatement()) {
             statement.setQueryTimeout(10);
             try (ResultSet rs = statement.executeQuery("select * from internfields")) {
                 while (rs.next()) {
@@ -274,17 +193,9 @@ public class SqlLiteConnection {
             }
         } catch (SQLException ex) {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
+            new ErrorMessage("There was a database error with the query. The data may not be complete");
             return internNumbers;
-        } finally {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
         }
-
         return internNumbers;
     }
 
@@ -294,12 +205,12 @@ public class SqlLiteConnection {
      * @param query
      */
     public void queryNoReturn(String query) {
-
-        try (Statement statement = connection.createStatement()) {
+        try(Connection connection = DriverManager.getConnection(JDBC + database); Statement statement = connection.createStatement()) {
             statement.setQueryTimeout(10);
             statement.executeUpdate(query);
         } catch (SQLException ex) {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
+            new ErrorMessage("There was a database error with the query: \""+query+"\"");
         }
 
     }

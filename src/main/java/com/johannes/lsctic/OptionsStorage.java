@@ -1,5 +1,8 @@
 package com.johannes.lsctic;
 
+import com.google.common.eventbus.EventBus;
+import com.johannes.lsctic.panels.gui.fields.StartConnectionEvent;
+import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.AboCdrExtensionEvent;
 import com.johannes.lsctic.panels.gui.plugins.LoaderRegister;
 import com.johannes.lsctic.panels.gui.settings.AsteriskSettingsField;
 import com.johannes.lsctic.panels.gui.settings.DataSourceSettingsField;
@@ -21,31 +24,25 @@ public final class OptionsStorage {
     private int amiServerPort;       //AMI Server Port
     private String amiLogIn;         //AMI Login
     private String amiPassword;      //AMI Password
-    
     private String ownExtension;     // eigene Extension asterisk
     private long time;               // TimeStamp
-
-
     private String ownExtensionTemp;     // eigene Extension asterisk
     private long timeTemp;               // TimeStamp
-
     private String pluginFolder ="plugin";
-
     private static final String DATABASE_CONNECTION = "jdbc:sqlite:settingsAndData.db";
     private static final String SETTING = "setting";
-
     private LoaderRegister loaderRegister;
-
     private ArrayList<String> activatedDataSources = new ArrayList<>();
-
     private AsteriskSettingsField asteriskSettingsField;
     private DataSourceSettingsField dataSourceSettingsField;
+    private EventBus bus;
 
-    public OptionsStorage(Button accept, Button reject, VBox panelD ) {
+
+    public OptionsStorage(Button accept, Button reject, VBox panelD, EventBus bus) {
         this.asteriskSettingsField = new AsteriskSettingsField();
         this.loaderRegister = new LoaderRegister();
         this.dataSourceSettingsField = new DataSourceSettingsField();
-
+        this.bus = bus;
         readSettingsFromDatabase();
         this.loaderRegister.explorePluginFolder(this.pluginFolder);
 
@@ -64,7 +61,7 @@ public final class OptionsStorage {
         }
         dataSourceSettingsField.setCheckBoxes(loaderRegister.getPluginsFound(), activatedDataSources);
         panelD.getChildren().addAll(asteriskSettingsField, dataSourceSettingsField);
-        panelD.getChildren().addAll(this.getLoaderRegister().getAllSettingsfields());
+        panelD.getChildren().addAll(this.getLoaderRegister().getAllSettingsFields());
 
         accept.setOnAction(event -> accept());
         reject.setOnAction(event -> setTempVariables());
@@ -90,7 +87,12 @@ public final class OptionsStorage {
         loaderRegister.acceptAllPlugins();
         setVariables();
         writeSettingsToDatabase();
+        refreshProgram();
         //TODO: Implement Write Back Activated Datasource
+    }
+
+    private void refreshProgram() {
+        bus.post(new StartConnectionEvent("localhost", 12345, "Tset", "Test"));
     }
 
     /**

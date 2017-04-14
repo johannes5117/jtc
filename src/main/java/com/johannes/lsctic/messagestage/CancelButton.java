@@ -9,7 +9,8 @@ import javafx.scene.text.Font;
 public class CancelButton extends Button {
     public CancelButton(String name) {
         super(name);
-    this.getStyleClass().add("button");        this.setFont(Font.font("Segoe UI"));
+        this.getStyleClass().add("button-error");
+        this.setFont(Font.font("Segoe UI"));
 
     }
 }

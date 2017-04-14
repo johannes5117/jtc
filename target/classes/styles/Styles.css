@@ -43,7 +43,7 @@
 }
 
 
-.button {
+.button-error {
     -fx-background-color: indianred;
     -fx-text-fill: white;
     -fx-padding: 8 26 8 26;
@@ -57,7 +57,7 @@
     -fx-background-radius: 5, 5, 4, 3;
 }
 
-.button:hover {
+.button-error:hover {
     -fx-background-color: white;
     -fx-text-fill: indianred;
     -fx-padding: 8 26 8 26;
@@ -66,7 +66,7 @@
     -fx-border-insets: -1;
 
 }
-.button:focused{
+.button-error:focused{
     -fx-background-insets: -1.4, 0, 1, 2;
     -fx-background-radius:  6.4, 5, 4, 3;
 }
@@ -78,6 +78,7 @@
     -fx-border-width: 2px;
     -fx-border-radius: 5px;
     -fx-focus-color: transparent;
+    -fx-border-insets: -1;
     -fx-skin: "com.sun.javafx.scene.control.skin.ButtonSkin";
     -fx-background-insets: 0 0 -1 0, 0, 1, 2;
     -fx-background-radius: 5, 5, 4, 3;
@@ -87,8 +88,8 @@
     -fx-text-fill: teal;
     -fx-padding: 8 26 8 26;
     -fx-border-color: teal;
-    -fx-border-insets: -1;
     -fx-focus-color: transparent;
+    -fx-border-insets: -1;
 }
 .button-accept:focused{
     -fx-background-insets: -1.4, 0, 1, 2;

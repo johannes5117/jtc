@@ -3,10 +3,9 @@ package com.johannes.lsctic;
 import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.amiapi.netty.ServerConnectionHandler;
 import com.johannes.lsctic.panels.gui.DataPanelsRegister;
-import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.AboCdrExtensionEvent;
+import com.johannes.lsctic.panels.gui.fields.StartConnectionEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.CallEvent;
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -20,13 +19,10 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public class FXMLController implements Initializable {
@@ -53,32 +49,28 @@ public class FXMLController implements Initializable {
     private String quickfireString;
     private DataPanelsRegister dataPanelsRegister;
     private Stage stage;
-    private ServerConnectionHandler serverConnectionHandler;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
 
         // Sqlite connection must be established before creating the optionsstorage, because he loads data from sqlite
-        SqlLiteConnection sqlLiteConnection = new SqlLiteConnection("settingsAndData.db", "dataLocal.db");
-
-        // creates optionstorage which loads data from sqlite and triggers plugin loading
-        OptionsStorage storage = new OptionsStorage(optionAccept, optionReject, panelD);
-
-        // set ownextension
-        String ownExtension = storage.getOwnExtension();
+        SqlLiteConnection sqlLiteConnection = new SqlLiteConnection("settingsAndData.db");
 
         //Hard Coded plugins must be registered
         EventBus bus = new EventBus();
 
-        try {
-            serverConnectionHandler = new ServerConnectionHandler(bus, ownExtension);
-            VBox[] panels = {panelA, panelB, panelC, panelD};
-            dataPanelsRegister = new DataPanelsRegister(bus, sqlLiteConnection, panels);
-            bus.post(new AboCdrExtensionEvent(ownExtension));
-        } catch (IOException ex) {
-            Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        // creates optionstorage which loads data from sqlite and triggers plugin loading
+        OptionsStorage storage = new OptionsStorage(optionAccept, optionReject, panelD, bus);
+
+        // set ownextension
+        String ownExtension = storage.getOwnExtension();
+
+        new ServerConnectionHandler(bus, ownExtension);
+        bus.post(new StartConnectionEvent("localhost", 123456, "Tset", "Test"));
+
+        VBox[] panels = {panelA, panelB, panelC, panelD};
+        dataPanelsRegister = new DataPanelsRegister(bus, sqlLiteConnection, panels);
 
         //Initally show 10 first entries in the Addressbook View
         List<AddressBookEntry> ld = storage.getLoaderRegister().getResultFromEveryPlugin("", 10);
@@ -88,7 +80,7 @@ public class FXMLController implements Initializable {
         paneATextIn.addEventFilter(KeyEvent.KEY_PRESSED, (javafx.scene.input.KeyEvent event) -> {
             if (event.getCode() == KeyCode.ENTER) {
                 if (quickfireString.matches("^[0-9]*$")) {
-                    serverConnectionHandler.call(new CallEvent(quickfireString));
+                    bus.post(new CallEvent(quickfireString));
                 }
                 event.consume();
             }
@@ -120,24 +112,21 @@ public class FXMLController implements Initializable {
         //listener to search in the Address sources
         paneBTextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
             List<AddressBookEntry> ld1 = storage.getLoaderRegister().getResultFromEveryPlugin(newValue, 10);
-            dataPanelsRegister.updateAddressFields((ArrayList<AddressBookEntry>) ld1);
+            dataPanelsRegister.updateAddressFields(ld1);
         });
     }
 
     public void setStage(Stage stage) {
         this.stage = stage;
-        stage.focusedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (newValue) {
-                    paneATextIn.requestFocus();
-                    paneATextIn.setFocusTraversable(true);
-                } else {
-                    stage.setIconified(true);
-                    stage.toBack();
-                }
-
+        stage.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                paneATextIn.requestFocus();
+                paneATextIn.setFocusTraversable(true);
+            } else {
+                stage.setIconified(true);
+                stage.toBack();
             }
+
         });
     }
 }
