@@ -11,7 +11,6 @@ import com.johannes.lsctic.panels.gui.fields.internevents.NewInternField;
 import com.johannes.lsctic.panels.gui.fields.internevents.RemoveInternAndUpdateEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.AboStatusExtensionEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.DeAboStatusExtension;
-import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import javafx.scene.layout.VBox;
 
 import java.util.*;
@@ -115,11 +114,11 @@ public class DataPanelsRegister {
         panelA.getChildren().addAll(i);
         panelA.getChildren().add(new NewInternField(eventBus));
     }
-
-    public void updateAddressFields(List<AddressBookEntry> i) {
+    @Subscribe
+    public void updateAddressFields(UpdateAddressFieldsEvent event) {
         panelB.getChildren().clear();
         ArrayList<AddressField> addressFields = new ArrayList<>();
-        i.stream().forEach(ent -> addressFields.add(new AddressField(2, ent, eventBus)));
+        event.getAddressBookEntries().stream().forEach(ent -> addressFields.add(new AddressField(2, ent, eventBus)));
         panelB.getChildren().addAll(addressFields);
     }
 

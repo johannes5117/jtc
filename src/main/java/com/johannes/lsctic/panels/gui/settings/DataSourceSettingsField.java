@@ -28,7 +28,7 @@ public class DataSourceSettingsField extends SettingsField {
         changed = false;
     }
 
-    public void setCheckBoxes(List<String> foundList, List<String> activatedList) {
+    public void setCheckBoxes(List<String> foundList, List<String> activatedList, List<String> loadedPluginsNames) {
         checkBoxes.clear();
         for (String found : foundList) {
             CheckBox b = new CheckBox(found);
@@ -38,6 +38,22 @@ public class DataSourceSettingsField extends SettingsField {
                 b.selectedProperty().setValue(false);
             }
             checkBoxes.add(b);
+        }
+        ArrayList<String> activatedNotFound = new ArrayList<>();
+        for(String activated: activatedList) {
+            if(!foundList.contains(activated)) {
+                activatedNotFound.add(activated);
+            }
+        }
+        for (String found : activatedNotFound) {
+            CheckBox b = new CheckBox(found);
+            b.selectedProperty().setValue(true);
+            checkBoxes.add(b);
+        }
+        for(CheckBox b : checkBoxes) {
+            if(!loadedPluginsNames.contains(b.getText()) && !foundList.contains(b.getText())) {
+                b.setStyle("-fx-text-fill: darkgray");
+            }
         }
     }
 
@@ -70,6 +86,7 @@ public class DataSourceSettingsField extends SettingsField {
         super.expand();
     }
 
+
     @Override
     public void collapse() {
         this.getChildren().remove(this.getChildren().size() - 1);
@@ -92,5 +109,10 @@ public class DataSourceSettingsField extends SettingsField {
         changed = false;
         return out;
     }
+
+    public boolean isExpanded() {return super.isExpanded();}
+
+    public void refresh() {super.refresh();}
+
 
 }

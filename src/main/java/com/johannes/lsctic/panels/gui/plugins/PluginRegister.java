@@ -5,12 +5,11 @@
  */
 package com.johannes.lsctic.panels.gui.plugins;
 
+import com.johannes.lsctic.messagestage.ErrorMessage;
 import com.johannes.lsctic.panels.gui.settings.SettingsField;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Connection;
@@ -50,32 +49,45 @@ public class PluginRegister {
             explorePluginFolder(folderPath);
         }
         for (String pl : pluginsToLoad) {
-            Logger.getLogger(getClass().getName()).info(pl);
+            Logger.getLogger(getClass().getName()).info(pl + "    " + pluginsFound.toString());
 
-            // First search the class in the tool. It may be included. Depending on build.
-            try {
-                Class<?> loader = Class.forName("com.johannes.lsctic.panels.gui.plugins." + pl + "." + pl);
-                Constructor<?> ctor = loader.getConstructor();
-                Object object = ctor.newInstance(new Object[]{});
-                loadedPlugins.add((AddressPlugin) object);
-            } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
-                // If its not integrated search in the folder given from the user
-                if (pluginsFound.contains(pl.toLowerCase() + ".jar")) {
-                    try {
-                        loadedPlugins.add(getInstantiatedClass(pl, folderPath));
-                    } catch (IOException e1) {
-                        Logger.getLogger(getClass().getName()).log(Level.SEVERE,null,e1);
-                    }
+            // Load the plugins from the folder
+            if (pluginsFound.contains(pl)) {
+                try {
+                    AddressPlugin plugin = getInstantiatedClass(pl, folderPath);
+                    loadedPlugins.add(plugin);
+                } catch (IOException e1) {
+                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e1);
+                    new ErrorMessage("Plugin "+ pl+" could not be load. The plugin seems to be broken.");
                 }
+            } else {
+                new ErrorMessage("Plugin "+ pl+" could not be load. Is the path correct?");
             }
-
         }
+
+    }
+
+
+    private AddressPlugin getInstantiatedClass(String classname, String folder) throws IOException {
+        File loc = new File(folder);
+        File[] flist = loc.listFiles(file -> file.getPath().toLowerCase().endsWith(classname.toLowerCase()+".jar"));
+        URL[] urls = new URL[flist.length];
+        for (int i = 0; i < flist.length; i++) {
+            urls[i] = flist[i].toURI().toURL();
+        }
+        URLClassLoader ucl = new URLClassLoader(urls);
+        ServiceLoader<AddressPlugin> sl = ServiceLoader.load(AddressPlugin.class, ucl);
+        Iterator<AddressPlugin> apit = sl.iterator();
+        while (apit.hasNext()) {
+                return apit.next();
+        }
+        throw new IOException("Fehler");
     }
 
 
     public void explorePluginFolder(String folderPath) {
         this.pluginsFound = getAvailablePluginsFromFolder(folderPath);
+        Logger.getLogger(getClass().getName()).info(pluginsFound.toString());
         exploredFolder = folderPath;
     }
 
@@ -85,12 +97,6 @@ public class PluginRegister {
             addressPlugin.readFields(con);
         }
     }
-
-
-    public void registerHardCodedPlugins(List<String> plugins) {
-        this.pluginsFound.addAll(plugins);
-    }
-
 
     public static void addNewLoader(String text) {
         // TODO: Implement function
@@ -103,45 +109,12 @@ public class PluginRegister {
         if (dir.isDirectory() && dir.listFiles() != null) {
             for (File f : dir.listFiles()) {
                 if (f.getName().endsWith(".jar")) {
-                    fileList.add(f.getName());
+                    fileList.add(f.getName().substring(0,f.getName().length()-4));
                 }
             }
         }
         return fileList;
     }
-
-
-    private AddressPlugin getInstantiatedClass(String classname, String folder) throws IOException {
-/*
-        try {
-            File dir = new File(folder);
-            URL loadPath = dir.toURI().toURL();
-            URL[] classUrl = new URL[]{loadPath};
-            Class loadedClass;
-            try(URLClassLoader cl = new URLClassLoader(classUrl)) {
-                loadedClass = cl.loadClass(classname);
-            }
-            return (AddressPlugin) loadedClass.newInstance();
-        } catch (IOException | ClassCastException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
-            new ErrorMessage("Plugin "+classname+" could not be loaded. Not found internal or in plugin path");
-        }
-        return null;
-        */
-        File loc = new File(folder);
-
-        File[] flist = loc.listFiles(file -> file.getPath().toLowerCase().endsWith(".jar"));
-        URL[] urls = new URL[flist.length];
-        for (int i = 0; i < flist.length; i++)
-            urls[i] = flist[i].toURI().toURL();
-        URLClassLoader ucl = new URLClassLoader(urls);
-        ServiceLoader<AddressPlugin> sl = ServiceLoader.load(AddressPlugin.class,ucl);
-        Iterator<AddressPlugin> apit = sl.iterator();
-        while (apit.hasNext())
-            return apit.next();
-        throw new IOException("Fehler");
-    }
-
 
 
     public List<SettingsField> getAllSettingsFields() {
@@ -150,6 +123,16 @@ public class PluginRegister {
             settingsFields.add(plugin.getSettingsField());
         }
         return settingsFields;
+    }
+
+
+    public List<String> getLoadedPluginNames() {
+        ArrayList<String> loadedPluginsNames = new ArrayList<>();
+        for(AddressPlugin plugin: loadedPlugins) {
+            String[] classname = plugin.getClass().getName().split("\\.");
+            loadedPluginsNames.add(classname[classname.length-1]);
+        }
+        return loadedPluginsNames;
     }
 
 

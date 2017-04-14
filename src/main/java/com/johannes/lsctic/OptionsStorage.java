@@ -2,9 +2,12 @@ package com.johannes.lsctic;
 
 import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.panels.gui.fields.StartConnectionEvent;
+import com.johannes.lsctic.panels.gui.fields.UpdateAddressFieldsEvent;
+import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import com.johannes.lsctic.panels.gui.plugins.PluginRegister;
 import com.johannes.lsctic.panels.gui.settings.AsteriskSettingsField;
 import com.johannes.lsctic.panels.gui.settings.DataSourceSettingsField;
+import com.johannes.lsctic.panels.gui.settings.SettingsField;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 
@@ -35,35 +38,38 @@ public final class OptionsStorage {
     private AsteriskSettingsField asteriskSettingsField;
     private DataSourceSettingsField dataSourceSettingsField;
     private EventBus bus;
-
+    private VBox panelD;
 
     public OptionsStorage(Button accept, Button reject, VBox panelD, EventBus bus) {
         this.asteriskSettingsField = new AsteriskSettingsField();
         this.pluginRegister = new PluginRegister();
         this.dataSourceSettingsField = new DataSourceSettingsField();
         this.bus = bus;
+        this.panelD = panelD;
+
         readSettingsFromDatabase();
+
         this.pluginRegister.explorePluginFolder(this.pluginFolder);
 
-        ArrayList<String> pl = new ArrayList<>();
-        pl.add("MysqlPlugin");
-        pl.add("LdapPlugin");
-        pl.add("TextFilePlugin");
-        this.pluginRegister.registerHardCodedPlugins(pl);
-        //TODO: Delete after manual Test -> Only for Test purpose
+        setUpPlugins();
 
+        panelD.getChildren().addAll(asteriskSettingsField, dataSourceSettingsField);
+        panelD.getChildren().addAll(this.getPluginRegister().getAllSettingsFields());
+
+        accept.setOnAction(event -> accept());
+        reject.setOnAction(event -> setTempVariables());
+    }
+
+
+    private void setUpPlugins() {
         this.pluginRegister.loadPlugins(activatedDataSources, pluginFolder);
         try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {
             this.pluginRegister.activateAllPlugins(con);
         } catch (SQLException e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
         }
-        dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(), activatedDataSources);
-        panelD.getChildren().addAll(asteriskSettingsField, dataSourceSettingsField);
-        panelD.getChildren().addAll(this.getPluginRegister().getAllSettingsFields());
+        dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(), activatedDataSources, this.pluginRegister.getLoadedPluginNames());
 
-        accept.setOnAction(event -> accept());
-        reject.setOnAction(event -> setTempVariables());
     }
 
         /**
@@ -74,7 +80,7 @@ public final class OptionsStorage {
         String[] options = {amiAddress, Integer.toString(amiServerPort), amiLogIn, amiPassword};
         this.asteriskSettingsField.setOptions(options);
         ownExtensionTemp = ownExtension;
-        dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(),activatedDataSources);
+        dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(),activatedDataSources, this.pluginRegister.getLoadedPluginNames());
         dataSourceSettingsField.setPluginFolder(pluginFolder);
     }
     /**
@@ -92,7 +98,17 @@ public final class OptionsStorage {
         if(asteriskSettingsField.hasChanged()) {
             bus.post(new StartConnectionEvent("localhost", 12345, "Tset", "Test"));
         } else if(dataSourceSettingsField.hasChanged()) {
-            //TODO: Implement Reload for Plugins
+            setUpPlugins();
+            if(dataSourceSettingsField.isExpanded()) {
+                dataSourceSettingsField.refresh();
+                for(SettingsField settingsField : this.getPluginRegister().getAllSettingsFields()) {
+                    if(!panelD.getChildren().contains(settingsField)) {
+                        panelD.getChildren().add(settingsField);
+                    }
+                }
+                List<AddressBookEntry> ld = getPluginRegister().getResultFromEveryPlugin("", 10);
+                bus.post(new UpdateAddressFieldsEvent(ld));
+            }
             Logger.getLogger(getClass().getName()).info("ÄNDERUNG");
         }
 
