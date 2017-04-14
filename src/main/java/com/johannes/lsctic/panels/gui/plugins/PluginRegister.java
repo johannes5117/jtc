@@ -132,10 +132,12 @@ public class PluginRegister {
 
         File[] flist = loc.listFiles(file -> file.getPath().toLowerCase().endsWith(".jar"));
         URL[] urls = new URL[flist.length];
-        for (int i = 0; i < flist.length; i++)
+        for (int i = 0; i < flist.length; i++) {
             urls[i] = flist[i].toURI().toURL();
+        }
         URLClassLoader ucl = new URLClassLoader(urls);
         ServiceLoader<AddressPlugin> sl = ServiceLoader.load(AddressPlugin.class,ucl);
+
         Iterator<AddressPlugin> apit = sl.iterator();
         while (apit.hasNext())
             return apit.next();
