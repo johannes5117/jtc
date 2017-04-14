@@ -18,10 +18,10 @@ import java.util.ArrayList;
 public class LdapPlugin implements AddressPlugin {
     private LdapLoader loader;
     private LDAPSettingsField settingsField;
-    private String AUTHOR;
-    private String AUTHOR_CONTACT;
-    private String PLUGIN_NAME;
-    private String PLUGIN_TAG;
+    private String AUTHOR = "Johannes Engler";
+    private String AUTHOR_CONTACT = "engler.johannes@posteo.de";
+    private String PLUGIN_NAME= "LdapPlugin";
+    private String PLUGIN_TAG = "LDAP";
 
     public LdapPlugin() {
         DataSource source = new DataSource(PLUGIN_NAME, PLUGIN_TAG);

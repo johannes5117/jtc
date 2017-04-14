@@ -135,7 +135,7 @@ public class PluginRegister {
         for (int i = 0; i < flist.length; i++)
             urls[i] = flist[i].toURI().toURL();
         URLClassLoader ucl = new URLClassLoader(urls);
-        ServiceLoader<AddressPlugin> sl = ServiceLoader.load()
+        ServiceLoader<AddressPlugin> sl = ServiceLoader.load(AddressPlugin.class,ucl);
         Iterator<AddressPlugin> apit = sl.iterator();
         while (apit.hasNext())
             return apit.next();
