@@ -111,6 +111,15 @@ public class SettingsField extends VBox {
         }
     }
 
+    public void refresh() {
+        if(expanded) {
+            collapse();
+            Image image1 = new Image("/pics/up.png");
+            vUpDown.setImage(image1);
+            expand();
+        }
+    }
+
     public void expand() {
         expanded = true;
     }
@@ -118,4 +127,6 @@ public class SettingsField extends VBox {
     public void collapse() {
         expanded = false;
     }
+
+    public boolean isExpanded() {return expanded;}
 }

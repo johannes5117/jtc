@@ -4,6 +4,7 @@ import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.amiapi.netty.ServerConnectionHandler;
 import com.johannes.lsctic.panels.gui.DataPanelsRegister;
 import com.johannes.lsctic.panels.gui.fields.StartConnectionEvent;
+import com.johannes.lsctic.panels.gui.fields.UpdateAddressFieldsEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.CallEvent;
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import javafx.beans.value.ObservableValue;
@@ -20,7 +21,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -74,7 +74,7 @@ public class FXMLController implements Initializable {
 
         //Initally show 10 first entries in the Addressbook View
         List<AddressBookEntry> ld = storage.getPluginRegister().getResultFromEveryPlugin("", 10);
-        dataPanelsRegister.updateAddressFields((ArrayList<AddressBookEntry>) ld);
+        dataPanelsRegister.updateAddressFields(new UpdateAddressFieldsEvent(ld));
 
         //Add listener for number enterd in search field of paneA which will be used as quickdial field for phonenumbers
         paneATextIn.addEventFilter(KeyEvent.KEY_PRESSED, (javafx.scene.input.KeyEvent event) -> {
@@ -112,8 +112,8 @@ public class FXMLController implements Initializable {
         //listener to search in the Address sources
         paneBTextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
             List<AddressBookEntry> ld1 = storage.getPluginRegister().getResultFromEveryPlugin(newValue, 10);
-            dataPanelsRegister.updateAddressFields(ld1);
-        });
+            dataPanelsRegister.updateAddressFields(new UpdateAddressFieldsEvent(ld1));
+    });
     }
 
     public void setStage(Stage stage) {
