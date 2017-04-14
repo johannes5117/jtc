@@ -1,4 +1,4 @@
-package com.johannes.lsctic.panels.gui.fields;
+package com.johannes.lsctic.panels.gui.fields.otherevents;
 
 /**
  * Created by johannes on 07.04.2017.

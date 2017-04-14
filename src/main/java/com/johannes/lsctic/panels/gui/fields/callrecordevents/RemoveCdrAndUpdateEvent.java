@@ -1,4 +1,6 @@
-package com.johannes.lsctic.panels.gui.fields;
+package com.johannes.lsctic.panels.gui.fields.callrecordevents;
+
+import com.johannes.lsctic.panels.gui.fields.HistoryField;
 
 public class RemoveCdrAndUpdateEvent {
    private HistoryField historyField;

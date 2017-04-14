@@ -3,8 +3,8 @@ package com.johannes.lsctic;
 import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.amiapi.netty.ServerConnectionHandler;
 import com.johannes.lsctic.panels.gui.DataPanelsRegister;
-import com.johannes.lsctic.panels.gui.fields.StartConnectionEvent;
-import com.johannes.lsctic.panels.gui.fields.UpdateAddressFieldsEvent;
+import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
+import com.johannes.lsctic.panels.gui.fields.otherevents.UpdateAddressFieldsEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.CallEvent;
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import javafx.beans.value.ObservableValue;
@@ -49,28 +49,45 @@ public class FXMLController implements Initializable {
     private String quickfireString;
     private DataPanelsRegister dataPanelsRegister;
     private Stage stage;
+    private EventBus eventBus;
+
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
+    }
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+        stage.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                paneATextIn.requestFocus();
+                paneATextIn.setFocusTraversable(true);
+            } else {
+                stage.setIconified(true);
+                stage.toBack();
+            }
+
+        });
+    }
+
+    public void startApp(EventBus eventBus) {
+        this.eventBus = eventBus;
 
         // Sqlite connection must be established before creating the optionsstorage, because he loads data from sqlite
         SqlLiteConnection sqlLiteConnection = new SqlLiteConnection("settingsAndData.db");
 
-        //Hard Coded plugins must be registered
-        EventBus bus = new EventBus();
-
         // creates optionstorage which loads data from sqlite and triggers plugin loading
-        OptionsStorage storage = new OptionsStorage(optionAccept, optionReject, panelD, bus);
+        OptionsStorage storage = new OptionsStorage(optionAccept, optionReject, panelD, eventBus);
 
         // set ownextension
         String ownExtension = storage.getOwnExtension();
 
-        new ServerConnectionHandler(bus, ownExtension);
-        bus.post(new StartConnectionEvent("localhost", 12345, "Tset", "Test"));
+        new ServerConnectionHandler(eventBus, ownExtension);
+        eventBus.post(new StartConnectionEvent("localhost", 12345, "Tset", "Test"));
 
         VBox[] panels = {panelA, panelB, panelC, panelD};
-        dataPanelsRegister = new DataPanelsRegister(bus, sqlLiteConnection, panels);
+        dataPanelsRegister = new DataPanelsRegister(eventBus, sqlLiteConnection, panels);
 
         //Initally show 10 first entries in the Addressbook View
         List<AddressBookEntry> ld = storage.getPluginRegister().getResultFromEveryPlugin("", 10);
@@ -80,7 +97,7 @@ public class FXMLController implements Initializable {
         paneATextIn.addEventFilter(KeyEvent.KEY_PRESSED, (javafx.scene.input.KeyEvent event) -> {
             if (event.getCode() == KeyCode.ENTER) {
                 if (quickfireString.matches("^[0-9]*$")) {
-                    bus.post(new CallEvent(quickfireString));
+                    eventBus.post(new CallEvent(quickfireString));
                 }
                 event.consume();
             }
@@ -113,20 +130,6 @@ public class FXMLController implements Initializable {
         paneBTextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
             List<AddressBookEntry> ld1 = storage.getPluginRegister().getResultFromEveryPlugin(newValue, 10);
             dataPanelsRegister.updateAddressFields(new UpdateAddressFieldsEvent(ld1));
-    });
-    }
-
-    public void setStage(Stage stage) {
-        this.stage = stage;
-        stage.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                paneATextIn.requestFocus();
-                paneATextIn.setFocusTraversable(true);
-            } else {
-                stage.setIconified(true);
-                stage.toBack();
-            }
-
         });
     }
 }

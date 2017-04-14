@@ -154,6 +154,11 @@ public class PluginRegister {
         return filteredQuery;
     }
 
+    public String getNameToNumber(String number) {
+        //TODO: Implement Function on Data
+        return "";
+    }
+
 
     public void acceptAllPlugins() {
         for (AddressPlugin l : loadedPlugins) {

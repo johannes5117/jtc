@@ -1,4 +1,4 @@
-package com.johannes.lsctic.panels.gui.fields;
+package com.johannes.lsctic.panels.gui.fields.otherevents;
 
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 

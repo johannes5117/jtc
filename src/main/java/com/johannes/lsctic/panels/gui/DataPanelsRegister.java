@@ -6,9 +6,14 @@ import com.johannes.lsctic.PhoneNumber;
 import com.johannes.lsctic.SqlLiteConnection;
 import com.johannes.lsctic.messagestage.ErrorMessage;
 import com.johannes.lsctic.panels.gui.fields.*;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.*;
 import com.johannes.lsctic.panels.gui.fields.internevents.AddInternEvent;
 import com.johannes.lsctic.panels.gui.fields.internevents.NewInternField;
 import com.johannes.lsctic.panels.gui.fields.internevents.RemoveInternAndUpdateEvent;
+import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyEvent;
+import com.johannes.lsctic.panels.gui.fields.otherevents.SetStatusEvent;
+import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
+import com.johannes.lsctic.panels.gui.fields.otherevents.UpdateAddressFieldsEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.AboStatusExtensionEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.DeAboStatusExtension;
 import javafx.scene.layout.VBox;
@@ -23,7 +28,7 @@ import java.util.logging.Logger;
 public class DataPanelsRegister {
     private HashMap<String, InternField> internFields;
     private Map<String, PhoneNumber> internNumbers;
-    private ArrayList<HistoryField> historyFields;
+    private List<HistoryField> historyFields;
     private SqlLiteConnection sqlLiteConnection;
     private VBox panelA;
     private VBox panelB;
@@ -53,7 +58,7 @@ public class DataPanelsRegister {
 
         updateView(new ArrayList<>(internFields.values()));
 
-        historyFields = new ArrayList();
+        historyFields = new ArrayList<>();
 
         panelC.getChildren().addAll(historyFields);
     }
@@ -80,8 +85,30 @@ public class DataPanelsRegister {
 
     @Subscribe
     public void addCdrAndUpdate(AddCdrAndUpdateEvent event) {
-        HistoryField f = new HistoryField(event.getWho(), event.getWhen(),event.getHowLong(),event.isOutgoing(), event.getEventBus());
-        historyFields.add(f);
+        if(internFields.containsKey(event.getWho())) {
+            InternField internField = internFields.get(event.getWho());
+            String name = internField.getName();
+            HistoryField f = new HistoryField(name ,event.getWho(), event.getWhen(),event.getHowLong(),event.isOutgoing(), eventBus);
+            historyFields.add(0,f);
+            panelC.getChildren().clear();
+            panelC.getChildren().addAll(historyFields);
+        } else {
+            eventBus.post(new SearchDataSourcesForCdrEvent(event));
+        }
+    }
+
+    @Subscribe
+    public void addCdrUpdateWithNameFromDataSource(FoundCdrNameInDataSourceEvent event) {
+        HistoryField f = new HistoryField(event.getName() ,event.getWho(), event.getWhen(),event.getHowLong(),event.isOutgoing(), eventBus);
+        historyFields.add(0,f);
+        panelC.getChildren().clear();
+        panelC.getChildren().addAll(historyFields);
+    }
+
+    @Subscribe
+    public void addCdrUpdateWithoutName(NotFoundCdrNameInDataSourceEvent event) {
+        HistoryField f = new HistoryField(event.getWho(), event.getWhen(),event.getHowLong(),event.isOutgoing(), eventBus);
+        historyFields.add(0,f);
         panelC.getChildren().clear();
         panelC.getChildren().addAll(historyFields);
     }
@@ -125,6 +152,11 @@ public class DataPanelsRegister {
     @Subscribe
     public void aboForNewConnection(StartConnectionEvent event){
         internFields.entrySet().stream().forEach(g -> eventBus.post(new AboStatusExtensionEvent(g.getValue().getNumber())));
+    }
+
+    @Subscribe
+    public void closeApplication(CloseApplicationSafelyEvent event) {
+        eventBus.unregister(this);
     }
 
 }

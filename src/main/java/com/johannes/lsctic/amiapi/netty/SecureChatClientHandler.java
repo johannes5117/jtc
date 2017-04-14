@@ -10,8 +10,8 @@ package com.johannes.lsctic.amiapi.netty;
  */
 
 import com.google.common.eventbus.EventBus;
-import com.johannes.lsctic.panels.gui.fields.AddCdrAndUpdateEvent;
-import com.johannes.lsctic.panels.gui.fields.SetStatusEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.AddCdrAndUpdateEvent;
+import com.johannes.lsctic.panels.gui.fields.otherevents.SetStatusEvent;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import javafx.application.Platform;
@@ -80,9 +80,9 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
         Logger.getLogger(getClass().getName()).log(Level.INFO, "New CDR");
         Platform.runLater(() -> {
             if (source.equals(ownExtension)) {
-                bus.post(new AddCdrAndUpdateEvent(destination, startTime.toString(), duration.toString(), true, bus));
+                bus.post(new AddCdrAndUpdateEvent(destination, startTime.toString(), duration.toString(), true));
             } else {
-                bus.post(new AddCdrAndUpdateEvent(destination, startTime.toString(), duration.toString(), false, bus));
+                bus.post(new AddCdrAndUpdateEvent(destination, startTime.toString(), duration.toString(), false));
             }
         });
     }

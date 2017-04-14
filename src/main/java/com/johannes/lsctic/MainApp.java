@@ -1,5 +1,7 @@
 package com.johannes.lsctic;
 
+import com.google.common.eventbus.EventBus;
+import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyEvent;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -30,6 +32,8 @@ public class MainApp extends Application implements NativeKeyListener {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Scene.fxml"));
         Parent root = (Parent) loader.load();
         FXMLController controller = (FXMLController) loader.getController();
+        EventBus eventBus = new EventBus();
+        controller.startApp(eventBus);
         controller.setStage(stage);
         Scene scene = new Scene(root);
         scene.setFill(null);
@@ -63,8 +67,10 @@ public class MainApp extends Application implements NativeKeyListener {
                 } catch (NativeHookException ex) {
                     Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
                 }
+                eventBus.post(new CloseApplicationSafelyEvent());
                 stage.close();
                 Platform.exit();
+                System.exit(0);
                 //TODO: Find way to securely shutdown program
             }
         });

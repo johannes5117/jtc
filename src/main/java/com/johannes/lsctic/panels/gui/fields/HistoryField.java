@@ -6,6 +6,7 @@
 package com.johannes.lsctic.panels.gui.fields;
 
 import com.google.common.eventbus.EventBus;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.RemoveCdrAndUpdateEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.CallEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.ContextMenu;
@@ -25,7 +26,10 @@ import javafx.scene.layout.VBox;
  */
 public class HistoryField extends VBox {
 
+    private String name;
     private final String who;
+    private final String labelText;
+
     private final String when;
     private final String howLong;
     private final boolean outgoing;
@@ -37,6 +41,22 @@ public class HistoryField extends VBox {
         this.howLong = howLong;
         this.outgoing = outgoing;
         this.eventBus = eventBus;
+        this.labelText = who + " (not found)";
+        buildField();
+    }
+    public HistoryField(String name, String who, String when, String howLong, boolean outgoing, EventBus eventBus) {
+        this.when = when;
+        this.name = name;
+        this.who = who;
+        this.howLong = howLong;
+        this.outgoing = outgoing;
+        this.eventBus = eventBus;
+        this.labelText = who + " ("+name+")";
+        buildField();
+    }
+
+
+    public void buildField() {
         this.setMaxWidth(Double.MAX_VALUE);
         this.setPadding(new Insets(12, 12, 12, 12));
         this.setSpacing(3);
@@ -61,7 +81,7 @@ public class HistoryField extends VBox {
 
         });
 
-        Label a = new Label(who);
+        Label a = new Label(labelText);
         a.setStyle(" -fx-font-size: 12px;  -fx-font-weight: bold;");
         Label b = null;
         if (outgoing) {

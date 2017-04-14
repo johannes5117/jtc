@@ -9,7 +9,8 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.johannes.lsctic.messagestage.ErrorMessage;
 import com.johannes.lsctic.messagestage.SuccessMessage;
-import com.johannes.lsctic.panels.gui.fields.StartConnectionEvent;
+import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyEvent;
+import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.*;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -39,6 +40,11 @@ public class ServerConnectionHandler {
         this.bus = bus;
         this.ownExtension = ownExtension;
         bus.register(this);
+    }
+    @Subscribe
+    public void closeConnection(CloseApplicationSafelyEvent event) {
+        this.ch.disconnect();
+        this.ch.close();
     }
 
     @Subscribe

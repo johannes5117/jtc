@@ -1,8 +1,13 @@
 package com.johannes.lsctic;
 
 import com.google.common.eventbus.EventBus;
-import com.johannes.lsctic.panels.gui.fields.StartConnectionEvent;
-import com.johannes.lsctic.panels.gui.fields.UpdateAddressFieldsEvent;
+import com.google.common.eventbus.Subscribe;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.FoundCdrNameInDataSourceEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.NotFoundCdrNameInDataSourceEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchDataSourcesForCdrEvent;
+import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyEvent;
+import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
+import com.johannes.lsctic.panels.gui.fields.otherevents.UpdateAddressFieldsEvent;
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import com.johannes.lsctic.panels.gui.plugins.PluginRegister;
 import com.johannes.lsctic.panels.gui.settings.AsteriskSettingsField;
@@ -45,6 +50,7 @@ public final class OptionsStorage {
         this.pluginRegister = new PluginRegister();
         this.dataSourceSettingsField = new DataSourceSettingsField();
         this.bus = bus;
+        bus.register(this);
         this.panelD = panelD;
 
         readSettingsFromDatabase();
@@ -239,6 +245,23 @@ public final class OptionsStorage {
                 }
             }
         }
+    }
+
+    @Subscribe
+    public void searchNameForCdr(SearchDataSourcesForCdrEvent event) {
+        Logger.getLogger(getClass().getName()).info("TTTTTTT");
+
+        String name = getPluginRegister().getNameToNumber(event.getWho());
+        if(name.equals("")) {
+            bus.post(new NotFoundCdrNameInDataSourceEvent(event));
+        } else {
+            bus.post(new FoundCdrNameInDataSourceEvent(event, name));
+        }
+    }
+
+    @Subscribe
+    public void closeApplication(CloseApplicationSafelyEvent event) {
+        bus.unregister(this);
     }
 
 
