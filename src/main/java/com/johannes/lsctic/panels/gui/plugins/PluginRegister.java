@@ -5,6 +5,7 @@
  */
 package com.johannes.lsctic.panels.gui.plugins;
 
+import com.johannes.lsctic.SqlLiteConnection;
 import com.johannes.lsctic.messagestage.ErrorMessage;
 import com.johannes.lsctic.panels.gui.settings.SettingsField;
 
@@ -12,8 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -36,13 +35,15 @@ public class PluginRegister {
         pluginsFound = new ArrayList<>();
     }
 
+    public static void addNewLoader(String text) {
+        // TODO: Implement function
+    }
 
     public void reloadPlugins(List<String> pluginsToLoad, String folderPath) {
         loadedPlugins.clear();
         explorePluginFolder(folderPath);
         loadPlugins(pluginsToLoad, folderPath);
     }
-
 
     public void loadPlugins(List<String> pluginsToLoad, String folderPath) {
         if (!folderPath.equals(exploredFolder)) {
@@ -67,7 +68,6 @@ public class PluginRegister {
 
     }
 
-
     private AddressPlugin getInstantiatedClass(String classname, String folder) throws IOException {
         File loc = new File(folder);
         File[] flist = loc.listFiles(file -> file.getPath().toLowerCase().endsWith(classname.toLowerCase()+".jar"));
@@ -79,11 +79,13 @@ public class PluginRegister {
         ServiceLoader<AddressPlugin> sl = ServiceLoader.load(AddressPlugin.class, ucl);
         Iterator<AddressPlugin> apit = sl.iterator();
         while (apit.hasNext()) {
-                return apit.next();
+            AddressPlugin pl = apit.next();
+            if (pl.getName().equals(classname)) {
+                return pl;
+            }
         }
         throw new IOException("Fehler");
     }
-
 
     public void explorePluginFolder(String folderPath) {
         this.pluginsFound = getAvailablePluginsFromFolder(folderPath);
@@ -91,17 +93,11 @@ public class PluginRegister {
         exploredFolder = folderPath;
     }
 
-
-    public void activateAllPlugins(Connection con) throws SQLException {
+    public void activateAllPlugins(SqlLiteConnection sqlLiteConnection) {
         for (AddressPlugin addressPlugin : loadedPlugins) {
-            addressPlugin.readFields(con);
+            addressPlugin.readFields(sqlLiteConnection.getFieldsForDataSource(addressPlugin.getName()));
         }
     }
-
-    public static void addNewLoader(String text) {
-        // TODO: Implement function
-    }
-
 
     private ArrayList<String> getAvailablePluginsFromFolder(String folder) {
         File dir = new File(folder);

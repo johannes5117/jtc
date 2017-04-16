@@ -5,7 +5,9 @@ import com.google.common.eventbus.Subscribe;
 import com.johannes.lsctic.PhoneNumber;
 import com.johannes.lsctic.SqlLiteConnection;
 import com.johannes.lsctic.messagestage.ErrorMessage;
-import com.johannes.lsctic.panels.gui.fields.*;
+import com.johannes.lsctic.panels.gui.fields.AddressField;
+import com.johannes.lsctic.panels.gui.fields.HistoryField;
+import com.johannes.lsctic.panels.gui.fields.InternField;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.*;
 import com.johannes.lsctic.panels.gui.fields.internevents.AddInternEvent;
 import com.johannes.lsctic.panels.gui.fields.internevents.NewInternField;
@@ -66,6 +68,13 @@ public class DataPanelsRegister {
     @Subscribe
     public void addInternAndUpdate(AddInternEvent event) {
         PhoneNumber p = event.getPhoneNumber();
+        for (InternField field : internFields.values()) {
+            if (field.getName().equals(event.getPhoneNumber().getName())) {
+                Logger.getLogger(getClass().getName()).log(Level.WARNING, "There already exists a user with that phonenumber.");
+                new ErrorMessage("There already exists a user with the same name");
+                return;
+            }
+        }
         if (!internFields.containsKey(p.getPhoneNumber())) {
             sqlLiteConnection.queryNoReturn("Insert into internfields (number,name,callcount,favorit) values ('" + p.getPhoneNumber() + "','" + p.getName() + "'," + p.getCount() + ",0)");
             internNumbers.put(p.getPhoneNumber(), p);

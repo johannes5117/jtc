@@ -59,7 +59,7 @@ public class FXMLController implements Initializable {
 
     public void setStage(Stage stage) {
         this.stage = stage;
-        stage.focusedProperty().addListener((observable, oldValue, newValue) -> {
+        /*stage.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 paneATextIn.requestFocus();
                 paneATextIn.setFocusTraversable(true);
@@ -68,7 +68,7 @@ public class FXMLController implements Initializable {
                 stage.toBack();
             }
 
-        });
+        });*/
     }
 
     public void startApp(EventBus eventBus) {
@@ -78,7 +78,7 @@ public class FXMLController implements Initializable {
         SqlLiteConnection sqlLiteConnection = new SqlLiteConnection("settingsAndData.db");
 
         // creates optionstorage which loads data from sqlite and triggers plugin loading
-        OptionsStorage storage = new OptionsStorage(optionAccept, optionReject, panelD, eventBus);
+        OptionsStorage storage = new OptionsStorage(optionAccept, optionReject, panelD, eventBus, sqlLiteConnection);
 
         // set ownextension
         String ownExtension = storage.getOwnExtension();

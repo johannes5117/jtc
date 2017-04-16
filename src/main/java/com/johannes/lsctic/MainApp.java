@@ -25,13 +25,22 @@ import java.util.logging.Logger;
 public class MainApp extends Application implements NativeKeyListener {
 
     private Stage stage;
+    // Bereich für den Hook
+    private boolean strg = false;
+    private boolean shift = false;
+    private boolean five = false;
+    private boolean escape = false;
+
+    public static void main(String[] args) {
+        launch(args);
+    }
 
     @Override
     public void start(Stage stage) throws Exception {
         generateTray();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Scene.fxml"));
-        Parent root = (Parent) loader.load();
-        FXMLController controller = (FXMLController) loader.getController();
+        Parent root = loader.load();
+        FXMLController controller = loader.getController();
         EventBus eventBus = new EventBus();
         controller.startApp(eventBus);
         controller.setStage(stage);
@@ -49,15 +58,16 @@ public class MainApp extends Application implements NativeKeyListener {
         stage.setY(primaryScreenBounds.getHeight() - scene.getHeight());
         this.stage = stage;
 
-        // Get the logger for "org.jnativehook" and set the level to warning.
-        Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
-        logger.setLevel(Level.OFF);
-        // Don't forget to disable the parent handlers.
-        logger.setUseParentHandlers(false);
+        if (false) {
+            // Get the logger for "org.jnativehook" and set the level to warning.
+            Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
+            logger.setLevel(Level.OFF);
+            // Don't forget to disable the parent handlers.
+            logger.setUseParentHandlers(false);
 
-        GlobalScreen.registerNativeHook();
-        GlobalScreen.addNativeKeyListener(this);
-
+            GlobalScreen.registerNativeHook();
+            GlobalScreen.addNativeKeyListener(this);
+        }
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
@@ -74,10 +84,6 @@ public class MainApp extends Application implements NativeKeyListener {
                 //TODO: Find way to securely shutdown program
             }
         });
-    }
-    
-    public static void main(String[] args) {
-        launch(args);
     }
 
     private void generateTray() {
@@ -121,11 +127,7 @@ public class MainApp extends Application implements NativeKeyListener {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
         }
     }
-    // Bereich für den Hook 
-    private boolean strg = false;
-    private boolean shift = false;
-    private boolean five = false;
-    private boolean escape = false;
+
     /**
      * @param e
      * @see

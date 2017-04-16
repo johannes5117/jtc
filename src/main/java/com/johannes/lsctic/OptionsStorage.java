@@ -27,6 +27,7 @@ import java.util.logging.Logger;
  */
 public final class OptionsStorage {
 
+    private static final String SETTING = "setting";
     private String amiAddress;        //AMI Server Address
     private int amiServerPort;       //AMI Server Port
     private String amiLogIn;         //AMI Login
@@ -36,22 +37,22 @@ public final class OptionsStorage {
     private String ownExtensionTemp;     // eigene Extension asterisk
     private long timeTemp;               // TimeStamp
     private String pluginFolder;
-    private static final String DATABASE_CONNECTION = "jdbc:sqlite:settingsAndData.db";
-    private static final String SETTING = "setting";
     private PluginRegister pluginRegister;
     private ArrayList<String> activatedDataSources = new ArrayList<>();
     private AsteriskSettingsField asteriskSettingsField;
     private DataSourceSettingsField dataSourceSettingsField;
     private EventBus bus;
     private VBox panelD;
+    private SqlLiteConnection sqlLiteConnection;
 
-    public OptionsStorage(Button accept, Button reject, VBox panelD, EventBus bus) {
+    public OptionsStorage(Button accept, Button reject, VBox panelD, EventBus bus, SqlLiteConnection sqlLiteConnection) {
         this.asteriskSettingsField = new AsteriskSettingsField();
         this.pluginRegister = new PluginRegister();
         this.dataSourceSettingsField = new DataSourceSettingsField();
         this.bus = bus;
         bus.register(this);
         this.panelD = panelD;
+        this.sqlLiteConnection = sqlLiteConnection;
 
         readSettingsFromDatabase();
 
@@ -69,13 +70,8 @@ public final class OptionsStorage {
 
     private void setUpPlugins() {
         this.pluginRegister.loadPlugins(activatedDataSources, pluginFolder);
-        try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {
-            this.pluginRegister.activateAllPlugins(con);
-        } catch (SQLException e) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
-        }
+        this.pluginRegister.activateAllPlugins(sqlLiteConnection);
         dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(), activatedDataSources, this.pluginRegister.getLoadedPluginNames());
-
     }
 
         /**
@@ -97,7 +93,7 @@ public final class OptionsStorage {
         setVariables();
         writeSettingsToDatabase();
         refreshProgram();
-        //TODO: Implement Write Back Activated Datasource
+        writeActivatedDataSourcesToDatabase();
     }
 
     private void refreshProgram() {
@@ -144,17 +140,22 @@ public final class OptionsStorage {
      * Saves the settings in the sqlite database
      */
     private void writeSettingsToDatabase() {
+        sqlLiteConnection.buildUpdateOrInsertStatementForSetting("amiAddress", amiAddress);
+        sqlLiteConnection.buildUpdateOrInsertStatementForSetting("amiServerPort", String.valueOf(amiServerPort));
+        sqlLiteConnection.buildUpdateOrInsertStatementForSetting("amiLogIn", amiLogIn);
+        sqlLiteConnection.buildUpdateOrInsertStatementForSetting("amiPassword", amiPassword);
+        sqlLiteConnection.buildUpdateOrInsertStatementForSetting("pluginFolder", pluginFolder);
+    }
 
-        try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {
-            statement.setQueryTimeout(10);
-            final String query = "UPDATE Settings SET setting = '";
-            statement.executeUpdate(query + amiAddress + "' WHERE description = 'amiAddress'");
-            statement.executeUpdate(query + amiServerPort + "' WHERE description = 'amiServerPort'");
-            statement.executeUpdate(query + amiLogIn + "' WHERE description = 'amiLogIn'");
-            statement.executeUpdate(query + amiPassword + "' WHERE description = 'amiPassword'");
-            statement.executeUpdate(query + pluginFolder+"'WHERE description = 'pluginFolder'");
-        } catch (SQLException ex) {
-            Logger.getLogger(getClass().getName()).log(Level.WARNING, null, ex);
+    /**
+     * deletes all activated entries from the database and writes the currently activated
+     */
+    private void writeActivatedDataSourcesToDatabase() {
+        sqlLiteConnection.queryNoReturn("Delete from settings where description LIKE 'datasource_%%%%%%%%%%%%';");
+        int i = 0;
+        for (String s : activatedDataSources) {
+            sqlLiteConnection.buildUpdateOrInsertStatementForSetting("datasource" + i, s);
+            ++i;
         }
     }
 
@@ -163,7 +164,7 @@ public final class OptionsStorage {
      */
     public void readSettingsFromDatabase() {
 
-        try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {
+        try (Connection con = DriverManager.getConnection(sqlLiteConnection.getConnection()); Statement statement = con.createStatement()) {
             statement.setQueryTimeout(10);
             //Safely read in all Settings. If a setting isnt found a default value will be taken
             final String query = "select setting from settings where description = ?";

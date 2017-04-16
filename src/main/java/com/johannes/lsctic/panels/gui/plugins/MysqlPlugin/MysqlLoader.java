@@ -5,8 +5,8 @@ package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;/*
  */
 
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
-import com.johannes.lsctic.panels.gui.plugins.DataSource;
 import com.johannes.lsctic.panels.gui.plugins.AddressLoader;
+import com.johannes.lsctic.panels.gui.plugins.DataSource;
 
 import java.util.ArrayList;
 
@@ -33,12 +33,13 @@ public class MysqlLoader implements AddressLoader {
         test.add("Meier");
         test.add("Berlin");
         test.add("0132323");
-
+        test.add("018923123");
         en.add(new AddressBookEntry(test, "Wilhelm Meier", source));
         infos.add("Johannes");
         infos.add("Engler");
         infos.add("Bad Krozingen");
         infos.add("O76641234");
+        infos.add("0123123");
         en.add(new AddressBookEntry(infos, "Johannes Minister Prinz und König von Swasiland", source));
 
 

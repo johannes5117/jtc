@@ -87,6 +87,8 @@ public class MysqlSettingsField extends SettingsField {
         super.expand();
 
     }
+
+
     @Override
     public void collapse() {
         this.getChildren().remove(this.getChildren().size()-1);

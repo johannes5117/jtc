@@ -6,6 +6,7 @@
 package com.johannes.lsctic;
 
 import com.johannes.lsctic.messagestage.ErrorMessage;
+import com.johannes.lsctic.messagestage.SuccessMessage;
 
 import java.io.File;
 import java.sql.*;
@@ -21,9 +22,9 @@ import java.util.logging.Logger;
  */
 public class SqlLiteConnection {
 
+    private static final String JDBC = "jdbc:sqlite:";
     private Connection connection;
     private String database;
-    private static final String JDBC = "jdbc:sqlite:";
 
     /**
      * Beispiel database: "settingsAndData.db"
@@ -69,6 +70,7 @@ public class SqlLiteConnection {
                         statement.executeUpdate(create);
                     }
                 }
+                new SuccessMessage("Created new database.");
             } catch (SQLException e) {
                 new ErrorMessage("Could not create local database in folder " + f.getAbsolutePath());
                 Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, e);            }
@@ -78,6 +80,44 @@ public class SqlLiteConnection {
 
     }
 
+    /**
+     * Performs an insert or update statement on the settings table. Used to update or insert any settings
+     *
+     * @param description
+     * @param settingValue
+     */
+    public void buildUpdateOrInsertStatementForSetting(String description, String settingValue) {
+        int currentId = getMaxIdValueOfTable("Settings") + 1;
+        Logger.getLogger(getClass().getName()).info(String.valueOf(currentId));
+        try (Connection con = DriverManager.getConnection(JDBC + database); Statement statement = con.createStatement()) {
+            statement.setQueryTimeout(10);
+            con.setAutoCommit(false);
+            final String query = "UPDATE Settings SET setting='" + settingValue + "' WHERE description='" + description + "'";
+            final String query2 = "INSERT INTO Settings (id, setting , description) SELECT " + currentId + ",'" + settingValue + "','" + description + "' WHERE (Select Changes() = 0)";
+            statement.addBatch(query);
+            statement.addBatch(query2);
+            statement.executeBatch();
+            con.commit();
+            statement.closeOnCompletion();
+        } catch (SQLException ex) {
+            Logger.getLogger(getClass().getName()).log(Level.WARNING, null, ex);
+        }
+    }
+
+
+    private int getMaxIdValueOfTable(String table) {
+        try (Connection con = DriverManager.getConnection(JDBC + database); Statement statement = con.createStatement()) {
+            statement.setQueryTimeout(10);
+            final String query = "Select max(id) from " + table;
+
+            ResultSet set = statement.executeQuery(query);
+            return set.getInt(1);
+        } catch (SQLException ex) {
+            Logger.getLogger(getClass().getName()).log(Level.WARNING, null, ex);
+        }
+        return 0;
+    }
+
 
     /**
      * Runs a SQL query and returns the results
@@ -85,10 +125,10 @@ public class SqlLiteConnection {
      * @param query
      * @return resultset
      */
-    public ResultSet query(String query) {
+    public String query(String query) {
         try(Connection connection = DriverManager.getConnection(JDBC + database); Statement statement = connection.createStatement()) {
             statement.setQueryTimeout(10);
-            return statement.executeQuery(query);
+            return statement.executeQuery(query).getString(1);
         } catch (SQLException ex) {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
             new ErrorMessage("There was a database error with the query: \""+query+"\"");
@@ -168,14 +208,33 @@ public class SqlLiteConnection {
         }
     }
 
-    /**
-     * get the connection
-     *
-     * @return
-     */
-    public Connection getConnection() {
-        return connection;
+    public ArrayList<String[]> getFieldsForDataSource(String datasource) {
+        ArrayList<String[]> dataSourceFields = new ArrayList<>();
+        int i = 0;
+        String quField = datasource;
+        while (true) {
+            try (Connection connection = DriverManager.getConnection(JDBC + database); PreparedStatement statement = connection.prepareStatement("select setting from settings where description = ?")) {
+                statement.setString(1, quField + i);
+                try (ResultSet fieldRS = statement.executeQuery()) {
+                    if (fieldRS.next()) {
+                        String field = fieldRS.getString("setting");
+                        String[] parameter = field.split(";");
+                        dataSourceFields.add(parameter);
+                        ++i;
+                    } else {
+                        break;
+                    }
+                } catch (SQLException e) {
+                    throw new SQLException();
+                }
+            } catch (SQLException e) {
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+            }
+        }
+        return dataSourceFields;
     }
+
+
 
     /**
      *
@@ -213,5 +272,9 @@ public class SqlLiteConnection {
             new ErrorMessage("There was a database error with the query: \""+query+"\"");
         }
 
+    }
+
+    public String getConnection() {
+        return JDBC + database;
     }
 }

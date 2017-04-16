@@ -45,4 +45,16 @@ public class SqlLiteConnectionTest {
     public void queryNoReturn() throws Exception {
     }
 
+    @Test
+    public void buildUpdateOrInsertStatementForSetting() {
+        SqlLiteConnection sqlLiteConnection = new SqlLiteConnection("test.db");
+        sqlLiteConnection.buildUpdateOrInsertStatementForSetting("amiPassword", "Vogel");
+        sqlLiteConnection.buildUpdateOrInsertStatementForSetting("amiTest", "Test123");
+        sqlLiteConnection.buildUpdateOrInsertStatementForSetting("MysqlPluginDatasource2", "Field;Ranger");
+
+        Assert.assertEquals("Vogel", sqlLiteConnection.query("Select setting from Settings where description='amiPassword'"));
+        Assert.assertEquals("Test123", sqlLiteConnection.query("Select setting from Settings where description='amiTest'"));
+        Assert.assertEquals("Field;Ranger", sqlLiteConnection.query("Select setting from Settings where description='MysqlPluginDatasource2'"));
+    }
+
 }
