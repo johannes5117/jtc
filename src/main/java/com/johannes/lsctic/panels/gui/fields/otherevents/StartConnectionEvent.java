@@ -8,12 +8,14 @@ public class StartConnectionEvent {
     private int port;
     private String id;
     private String pw;
+    private boolean hash;
 
-    public StartConnectionEvent(String address, int port, String id, String pw) {
+    public StartConnectionEvent(String address, int port, String id, String pw, boolean hash) {
         this.address = address;
         this.port = port;
         this.id = id;
         this.pw = pw;
+        this.hash = hash;
     }
 
     public String getAddress() {
@@ -30,5 +32,9 @@ public class StartConnectionEvent {
 
     public String getPw() {
         return pw;
+    }
+
+    public boolean isHash() {
+        return hash;
     }
 }

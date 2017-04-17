@@ -84,7 +84,7 @@ public class FXMLController implements Initializable {
         String ownExtension = storage.getOwnExtension();
 
         new ServerConnectionHandler(eventBus, ownExtension);
-        eventBus.post(new StartConnectionEvent("localhost", 12345, "Tset", "Test"));
+        eventBus.post(new StartConnectionEvent(storage.getAmiAddress(), storage.getAmiServerPort(), storage.getAmiLogIn(), storage.getAmiPasswordHash(), true));
 
         VBox[] panels = {panelA, panelB, panelC, panelD};
         dataPanelsRegister = new DataPanelsRegister(eventBus, sqlLiteConnection, panels);

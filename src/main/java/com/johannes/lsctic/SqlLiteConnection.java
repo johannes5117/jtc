@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 public class SqlLiteConnection {
 
     private static final String JDBC = "jdbc:sqlite:";
-    private Connection connection;
     private String database;
 
     /**

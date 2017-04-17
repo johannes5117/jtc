@@ -8,6 +8,7 @@ import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchDataSourcesF
 import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.UpdateAddressFieldsEvent;
+import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.UserLoginStatusEvent;
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import com.johannes.lsctic.panels.gui.plugins.AddressPlugin;
 import com.johannes.lsctic.panels.gui.plugins.PluginRegister;
@@ -32,7 +33,8 @@ public final class OptionsStorage {
     private String amiAddress;        //AMI Server Address
     private int amiServerPort;       //AMI Server Port
     private String amiLogIn;         //AMI Login
-    private String amiPassword;      //AMI Password
+    private String amiPassword = "";      //AMI Password
+    private String amiPasswordHash;
     private String ownExtension;     // eigene Extension asterisk
     private long time;               // TimeStamp
     private String ownExtensionTemp;     // eigene Extension asterisk
@@ -98,7 +100,8 @@ public final class OptionsStorage {
 
     private void refreshProgram() {
         if(asteriskSettingsField.hasChanged()) {
-            bus.post(new StartConnectionEvent("localhost", 12345, "Tset", "Test"));
+            String[] options = asteriskSettingsField.getOptions();
+            bus.post(new StartConnectionEvent(options[0], Integer.parseInt(options[1]), options[2], options[3], false));
         } else if(dataSourceSettingsField.hasChanged()) {
             setUpPlugins();
             writeActivatedDataSourcesToDatabase();
@@ -130,11 +133,10 @@ public final class OptionsStorage {
     public void setVariables() {
         // compare the old with the new values -> if no change happened its not necessary to restart server connection
         String[] optionsCompare = {amiAddress, Integer.toString(amiServerPort), amiLogIn, amiPassword};
-        String[] options = asteriskSettingsField.getOptions(optionsCompare);
+        String[] options = asteriskSettingsField.getOptionsTriggerHasChanged(optionsCompare);
         amiAddress = options[0];
         amiServerPort = Integer.valueOf(options[1]);
         amiLogIn = options[2];
-        amiPassword = options[3];
 
         ownExtension = ownExtensionTemp;
 
@@ -150,7 +152,6 @@ public final class OptionsStorage {
         sqlLiteConnection.buildUpdateOrInsertStatementForSetting("amiAddress", amiAddress);
         sqlLiteConnection.buildUpdateOrInsertStatementForSetting("amiServerPort", String.valueOf(amiServerPort));
         sqlLiteConnection.buildUpdateOrInsertStatementForSetting("amiLogIn", amiLogIn);
-        sqlLiteConnection.buildUpdateOrInsertStatementForSetting("amiPassword", amiPassword);
         sqlLiteConnection.buildUpdateOrInsertStatementForSetting("pluginFolder", pluginFolder);
     }
 
@@ -226,9 +227,9 @@ public final class OptionsStorage {
             amiLogIn = !amiAddressRS.next() ? "admin" : amiAddressRS.getString(SETTING);
         }
         try (PreparedStatement ptsm = con.prepareStatement(query)) {
-            ptsm.setString(1, "amiPassword");
+            ptsm.setString(1, "amiPasswordHash");
             ResultSet amiAddressRS = ptsm.executeQuery();
-            amiPassword = !amiAddressRS.next() ? "" : amiAddressRS.getString(SETTING);
+            amiPasswordHash = !amiAddressRS.next() ? "" : amiAddressRS.getString(SETTING);
         }
     }
 
@@ -272,6 +273,14 @@ public final class OptionsStorage {
         bus.unregister(this);
     }
 
+    @Subscribe
+    public void loginSuccessfulNewHash(UserLoginStatusEvent event) {
+        if (event.isLoggedIn()) {
+            this.amiPasswordHash = event.getHashedPw();
+            sqlLiteConnection.buildUpdateOrInsertStatementForSetting("amiPasswordHash", this.amiPasswordHash);
+        }
+    }
+
 
    
     public String getAmiAddress() {
@@ -286,8 +295,8 @@ public final class OptionsStorage {
         return amiLogIn;
     }
 
-    public String getAmiPassword() {
-        return amiPassword;
+    public String getAmiPasswordHash() {
+        return amiPasswordHash;
     }
 
 

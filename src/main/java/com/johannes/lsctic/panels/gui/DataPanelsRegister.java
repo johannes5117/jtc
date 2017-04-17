@@ -18,6 +18,7 @@ import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.UpdateAddressFieldsEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.AboStatusExtensionEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.DeAboStatusExtension;
+import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.UserLoginStatusEvent;
 import javafx.scene.layout.VBox;
 
 import java.util.*;
@@ -56,13 +57,19 @@ public class DataPanelsRegister {
         internNumbers.entrySet().stream().forEach(g
                 -> internFields.put(g.getKey(), new InternField(g.getValue().getName(), g.getValue().getCount(), g.getKey(), eventBus)));
 
-        internFields.entrySet().stream().forEach(g -> eventBus.post(new AboStatusExtensionEvent(g.getValue().getNumber())));
 
         updateView(new ArrayList<>(internFields.values()));
 
         historyFields = new ArrayList<>();
 
         panelC.getChildren().addAll(historyFields);
+    }
+
+    @Subscribe
+    public void logInSuccessful(UserLoginStatusEvent event) {
+        if (event.isLoggedIn()) {
+            internFields.entrySet().stream().forEach(g -> eventBus.post(new AboStatusExtensionEvent(g.getValue().getNumber())));
+        }
     }
 
     @Subscribe

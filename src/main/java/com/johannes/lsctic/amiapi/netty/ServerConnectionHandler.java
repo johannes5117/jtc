@@ -20,6 +20,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import javafx.application.Platform;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -29,20 +30,23 @@ import java.util.logging.Logger;
  * @author johannesengler
  */
 public class ServerConnectionHandler {
-    private boolean firstStart = true;
     private final EventBus bus;
+    private final String ownExtension;
+    private boolean firstStart = true;
     private String address;
     private int port;
-    private final String ownExtension;
     private Channel ch;
+    private boolean loggedIn;
 
     public ServerConnectionHandler(EventBus bus, String ownExtension) {
         this.bus = bus;
         this.ownExtension = ownExtension;
+        this.loggedIn = false;
         bus.register(this);
     }
     @Subscribe
     public void closeConnection(CloseApplicationSafelyEvent event) {
+        this.write("logoff" + "\r\n");
         this.ch.disconnect();
         this.ch.close();
     }
@@ -75,6 +79,10 @@ public class ServerConnectionHandler {
 
     @Subscribe
     public void startConnection(StartConnectionEvent event) {
+        if (ch != null && ch.isOpen()) {
+            this.ch.disconnect();
+            this.ch.close();
+        }
         this.address = event.getAddress();
         this.port = event.getPort();
         try {
@@ -97,17 +105,47 @@ public class ServerConnectionHandler {
             firstStart = false;
         }
         if(ch!=null && ch.isOpen()) {
-            aboCdrExtension(new AboCdrExtensionEvent(ownExtension));
-            // It would be annoying if every time you start the program a message pops up that informs about the connection
-            if(!firstStart) {
-                new SuccessMessage("Established connection to server: "+ address);
+            if (event.isHash()) {
+                Logger.getLogger(getClass().getName()).info(event.getPw());
+                ch.writeAndFlush(event.getId() + ";" + event.getPw() + "\r\n");
+            } else {
+                ch.writeAndFlush("ndb" + event.getId() + ";" + event.getPw() + "\r\n");
             }
-            firstStart = false;
         }
     }
 
+    @Subscribe
+    public void userLoggedInStatusChanged(UserLoginStatusEvent event) {
+        this.loggedIn = event.isLoggedIn();
+        if (!event.isLoggedIn()) {
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    new ErrorMessage("Could not log in on server. Please edit username or password for server.");
+                }
+            });
+            this.ch.disconnect();
+            this.ch.close();
+        }
+        // It would be annoying if every time you start the program a message pops up that informs about the connection
+        if (!firstStart && event.isLoggedIn()) {
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    new SuccessMessage("Established connection to server: " + address + "\n Logged in successfully");
+                }
+            });
+        }
+        firstStart = false;
+        aboCdrExtension(new AboCdrExtensionEvent(ownExtension));
+
+        // TODO: implement password change box
+        //write("chpw"+"johannes;"+"NeuesPasswort000201;TestPasswort"+"\r\n");
+    }
+
+
     public void write(String message) {
-        if(ch!=null && ch.isOpen()) {
+        if (ch != null && ch.isOpen() && this.loggedIn) {
             ch.writeAndFlush(message);
         }
     }

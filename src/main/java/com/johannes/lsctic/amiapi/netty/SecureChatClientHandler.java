@@ -12,6 +12,7 @@ package com.johannes.lsctic.amiapi.netty;
 import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.AddCdrAndUpdateEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.SetStatusEvent;
+import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.UserLoginStatusEvent;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import javafx.application.Platform;
@@ -34,26 +35,34 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
-        try {
-            String chatInput = msg;
-            int op = Integer.parseInt(chatInput.substring(0, 3));
-            String param = chatInput.substring(3, chatInput.length());
-            switch (op) {
-                case 0: {
-                    updateStatus(param);
-                    break;
+        Logger.getLogger(getClass().getName()).info(msg);
+        if (msg.startsWith("login:success")) {
+            Logger.getLogger(getClass().getName()).info(msg.substring(13));
+            bus.post(new UserLoginStatusEvent(true, msg.substring(13)));
+        } else if (msg.equals("login:failed")) {
+            bus.post(new UserLoginStatusEvent(false, ""));
+        } else {
+            try {
+                String chatInput = msg;
+                int op = Integer.valueOf(chatInput.substring(0, 3));
+                String param = chatInput.substring(3, chatInput.length());
+                switch (op) {
+                    case 0: {
+                        updateStatus(param);
+                        break;
+                    }
+                    case 10: {
+                        createAndPropagateCdrField(param);
+                        break;
+                    }
+                    default: {
+                        Logger.getLogger(getClass().getName()).log(Level.WARNING, "Command not recognized");
+                        break;
+                    }
                 }
-                case 10: {
-                    createAndPropagateCdrField(param);
-                    break;
-                }
-                default: {
-                    Logger.getLogger(getClass().getName()).log(Level.WARNING, "Command not recognized");
-                    break;
-                }
+            } catch (Exception e) {
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
             }
-        } catch (Exception e) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
         }
 
     }
