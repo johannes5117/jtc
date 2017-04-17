@@ -211,7 +211,7 @@ public class SqlLiteConnection {
     public ArrayList<String[]> getFieldsForDataSource(String datasource) {
         ArrayList<String[]> dataSourceFields = new ArrayList<>();
         int i = 0;
-        String quField = datasource;
+        String quField = datasource + "Field";
         while (true) {
             try (Connection connection = DriverManager.getConnection(JDBC + database); PreparedStatement statement = connection.prepareStatement("select setting from settings where description = ?")) {
                 statement.setString(1, quField + i);
@@ -234,6 +234,46 @@ public class SqlLiteConnection {
         return dataSourceFields;
     }
 
+
+    public ArrayList<String> getOptionsForDataSource(String name) {
+        ArrayList<String> options = new ArrayList<>();
+        int i = 0;
+        String quField = name + "Setting";
+        while (true) {
+            try (Connection connection = DriverManager.getConnection(JDBC + database); PreparedStatement statement = connection.prepareStatement("select setting from settings where description = ?")) {
+                statement.setString(1, quField + i);
+                try (ResultSet fieldRS = statement.executeQuery()) {
+                    if (fieldRS.next()) {
+                        String field = fieldRS.getString("setting");
+                        options.add(field);
+                        ++i;
+                    } else {
+                        break;
+                    }
+                } catch (SQLException e) {
+                    throw new SQLException();
+                }
+            } catch (SQLException e) {
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+            }
+        }
+        return options;
+    }
+
+
+    public void writePluginSettingsToDatabase(String name, ArrayList<String> options, ArrayList<String[]> linkFields) {
+        queryNoReturn("Delete from settings where description LIKE '" + name + "Field_%%%%%%%%%%%%';");
+        int i = 0;
+        for (String[] strings : linkFields) {
+            buildUpdateOrInsertStatementForSetting(name + "Field" + i, strings[0] + ";" + strings[1]);
+            ++i;
+        }
+        i = 0;
+        for (String option : options) {
+            buildUpdateOrInsertStatementForSetting(name + "Setting" + i, option);
+            ++i;
+        }
+    }
 
 
     /**
@@ -277,4 +317,6 @@ public class SqlLiteConnection {
     public String getConnection() {
         return JDBC + database;
     }
+
+
 }

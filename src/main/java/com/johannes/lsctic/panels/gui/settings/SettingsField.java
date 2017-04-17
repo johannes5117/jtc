@@ -17,7 +17,7 @@ import javafx.scene.layout.VBox;
 /**
  * @author johannesengler
  */
-public class SettingsField extends VBox {
+public abstract class SettingsField extends VBox {
     private ImageView vUpDown;
     private boolean expanded;
     private String name;
@@ -129,4 +129,6 @@ public class SettingsField extends VBox {
     }
 
     public boolean isExpanded() {return expanded;}
+
+    public abstract boolean hasChanged();
 }

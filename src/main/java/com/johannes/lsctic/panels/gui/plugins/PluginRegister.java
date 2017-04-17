@@ -7,7 +7,6 @@ package com.johannes.lsctic.panels.gui.plugins;
 
 import com.johannes.lsctic.SqlLiteConnection;
 import com.johannes.lsctic.messagestage.ErrorMessage;
-import com.johannes.lsctic.panels.gui.settings.SettingsField;
 
 import java.io.File;
 import java.io.IOException;
@@ -95,7 +94,8 @@ public class PluginRegister {
 
     public void activateAllPlugins(SqlLiteConnection sqlLiteConnection) {
         for (AddressPlugin addressPlugin : loadedPlugins) {
-            addressPlugin.readFields(sqlLiteConnection.getFieldsForDataSource(addressPlugin.getName()));
+            addressPlugin.setDataFields(sqlLiteConnection.getFieldsForDataSource(addressPlugin.getName()));
+            addressPlugin.setOptions(sqlLiteConnection.getOptionsForDataSource(addressPlugin.getName()));
         }
     }
 
@@ -113,10 +113,10 @@ public class PluginRegister {
     }
 
 
-    public List<SettingsField> getAllSettingsFields() {
-        ArrayList<SettingsField> settingsFields = new ArrayList<>();
+    public List<PluginSettingsField> getAllPluginSettingsFields() {
+        ArrayList<PluginSettingsField> settingsFields = new ArrayList<>();
         for (AddressPlugin plugin : loadedPlugins) {
-            settingsFields.add(plugin.getSettingsField());
+            settingsFields.add(plugin.getPluginSettingsField());
         }
         return settingsFields;
     }
@@ -149,6 +149,12 @@ public class PluginRegister {
         }
         return filteredQuery;
     }
+
+
+    public List<AddressPlugin> getAllActivePlugins() {
+        return loadedPlugins;
+    }
+
 
     public String getNameToNumber(String number) {
         //TODO: Implement Function on Data

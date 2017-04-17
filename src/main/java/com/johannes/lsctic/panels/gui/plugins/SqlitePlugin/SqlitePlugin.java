@@ -1,4 +1,4 @@
-package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;
+package com.johannes.lsctic.panels.gui.plugins.SqlitePlugin;
 
 import com.johannes.lsctic.panels.gui.plugins.*;
 
@@ -7,19 +7,19 @@ import java.util.ArrayList;
 /**
  * Created by johannes on 22.03.2017.
  */
-public class MysqlPlugin implements AddressPlugin {
-    private MysqlLoader loader;
-    private MysqlSettingsField settingsField;
+public class SqlitePlugin implements AddressPlugin {
+    private SqliteLoader loader;
+    private SqliteSettingsField settingsField;
     private String AUTHOR = "Johannes Engler";
     private String AUTHOR_CONTACT = "engler.johannes@posteo.de";
-    private String PLUGIN_NAME= "MysqlPlugin";
-    private String PLUGIN_TAG = "MySql";
+    private String PLUGIN_NAME = "SqlitePlugin";
+    private String PLUGIN_TAG = "SQLite";
 
-    public MysqlPlugin() {
+    public SqlitePlugin() {
 
         DataSource source = new DataSource(PLUGIN_NAME, PLUGIN_TAG);
-        loader = new MysqlLoader(source);
-        settingsField = new MysqlSettingsField(loader, "MySql", PLUGIN_NAME);
+        loader = new SqliteLoader(source);
+        settingsField = new SqliteSettingsField(loader, "SQLite", PLUGIN_NAME);
 
     }
 
@@ -35,7 +35,7 @@ public class MysqlPlugin implements AddressPlugin {
 
     @Override
     public void setLoader(AddressLoader loader) {
-        this.loader = (MysqlLoader) loader;
+        this.loader = (SqliteLoader) loader;
     }
 
     @Override
@@ -45,7 +45,7 @@ public class MysqlPlugin implements AddressPlugin {
 
     @Override
     public void setPluginSettingsField(PluginSettingsField settingsField) {
-        this.settingsField = (MysqlSettingsField) settingsField;
+        this.settingsField = (SqliteSettingsField) settingsField;
     }
 
     @Override

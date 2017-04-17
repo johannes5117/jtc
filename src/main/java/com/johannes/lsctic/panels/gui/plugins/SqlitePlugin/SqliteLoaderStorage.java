@@ -1,40 +1,39 @@
-package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;
+package com.johannes.lsctic.panels.gui.plugins.SqlitePlugin;
 
 import java.util.ArrayList;
 
 /**
  * Created by johannes on 31.03.2017.
  */
-public class MysqlLoaderStorage {
+public class SqliteLoaderStorage {
 
     private String serverAddress = "localhost";
     private int serverPort = 3306;
     private String database = "database";
-    private int mobile = -1;
-    private int telephone = -1;
     // the fields that match database value name and view name eg. tel in database would be showed as telephone in the program
     private ArrayList<String[]> mysqlFields;
 
     /**
      * Copy Constructor, deep Copy is required for the safe discard functionality
+     *
      * @param old
      */
-    public MysqlLoaderStorage(MysqlLoaderStorage old) {
+    public SqliteLoaderStorage(SqliteLoaderStorage old) {
         this.serverAddress = old.getServerAddress();
         this.serverPort = old.getServerPort();
         this.database = old.getDatabase();
         mysqlFields = new ArrayList<>();
-        for(String[] field: old.getMysqlFields()) {
+        for (String[] field : old.getMysqlFields()) {
             String[] newField = new String[field.length];
             int i = 0;
-            for(String inner: field) {
+            for (String inner : field) {
                 newField[i] = inner;
                 ++i;
             }
         }
     }
 
-    public MysqlLoaderStorage() {
+    public SqliteLoaderStorage() {
         mysqlFields = new ArrayList<>();
     }
 
@@ -89,21 +88,5 @@ public class MysqlLoaderStorage {
         String[] g = {text, text1};
         mysqlFields.add(g);
         return true;
-    }
-
-    public int getMobile() {
-        return mobile;
-    }
-
-    public void setMobile(int mobile) {
-        this.mobile = mobile;
-    }
-
-    public int getTelephone() {
-        return telephone;
-    }
-
-    public void setTelephone(int telephone) {
-        this.telephone = telephone;
     }
 }

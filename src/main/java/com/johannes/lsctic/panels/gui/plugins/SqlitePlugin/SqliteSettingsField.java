@@ -1,36 +1,30 @@
-package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;/*
- * To change this license header, choose License Headers in Project Properties.
+package com.johannes.lsctic.panels.gui.plugins.SqlitePlugin;
+/* To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 
 import com.johannes.lsctic.panels.gui.plugins.PluginSettingsField;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author johannesengler
  */
-public class MysqlSettingsField extends PluginSettingsField {
+public class SqliteSettingsField extends PluginSettingsField {
     private final ArrayList<HBox> mysqlFields;
     private final String pluginName;
-    private MysqlLoader loader;
+    private SqliteLoader loader;
     private boolean hasChanged = false;
 
-    public MysqlSettingsField(MysqlLoader loader, String settingsFieldName, String pluginName) {
+    public SqliteSettingsField(SqliteLoader loader, String settingsFieldName, String pluginName) {
         super(pluginName);
         this.loader = loader;
         mysqlFields = new ArrayList<>();
@@ -43,25 +37,15 @@ public class MysqlSettingsField extends PluginSettingsField {
         v.setSpacing(3);
         VBox.setMargin(v, new Insets(6, 0, 3, 0));
         TextField f = new TextField();
-        f.setPromptText("IP Adresse (Beispiel: server)");
+        f.setPromptText("path to file (eg. /home/database.db)");
         f.setText(loader.getStorageTemp().getServerAddress());
         f.textProperty().addListener((observable, oldValue, newValue) -> {
             loader.getStorageTemp().setServerAddress(newValue);
             hasChanged = true;
         });
-        final TextField f2 = new TextField();
-        f2.setPromptText("Port (Beispiel: 3306)");
-        f2.setText(Integer.toString(loader.getStorageTemp().getServerPort()));
-        f2.textProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-                loader.getStorageTemp().setServerPort(Integer.valueOf(newValue));
-                hasChanged = true;
-            } catch (Exception e) {
-                Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
-            }
-        });
+
         TextField f3 = new TextField();
-        f3.setPromptText("Datenbank (Beispiel: database)");
+        f3.setPromptText("table (eg. employees)");
         f3.setText(loader.getStorageTemp().getDatabase());
         f3.textProperty().addListener((observable, oldValue, newValue) -> {
             loader.getStorageTemp().setDatabase(newValue);
@@ -69,11 +53,11 @@ public class MysqlSettingsField extends PluginSettingsField {
         });
 
         Separator s = new Separator();
-        Label l = new Label("Mysql Felder");
+        Label l = new Label("fields");
         VBox.setMargin(s, new Insets(5, 0, 0, 0));
         VBox.setMargin(l, new Insets(0, 0, 0, 5));
         int i = 0;
-        v.getChildren().addAll(f, f2, f3, s, l);
+        v.getChildren().addAll(f, f3, s, l);
         VBox vLdapFields = new VBox();
         vLdapFields.setSpacing(3);
         for (String[] g : loader.getStorageTemp().getMysqlFields()) {
@@ -114,10 +98,10 @@ public class MysqlSettingsField extends PluginSettingsField {
     public HBox makeAdditionalField(String a, String b, VBox vLdapFields, String sign) {
         HBox box = new HBox();
         TextField t1 = new TextField(a);
-        t1.setPromptText("Feld");
+        t1.setPromptText("field (table column name)");
         Label l = new Label(":");
         TextField t2 = new TextField(b);
-        t2.setPromptText("Anzeigename");
+        t2.setPromptText("name to show");
         Button but = new Button(sign);
         if ("+".equals(sign)) {
             but.setStyle("-fx-font-size:13.5;");
@@ -138,49 +122,14 @@ public class MysqlSettingsField extends PluginSettingsField {
                     but.setText("X");
                     but.setStyle("-fx-font-size:13");
                 } else {
-                    t1.setPromptText("bereits vorhanden");
-                    t2.setPromptText("bereits vorhanden");
+                    t1.setPromptText("already showed");
+                    t2.setPromptText("already showed");
                     t1.setText("");
                     t2.setText("");
                 }
             }
         });
-        Image image = new Image("/pics/plus.png");
-        ImageView v = new ImageView(image);
-        v.setFitHeight(15);
-        v.setFitWidth(15);
-        v.setOpacity(0.8);
-        v.setStyle("-fx-border-radius:3px");
-
-        v.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-
-            //TODO Function to determine which field is mobile or phone
-            if (loader.getStorageTemp().getMobile() < 0) {
-                v.setImage(new Image("/pics/mobile.png"));
-                ImageView view = (ImageView) event.getSource();
-                loader.getStorageTemp().setMobile(mysqlFields.indexOf(view.getParent()));
-            } else if (loader.getStorageTemp().getTelephone() < 0) {
-                v.setImage(new Image("/pics/phone.png"));
-                ImageView view = (ImageView) event.getSource();
-                loader.getStorageTemp().setTelephone(mysqlFields.indexOf(view.getParent()));
-            } else {
-                v.setImage(new Image("/pics/plus.png"));
-            }
-            event.consume();
-        });
-        v.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> {
-            ImageView v15 = (ImageView) event.getSource();
-            v15.setOpacity(1);
-            event.consume();
-        });
-        v.addEventHandler(MouseEvent.MOUSE_EXITED, event -> {
-            ImageView v14 = (ImageView) event.getSource();
-            v14.setOpacity(0.8);
-            event.consume();
-        });
-
-        box.setAlignment(Pos.CENTER);
-        box.getChildren().addAll(t1, l, t2, but, v);
+        box.getChildren().addAll(t1, l, t2, but);
         vLdapFields.getChildren().add(box);
         hasChanged = true;
         return box;

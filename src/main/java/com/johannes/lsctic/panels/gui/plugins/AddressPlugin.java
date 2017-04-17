@@ -1,7 +1,5 @@
 package com.johannes.lsctic.panels.gui.plugins;
 
-import com.johannes.lsctic.panels.gui.settings.SettingsField;
-
 import java.util.ArrayList;
 
 /**
@@ -13,9 +11,9 @@ public interface AddressPlugin {
 
     void setLoader(AddressLoader loader);
 
-    SettingsField getSettingsField();
+    PluginSettingsField getPluginSettingsField();
 
-    void setSettingsField(SettingsField settingsField);
+    void setPluginSettingsField(PluginSettingsField settingsField);
 
     String getAuthor();
 
@@ -25,6 +23,13 @@ public interface AddressPlugin {
 
     ArrayList<AddressBookEntry> getResults(String query, int number);
 
-    void readFields(ArrayList<String[]> datasourceValues);
+
+    ArrayList<String[]> getDataFields();
+
+    void setDataFields(ArrayList<String[]> datasourceValues);
+
+    ArrayList<String> getOptions();
+
+    void setOptions(ArrayList<String> options);
 
 }

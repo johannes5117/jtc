@@ -9,10 +9,11 @@ import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyE
 import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.UpdateAddressFieldsEvent;
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
+import com.johannes.lsctic.panels.gui.plugins.AddressPlugin;
 import com.johannes.lsctic.panels.gui.plugins.PluginRegister;
+import com.johannes.lsctic.panels.gui.plugins.PluginSettingsField;
 import com.johannes.lsctic.panels.gui.settings.AsteriskSettingsField;
 import com.johannes.lsctic.panels.gui.settings.DataSourceSettingsField;
-import com.johannes.lsctic.panels.gui.settings.SettingsField;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 
@@ -61,7 +62,7 @@ public final class OptionsStorage {
         setUpPlugins();
 
         panelD.getChildren().addAll(asteriskSettingsField, dataSourceSettingsField);
-        panelD.getChildren().addAll(this.getPluginRegister().getAllSettingsFields());
+        panelD.getChildren().addAll(this.getPluginRegister().getAllPluginSettingsFields());
 
         accept.setOnAction(event -> accept());
         reject.setOnAction(event -> setTempVariables());
@@ -93,7 +94,6 @@ public final class OptionsStorage {
         setVariables();
         writeSettingsToDatabase();
         refreshProgram();
-        writeActivatedDataSourcesToDatabase();
     }
 
     private void refreshProgram() {
@@ -101,9 +101,10 @@ public final class OptionsStorage {
             bus.post(new StartConnectionEvent("localhost", 12345, "Tset", "Test"));
         } else if(dataSourceSettingsField.hasChanged()) {
             setUpPlugins();
+            writeActivatedDataSourcesToDatabase();
             if(dataSourceSettingsField.isExpanded()) {
                 dataSourceSettingsField.refresh();
-                for(SettingsField settingsField : this.getPluginRegister().getAllSettingsFields()) {
+                for (PluginSettingsField settingsField : this.getPluginRegister().getAllPluginSettingsFields()) {
                     if(!panelD.getChildren().contains(settingsField)) {
                         panelD.getChildren().add(settingsField);
                     }
@@ -112,6 +113,12 @@ public final class OptionsStorage {
                 bus.post(new UpdateAddressFieldsEvent(ld));
             }
             Logger.getLogger(getClass().getName()).info("ÄNDERUNG");
+        }
+
+        for (AddressPlugin plugin : this.getPluginRegister().getAllActivePlugins()) {
+            if (plugin.getPluginSettingsField().hasChanged()) {
+                sqlLiteConnection.writePluginSettingsToDatabase(plugin.getName(), plugin.getOptions(), plugin.getDataFields());
+            }
         }
 
     }

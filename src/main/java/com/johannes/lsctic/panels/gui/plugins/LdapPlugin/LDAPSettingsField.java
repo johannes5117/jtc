@@ -6,7 +6,7 @@
 
 package com.johannes.lsctic.panels.gui.plugins.LdapPlugin;
 
-import com.johannes.lsctic.panels.gui.settings.SettingsField;
+import com.johannes.lsctic.panels.gui.plugins.PluginSettingsField;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  * @author johannesengler
  */
 
-public class LDAPSettingsField extends SettingsField {
+public class LDAPSettingsField extends PluginSettingsField {
     private ArrayList<HBox> ldapFields;
     private LdapLoader loader;
     public LDAPSettingsField(LdapLoader loader) {
@@ -121,6 +121,12 @@ public class LDAPSettingsField extends SettingsField {
         this.getChildren().remove(this.getChildren().size()-1);
         super.collapse();
     }
+
+    @Override
+    public boolean hasChanged() {
+        return false;
+    }
+
     public HBox makeAdditionalField(String a, String b, VBox vLdapFields, String sign) {
        HBox box = new HBox();
        TextField t1 = new TextField(a);
@@ -163,5 +169,6 @@ public class LDAPSettingsField extends SettingsField {
 
        return box;
     }
+
 }
 

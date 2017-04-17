@@ -1,10 +1,6 @@
 package com.johannes.lsctic.panels.gui.plugins.LdapPlugin;
 
-import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
-import com.johannes.lsctic.panels.gui.plugins.AddressLoader;
-import com.johannes.lsctic.panels.gui.plugins.AddressPlugin;
-import com.johannes.lsctic.panels.gui.plugins.DataSource;
-import com.johannes.lsctic.panels.gui.settings.SettingsField;
+import com.johannes.lsctic.panels.gui.plugins.*;
 
 import java.util.ArrayList;
 
@@ -24,7 +20,7 @@ public class LdapPlugin implements AddressPlugin {
         loader = new LdapLoader(source);
         settingsField = new LDAPSettingsField(loader);
         this.setLoader(loader);
-        this.setSettingsField(settingsField);
+        this.setPluginSettingsField(settingsField);
     }
 
     @Override
@@ -43,12 +39,12 @@ public class LdapPlugin implements AddressPlugin {
     }
 
     @Override
-    public SettingsField getSettingsField() {
+    public PluginSettingsField getPluginSettingsField() {
         return settingsField;
     }
 
     @Override
-    public void setSettingsField(SettingsField settingsField) {
+    public void setPluginSettingsField(PluginSettingsField settingsField) {
         this.settingsField = (LDAPSettingsField) settingsField;
     }
 
@@ -68,12 +64,26 @@ public class LdapPlugin implements AddressPlugin {
     }
 
     @Override
-    public void readFields(ArrayList<String[]> datasourceFields) {
+    public ArrayList<String[]> getDataFields() {
+        return null;
+    }
+
+    @Override
+    public void setDataFields(ArrayList<String[]> datasourceFields) {
         ArrayList<String> datasourceViewNames = new ArrayList<>();
         for (String[] datasourceField : datasourceFields) {
             datasourceViewNames.add(datasourceField[1]);
         }
         loader.getDataSource().setAvailableFields(datasourceViewNames);
-        //loader.setMysqlFields(datasourceFields);
+    }
+
+    @Override
+    public ArrayList<String> getOptions() {
+        return null;
+    }
+
+    @Override
+    public void setOptions(ArrayList<String> options) {
+
     }
 }

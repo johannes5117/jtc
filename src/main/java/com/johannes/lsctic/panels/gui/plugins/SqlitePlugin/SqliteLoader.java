@@ -1,4 +1,5 @@
-package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;/*
+package com.johannes.lsctic.panels.gui.plugins.SqlitePlugin;
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -7,6 +8,7 @@ package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;/*
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import com.johannes.lsctic.panels.gui.plugins.AddressLoader;
 import com.johannes.lsctic.panels.gui.plugins.DataSource;
+import com.johannes.lsctic.panels.gui.plugins.MysqlPlugin.MysqlLoaderStorage;
 
 import java.util.ArrayList;
 
@@ -14,7 +16,7 @@ import java.util.ArrayList;
 /**
  * @author johannes
  */
-public class MysqlLoader implements AddressLoader {
+public class SqliteLoader implements AddressLoader {
     //TODO: DELTE only for Test
     private ArrayList<AddressBookEntry> en = new ArrayList<>();
 
@@ -23,7 +25,7 @@ public class MysqlLoader implements AddressLoader {
     private MysqlLoaderStorage storage;
     private DataSource source;
 
-    public MysqlLoader(DataSource source) {
+    public SqliteLoader(DataSource source) {
         this.source = source;
 
         ArrayList<String> infos = new ArrayList<>();
@@ -51,8 +53,8 @@ public class MysqlLoader implements AddressLoader {
     public ArrayList<AddressBookEntry> getResults(String query, int number) {
         // TODO: Implement function
         ArrayList<AddressBookEntry> found = new ArrayList<>();
-        for(AddressBookEntry entry : en) {
-            if(entry.getName().contains(query)) {
+        for (AddressBookEntry entry : en) {
+            if (entry.getName().contains(query)) {
                 found.add(entry);
             }
         }

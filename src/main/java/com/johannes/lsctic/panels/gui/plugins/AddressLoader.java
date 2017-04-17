@@ -13,11 +13,13 @@ import java.util.List;
  */
 public interface AddressLoader {
     //Fetch results from the Loader
-    public abstract List<AddressBookEntry> getResults(String ein, int n);
+    List<AddressBookEntry> getResults(String ein, int n);
     //saves the settings if user clicks on save button also for the plugin
-    public abstract void saved();
+    void saved();
     //discards the setting if user clicks on discard
-    public abstract void discarded();
+    void discarded();
     //get the DataSource
-    public abstract DataSource getDataSource();
+    DataSource getDataSource();
+
+
 }
