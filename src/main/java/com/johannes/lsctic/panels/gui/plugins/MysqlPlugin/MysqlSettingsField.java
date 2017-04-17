@@ -155,6 +155,7 @@ public class MysqlSettingsField extends PluginSettingsField {
         v.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
 
             //TODO Function to determine which field is mobile or phone
+
             if (loader.getStorageTemp().getMobile() < 0) {
                 v.setImage(new Image("/pics/mobile.png"));
                 ImageView view = (ImageView) event.getSource();
