@@ -22,13 +22,12 @@ public class SecureChatClientInitializer extends ChannelInitializer<SocketChanne
 
     private final SslContext sslCtx;
     private final EventBus bus;
-    private final String ownExtension;
     private final String address;
     private final int port;
-    public SecureChatClientInitializer(SslContext sslCtx, EventBus bus, String ownExtension, String address, int port) {
+
+    public SecureChatClientInitializer(SslContext sslCtx, EventBus bus, String address, int port) {
         this.sslCtx = sslCtx;
         this.bus = bus;
-        this.ownExtension = ownExtension;
         this.address = address;
         this.port = port;
     }
@@ -50,6 +49,6 @@ public class SecureChatClientInitializer extends ChannelInitializer<SocketChanne
         pipeline.addLast(new StringEncoder());
 
         // and then business logic.
-        pipeline.addLast(new SecureChatClientHandler(this.bus, this.ownExtension));
+        pipeline.addLast(new SecureChatClientHandler(this.bus));
     }
 }

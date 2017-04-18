@@ -80,10 +80,7 @@ public class FXMLController implements Initializable {
         // creates optionstorage which loads data from sqlite and triggers plugin loading
         OptionsStorage storage = new OptionsStorage(optionAccept, optionReject, panelD, eventBus, sqlLiteConnection);
 
-        // set ownextension
-        String ownExtension = storage.getOwnExtension();
-
-        new ServerConnectionHandler(eventBus, ownExtension);
+        new ServerConnectionHandler(eventBus);
         eventBus.post(new StartConnectionEvent(storage.getAmiAddress(), storage.getAmiServerPort(), storage.getAmiLogIn(), storage.getAmiPasswordHash(), true));
 
         VBox[] panels = {panelA, panelB, panelC, panelD};

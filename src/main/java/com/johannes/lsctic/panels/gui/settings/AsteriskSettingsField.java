@@ -92,7 +92,6 @@ public class AsteriskSettingsField extends SettingsField {
         ipTextField.setText(options[0]);
         portTextField.setText(options[1]);
         userTextField.setText(options[2]);
-        passwordTextField.setText(options[3]);
     }
 
     @Override

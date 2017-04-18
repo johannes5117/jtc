@@ -33,12 +33,8 @@ public final class OptionsStorage {
     private String amiAddress;        //AMI Server Address
     private int amiServerPort;       //AMI Server Port
     private String amiLogIn;         //AMI Login
-    private String amiPassword = "";      //AMI Password
     private String amiPasswordHash;
-    private String ownExtension;     // eigene Extension asterisk
     private long time;               // TimeStamp
-    private String ownExtensionTemp;     // eigene Extension asterisk
-    private long timeTemp;               // TimeStamp
     private String pluginFolder;
     private PluginRegister pluginRegister;
     private ArrayList<String> activatedDataSources = new ArrayList<>();
@@ -82,9 +78,8 @@ public final class OptionsStorage {
      */
     public void setTempVariables() {
         pluginRegister.discardAllPlugins();
-        String[] options = {amiAddress, Integer.toString(amiServerPort), amiLogIn, amiPassword};
+        String[] options = {amiAddress, Integer.toString(amiServerPort), amiLogIn};
         this.asteriskSettingsField.setOptions(options);
-        ownExtensionTemp = ownExtension;
         dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(),activatedDataSources, this.pluginRegister.getLoadedPluginNames());
         dataSourceSettingsField.setPluginFolder(pluginFolder);
     }
@@ -132,13 +127,12 @@ public final class OptionsStorage {
      */
     public void setVariables() {
         // compare the old with the new values -> if no change happened its not necessary to restart server connection
-        String[] optionsCompare = {amiAddress, Integer.toString(amiServerPort), amiLogIn, amiPassword};
+        String[] optionsCompare = {amiAddress, Integer.toString(amiServerPort), amiLogIn};
         String[] options = asteriskSettingsField.getOptionsTriggerHasChanged(optionsCompare);
         amiAddress = options[0];
         amiServerPort = Integer.valueOf(options[1]);
         amiLogIn = options[2];
 
-        ownExtension = ownExtensionTemp;
 
         // compare the old with the new values -> if no change happened its not necessary to reload the plugins
         activatedDataSources = (ArrayList<String>) this.dataSourceSettingsField.getChecked(activatedDataSources);
@@ -180,11 +174,7 @@ public final class OptionsStorage {
 
             readDatabaseForSources(con);
             
-            try (PreparedStatement ptsm = con.prepareStatement(query)) {
-                ptsm.setString(1, "ownExtension");
-                ResultSet amiAddressRS=  ptsm.executeQuery();
-                ownExtension = !amiAddressRS.next() ? "201" : amiAddressRS.getString(SETTING);
-            }
+
             try (PreparedStatement ptsm = con.prepareStatement(query)) {
                 ptsm.setString(1, "time");
                 ResultSet amiAddressRS = ptsm.executeQuery();
@@ -299,30 +289,12 @@ public final class OptionsStorage {
         return amiPasswordHash;
     }
 
-
-
-    public String getOwnExtension() {
-        return ownExtension;
-    }
-
-    public void setOwnExtension(String ownExtension) {
-        this.ownExtension = ownExtension;
-    }
-
-    public void setOwnExtensionTemp(String ownExtensionTemp) {
-        this.ownExtensionTemp = ownExtensionTemp;
-    }
-
     public long getTime() {
         return time;
     }
 
     public void setTime(long time) {
         this.time = time;
-    }
-
-    public void setTimeTemp(long timeTemp) {
-        this.timeTemp = timeTemp;
     }
 
    public List<String> getActivatedDataSources() {
@@ -336,7 +308,7 @@ public final class OptionsStorage {
 
     public void setAsteriskSettingsField(AsteriskSettingsField asteriskSettingsField) {
         this.asteriskSettingsField = asteriskSettingsField;
-        String[] options = {amiAddress, Integer.toString(amiServerPort), amiLogIn, amiPassword};
+        String[] options = {amiAddress, Integer.toString(amiServerPort), amiLogIn};
         this.asteriskSettingsField.setOptions(options);
     }
 

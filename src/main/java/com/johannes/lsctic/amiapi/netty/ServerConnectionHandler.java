@@ -31,24 +31,30 @@ import java.util.logging.Logger;
  */
 public class ServerConnectionHandler {
     private final EventBus bus;
-    private final String ownExtension;
+    private String ownExtension;
     private boolean firstStart = true;
     private String address;
     private int port;
     private Channel ch;
     private boolean loggedIn;
 
-    public ServerConnectionHandler(EventBus bus, String ownExtension) {
+    public ServerConnectionHandler(EventBus bus) {
         this.bus = bus;
-        this.ownExtension = ownExtension;
         this.loggedIn = false;
         bus.register(this);
     }
     @Subscribe
     public void closeConnection(CloseApplicationSafelyEvent event) {
-        this.write("logoff" + "\r\n");
+        this.write("loff" + "\r\n");
         this.ch.disconnect();
         this.ch.close();
+    }
+
+    @Subscribe
+    public void setOwnExtension(ReceivedOwnExtensionEvent event) {
+        this.ownExtension = event.getOwnExtension();
+        aboCdrExtension(new AboCdrExtensionEvent(ownExtension));
+        Logger.getLogger(getClass().getName()).info(ownExtension);
     }
 
     @Subscribe
@@ -94,7 +100,7 @@ public class ServerConnectionHandler {
             Bootstrap b = new Bootstrap();
             b.group(group)
                     .channel(NioSocketChannel.class)
-                    .handler(new SecureChatClientInitializer(sslCtx, this.bus, this.ownExtension, this.address, this.port));
+                    .handler(new SecureChatClientInitializer(sslCtx, this.bus, this.address, this.port));
 
             // Start the connection attempt.
             ch = b.connect(address, port).sync().channel();
@@ -137,7 +143,6 @@ public class ServerConnectionHandler {
             });
         }
         firstStart = false;
-        aboCdrExtension(new AboCdrExtensionEvent(ownExtension));
 
         // TODO: implement password change box
         //write("chpw"+"johannes;"+"NeuesPasswort000201;TestPasswort"+"\r\n");

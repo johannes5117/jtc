@@ -26,19 +26,18 @@ import javafx.scene.layout.VBox;
  */
 public class HistoryField extends VBox {
 
-    private String name;
     private final String who;
     private final String labelText;
-
     private final String when;
     private final String howLong;
     private final boolean outgoing;
     private final EventBus eventBus;
+    private String name;
 
     public HistoryField(String who, String when, String howLong, boolean outgoing, EventBus eventBus) {
         this.when = when;
         this.who = who;
-        this.howLong = howLong;
+        this.howLong = howLong + "min";
         this.outgoing = outgoing;
         this.eventBus = eventBus;
         this.labelText = who + " (not found)";
@@ -48,7 +47,7 @@ public class HistoryField extends VBox {
         this.when = when;
         this.name = name;
         this.who = who;
-        this.howLong = howLong;
+        this.howLong = howLong + "min";
         this.outgoing = outgoing;
         this.eventBus = eventBus;
         this.labelText = who + " ("+name+")";
@@ -85,9 +84,9 @@ public class HistoryField extends VBox {
         a.setStyle(" -fx-font-size: 12px;  -fx-font-weight: bold;");
         Label b = null;
         if (outgoing) {
-            b = new Label("Ausgehend");
+            b = new Label("Outgoing");
         } else {
-            b = new Label("Eingehend");
+            b = new Label("Incoming");
         }
         inner.getChildren().add(a);
         this.getChildren().add(inner);

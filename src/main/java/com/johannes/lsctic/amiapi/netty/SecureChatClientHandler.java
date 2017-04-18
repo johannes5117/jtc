@@ -12,11 +12,13 @@ package com.johannes.lsctic.amiapi.netty;
 import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.AddCdrAndUpdateEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.SetStatusEvent;
+import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.ReceivedOwnExtensionEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.UserLoginStatusEvent;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import javafx.application.Platform;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,19 +30,28 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
     private EventBus bus;
     private String ownExtension;
 
-    public SecureChatClientHandler(EventBus bus, String ownExtension) {
+    //German date format
+    private SimpleDateFormat dateFormatDB = new SimpleDateFormat("HH:mm EEEE dd.MM.yyyy");
+
+    //English
+    //private SimpleDateFormat dateFormatDB = new SimpleDateFormat("HH:mm EEEE MM/dd/yyyy");
+
+    public SecureChatClientHandler(EventBus bus) {
         this.bus = bus;
-        this.ownExtension = ownExtension;
     }
+
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
         Logger.getLogger(getClass().getName()).info(msg);
-        if (msg.startsWith("login:success")) {
-            Logger.getLogger(getClass().getName()).info(msg.substring(13));
-            bus.post(new UserLoginStatusEvent(true, msg.substring(13)));
-        } else if (msg.equals("login:failed")) {
+        if (msg.startsWith("lsuc")) {
+            Logger.getLogger(getClass().getName()).info(msg.substring(4));
+            bus.post(new UserLoginStatusEvent(true, msg.substring(4)));
+        } else if ("lfai".equals(msg)) {
             bus.post(new UserLoginStatusEvent(false, ""));
+        } else if (msg.startsWith("owne")) {
+            bus.post(new ReceivedOwnExtensionEvent(msg.substring(4)));
+            ownExtension = msg.substring(4);
         } else {
             try {
                 String chatInput = msg;
@@ -64,8 +75,8 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
             }
         }
-
     }
+
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
@@ -80,18 +91,19 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
         Logger.getLogger(getClass().getName()).log(Level.INFO, "New State");
     }
 
+
     private void createAndPropagateCdrField(String param) {
         String[] d = param.split(":");
         String source = d[0];
         String destination = d[1];
-        Date startTime = new Date(Long.parseLong(d[2]));
+        Date stored = new Date(Long.parseLong(d[2]));
+        String date = dateFormatDB.format(stored);
         Long duration = Long.parseLong(d[3]);
-        Logger.getLogger(getClass().getName()).log(Level.INFO, "New CDR");
         Platform.runLater(() -> {
             if (source.equals(ownExtension)) {
-                bus.post(new AddCdrAndUpdateEvent(destination, startTime.toString(), duration.toString(), true));
+                bus.post(new AddCdrAndUpdateEvent(destination, date, duration.toString(), true));
             } else {
-                bus.post(new AddCdrAndUpdateEvent(destination, startTime.toString(), duration.toString(), false));
+                bus.post(new AddCdrAndUpdateEvent(source, date, duration.toString(), false));
             }
         });
     }
