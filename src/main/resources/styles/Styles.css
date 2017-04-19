@@ -4,12 +4,18 @@
 .fields-label {
     -fx-font-size: 12px;
     -fx-font-family: 'BebasNB';
+     -fx-text-fill: #8A82A1;
 }
 .address-label{
 -fx-font-size: 11px;
     -fx-font-family: 'BebasNB';
 }
+.textfield-search{
+    -fx-background-color: #4F3DA5;
+    -fx-selected-color:  transparent ;
+    -fx-text-fill: white;
 
+}
 .tab-pane .tab-header-area .tab-header-background {
     -fx-opacity: 0;
 }
@@ -24,25 +30,31 @@
 }
 .tab-pane .tab
 {
-    -fx-background-color: rgba(255, 255, 255, 0.8);
+    -fx-background-color: #4F3DA5;
+    -fx-focus-color: transparent;
 
 }
 
 .tab-pane .tab:selected
 {
-    -fx-background-color: rgba(0, 0, 0, 0.8);
+    -fx-background-color: #262D46 ;
+    -fx-text-fill: white;
+    -fx-focus-color: transparent;
+
 }
 
 .tab .tab-label { 
     -fx-alignment: CENTER;
-    -fx-text-fill: black;
+    -fx-text-fill: #8A82A1;
     -fx-font-size: 10px;
     -fx-font-family: 'BebasNB';
+    -fx-focus-color: transparent;
 }
 
 .tab:selected .tab-label { 
     -fx-alignment: CENTER;
     -fx-text-fill: white;
+    -fx-focus-color: white;
 }
 .scroll-pane {
    -fx-background-color: transparent;

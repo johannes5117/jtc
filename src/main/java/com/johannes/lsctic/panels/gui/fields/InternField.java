@@ -44,7 +44,8 @@ public class InternField extends HBox {
         this.setMaxWidth(Double.MAX_VALUE);
         this.setPadding(new Insets(12, 12, 12, 12));
         this.setSpacing(3);
-        this.setStyle(" -fx-border-color: #FFFFFF; -fx-border-width: 1px; -fx-font-family: 'BebasNB';");
+
+
         this.setFocusTraversable(true);
         this.eventBus = eventBus;
         HBox inner = new HBox();
