@@ -31,11 +31,11 @@ import java.util.Objects;
 public class InternField extends HBox {
 
     private final StackPane p;
-    private int state;
     private final String name;
     private final int count;
     private final String number;
     private final EventBus eventBus;
+    private int state;
 
     public InternField(String name, int count, String number, EventBus eventBus) {
         this.name = name;
@@ -44,7 +44,7 @@ public class InternField extends HBox {
         this.setMaxWidth(Double.MAX_VALUE);
         this.setPadding(new Insets(12, 12, 12, 12));
         this.setSpacing(3);
-        this.setStyle(" -fx-border-color: #FFFFFF; -fx-border-width: 1px;");
+        this.setStyle(" -fx-border-color: #FFFFFF; -fx-border-width: 1px; -fx-font-family: 'BebasNB';");
         this.setFocusTraversable(true);
         this.eventBus = eventBus;
         HBox inner = new HBox();
@@ -105,7 +105,8 @@ public class InternField extends HBox {
         });
 
         Label a = new Label(name);
-        a.setStyle(" -fx-font-size: 12px;  -fx-font-weight: bold;");
+        a.getStyleClass().clear();
+        a.getStyleClass().add("fields-label");
 
         this.getChildren().add(a);
         this.getChildren().add(inner);
@@ -171,10 +172,7 @@ public class InternField extends HBox {
             return false;
         }
         final InternField other = (InternField) obj;
-        if (!Objects.equals(this.name, other.name)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.name, other.name);
     }
 
     public int getCount() {

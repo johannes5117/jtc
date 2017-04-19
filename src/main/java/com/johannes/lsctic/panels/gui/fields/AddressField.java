@@ -29,14 +29,14 @@ import java.util.ArrayList;
  * @author johannesengler
  */
 public class AddressField extends VBox {
-    private String name;
-    private String tag;
     private final AddressBookEntry addressBookEntry;
-    private ImageView vUpDown;
-    private boolean expanded;
     private final ArrayList<String> fieldNames;
     private final EventBus eventBus;
     private final String BORDER_RADIUS = "-fx-border-radius:3px";
+    private String name;
+    private String tag;
+    private ImageView vUpDown;
+    private boolean expanded;
 
     //Todo: Implement count function
 
@@ -74,7 +74,8 @@ public class AddressField extends VBox {
         });
 
         Label a = new Label(name);
-        a.setStyle(" -fx-font-size: 12px;  -fx-font-weight: bold;");
+        a.getStyleClass().clear();
+        a.getStyleClass().add("fields-label");
         inner.getChildren().add(a);
         this.getChildren().add(inner);
         inner.getChildren().add(innerinner);
@@ -207,6 +208,8 @@ public class AddressField extends VBox {
             HBox h = new HBox();
             h.setSpacing(0);
             Label field = new Label(fieldName + ": ");
+            field.getStyleClass().clear();
+            field.getStyleClass().add("address-label");
             field.setWrapText(true);
             h.getChildren().add(field);
             HBox space = new HBox();
@@ -214,6 +217,8 @@ public class AddressField extends VBox {
             HBox.setHgrow(space, Priority.ALWAYS);
             h.getChildren().add(space);
             Label value = new Label(addressBookEntry.get(i));
+            value.getStyleClass().clear();
+            value.getStyleClass().add("address-label");
             value.setWrapText(true);
             value.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
                 Label l = (Label) event.getSource();

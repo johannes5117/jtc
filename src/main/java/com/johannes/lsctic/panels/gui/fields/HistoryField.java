@@ -81,7 +81,8 @@ public class HistoryField extends VBox {
         });
 
         Label a = new Label(labelText);
-        a.setStyle(" -fx-font-size: 12px;  -fx-font-weight: bold;");
+        a.getStyleClass().clear();
+        a.getStyleClass().add("fields-label");
         Label b = null;
         if (outgoing) {
             b = new Label("Outgoing");

@@ -1,6 +1,15 @@
-.button {
-    -fx-font-weight: bold;
+.root {
+    -fx-font-family: 'BebasNB';
 }
+.fields-label {
+    -fx-font-size: 12px;
+    -fx-font-family: 'BebasNB';
+}
+.address-label{
+-fx-font-size: 11px;
+    -fx-font-family: 'BebasNB';
+}
+
 .tab-pane .tab-header-area .tab-header-background {
     -fx-opacity: 0;
 }
@@ -28,7 +37,7 @@
     -fx-alignment: CENTER;
     -fx-text-fill: black;
     -fx-font-size: 10px;
-    -fx-font-weight: bold;
+    -fx-font-family: 'BebasNB';
 }
 
 .tab:selected .tab-label { 
