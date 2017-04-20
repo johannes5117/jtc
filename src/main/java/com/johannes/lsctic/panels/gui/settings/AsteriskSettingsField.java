@@ -53,7 +53,7 @@ public class AsteriskSettingsField extends SettingsField {
     }
 
     public String[] getOptionsTriggerHasChanged(String[] optionsCompare) {
-        String[] options = new String[4];
+        String[] options = new String[3];
         options[0] = ipTextField.getText();
         String z = portTextField.getText();
         if (z.matches("^[0-9]*$")) {
@@ -62,7 +62,6 @@ public class AsteriskSettingsField extends SettingsField {
             options[1] = "5038";
         }
         options[2] = userTextField.getText();
-        options[3] = passwordTextField.getText();
 
         for (int i = 0; i < options.length; i++) {
             if (!(options[i].equals(optionsCompare[i]))) {

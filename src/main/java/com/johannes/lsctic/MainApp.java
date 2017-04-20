@@ -9,9 +9,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+
 import javafx.stage.WindowEvent;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
@@ -46,6 +48,7 @@ public class MainApp extends Application implements NativeKeyListener {
         controller.setStage(stage);
         Scene scene = new Scene(root);
         scene.setFill(null);
+        Font.loadFont(MainApp.class.getResource("/styles/Roboto-Light.ttf").toExternalForm(),13);
         scene.getStylesheets().add("/styles/Styles.css");
         stage.setTitle("JavaFX and Maven");
 

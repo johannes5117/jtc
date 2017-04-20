@@ -9,7 +9,10 @@ import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.CallEvent;
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import com.johannes.lsctic.panels.gui.plugins.DataSource;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -47,12 +50,14 @@ public class AddressField extends VBox {
         this.setMaxWidth(Double.MAX_VALUE);
         this.setPadding(new Insets(12, 12, 12, 12));
         this.setSpacing(3);
-        this.setStyle(" -fx-border-color: #FFFFFF; -fx-border-width: 1px;");
         this.setFocusTraversable(true);
         this.expanded = false;
         this.addressBookEntry = addressBookEntry;
         DataSource source = addressBookEntry.getSource();
         this.fieldNames = new ArrayList<>();
+        this.getStyleClass().clear();
+        this.getStyleClass().add("address-box");
+
         for (String s : source.getAvailableFields()) {
             fieldNames.add(s);
         }
@@ -75,17 +80,10 @@ public class AddressField extends VBox {
 
         Label a = new Label(name);
         a.getStyleClass().clear();
-        a.getStyleClass().add("fields-label");
+        a.getStyleClass().add("address-label-big");
         inner.getChildren().add(a);
         this.getChildren().add(inner);
         inner.getChildren().add(innerinner);
-        this.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                AddressField.this.setStyle("-fx-border-color: #0093ff; -fx-border-width: 1px;");
-            } else {
-                AddressField.this.setStyle("-fx-border-color: #FFFFFF; -fx-border-width: 1px;");
-            }
-        });
         this.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.ENTER) {
                 this.eventBus.post(new CallEvent(this.getName()));
@@ -145,16 +143,17 @@ public class AddressField extends VBox {
             });
         }
 
-        Label tagLabel = new Label("("+this.tag+")");
+        Label tagLabel = new Label("(" + this.tag + ")");
         tagLabel.setMinWidth(Region.USE_PREF_SIZE);
-        tagLabel.setStyle(" -fx-font-size: 10px;");
+        tagLabel.getStyleClass().add("address-label-datasource");
+        inner.setAlignment(Pos.CENTER);
         inner.getChildren().add(tagLabel);
 
         Image image = new Image("/pics/down.png");
         vUpDown = new ImageView(image);
         vUpDown.setFitHeight(15);
         vUpDown.setFitWidth(15);
-        vUpDown.setOpacity(0.2);
+        vUpDown.setOpacity(0.05);
         vUpDown.setStyle(BORDER_RADIUS);
 
         inner.getChildren().add(vUpDown);
@@ -165,12 +164,12 @@ public class AddressField extends VBox {
         });
         vUpDown.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> {
             ImageView v = (ImageView) event.getSource();
-            v.setOpacity(1);
+            v.setOpacity(0.6);
             event.consume();
         });
         vUpDown.addEventHandler(MouseEvent.MOUSE_EXITED, event -> {
             ImageView v = (ImageView) event.getSource();
-            v.setOpacity(0.2);
+            v.setOpacity(0.05);
             event.consume();
         });
 

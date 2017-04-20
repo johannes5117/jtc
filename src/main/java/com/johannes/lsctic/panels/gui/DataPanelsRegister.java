@@ -10,7 +10,7 @@ import com.johannes.lsctic.panels.gui.fields.HistoryField;
 import com.johannes.lsctic.panels.gui.fields.InternField;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.*;
 import com.johannes.lsctic.panels.gui.fields.internevents.AddInternEvent;
-import com.johannes.lsctic.panels.gui.fields.internevents.NewInternField;
+import com.johannes.lsctic.panels.gui.fields.NewInternField;
 import com.johannes.lsctic.panels.gui.fields.internevents.RemoveInternAndUpdateEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.SetStatusEvent;
@@ -49,9 +49,9 @@ public class DataPanelsRegister {
         this.eventBus.register(this);
         this.sqlLiteConnection = sqlLiteConnection;
         internNumbers = sqlLiteConnection.getInterns();
-        panelA.setSpacing(3);
-        panelB.setSpacing(3);
-        panelC.setSpacing(3);
+        panelA.setSpacing(1);
+        panelB.setSpacing(1);
+        panelC.setSpacing(1);
 
         internFields = new HashMap();
         internNumbers.entrySet().stream().forEach(g

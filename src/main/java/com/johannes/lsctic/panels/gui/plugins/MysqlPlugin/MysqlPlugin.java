@@ -90,6 +90,11 @@ public class MysqlPlugin implements AddressPlugin {
 
     @Override
     public void setOptions(ArrayList<String> options) {
+        if(options.isEmpty()) {
+            options.add("localhost");
+            options.add("2323");
+            options.add("database");
+        }
         loader.getStorage().setServerAddress(options.get(0));
         loader.getStorage().setServerPort(Integer.valueOf(options.get(1)));
         loader.getStorage().setDatabase(options.get(2));

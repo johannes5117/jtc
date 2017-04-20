@@ -8,6 +8,8 @@ package com.johannes.lsctic.panels.gui.fields;
 import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.panels.gui.fields.internevents.RemoveInternAndUpdateEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.CallEvent;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -30,12 +32,12 @@ import java.util.Objects;
  */
 public class InternField extends HBox {
 
-    private final StackPane p;
     private final String name;
     private final int count;
     private final String number;
     private final EventBus eventBus;
     private int state;
+    private Label a;
 
     public InternField(String name, int count, String number, EventBus eventBus) {
         this.name = name;
@@ -43,20 +45,13 @@ public class InternField extends HBox {
         this.number = number;
         this.setMaxWidth(Double.MAX_VALUE);
         this.setPadding(new Insets(12, 12, 12, 12));
-        this.setSpacing(3);
-
-
+        this.getStyleClass().clear();
+        this.getStyleClass().add("intern-box");
         this.setFocusTraversable(true);
         this.eventBus = eventBus;
         HBox inner = new HBox();
         inner.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(inner, Priority.ALWAYS);
-
-        p = new StackPane();
-        p.setStyle("-fx-background-color: #FF0000; -fx-background-radius: 7px; -fx-border-width: 7px;");
-        p.setPadding(new Insets(1, 1, 1, 1));
-        p.setAlignment(Pos.CENTER);
-        p.setPrefSize(14, 14);
 
         state = -1;
         this.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent event) -> {
@@ -64,16 +59,11 @@ public class InternField extends HBox {
                 this.eventBus.post(new CallEvent(InternField.this.getNumber()));
             }
             InternField.this.requestFocus();
+
             event.consume();
         });
 
-        this.focusedProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
-            if (newValue) {
-                InternField.this.setStyle("-fx-border-color: #0093ff; -fx-border-width: 1px;");
-            } else {
-                InternField.this.setStyle("-fx-border-color: #FFFFFF; -fx-border-width: 1px;");
-            }
-        });
+
         this.addEventFilter(KeyEvent.KEY_PRESSED, (javafx.scene.input.KeyEvent event) -> {
             if (event.getCode() == KeyCode.ENTER) {
                 this.eventBus.post(new CallEvent(InternField.this.getNumber()));
@@ -81,9 +71,9 @@ public class InternField extends HBox {
             }
         });
         final ContextMenu contextMenu = new ContextMenu();
-        MenuItem del = new MenuItem("Löschen");
-        MenuItem call = new MenuItem("Anrufen");
-        MenuItem num = new MenuItem("Nummer: "+this.getNumber());
+        MenuItem del = new MenuItem("Delete");
+        MenuItem call = new MenuItem("Call");
+        MenuItem num = new MenuItem("Number: "+this.getNumber());
         contextMenu.getItems().addAll(del, call, num);
 
         del.setOnAction(event -> {
@@ -105,13 +95,11 @@ public class InternField extends HBox {
             }
         });
 
-        Label a = new Label(name);
+        this.a = new Label(name);
         a.getStyleClass().clear();
-        a.getStyleClass().add("fields-label");
-
+        a.getStyleClass().add("fields-label-notfound");
+        this.setAlignment(Pos.CENTER);
         this.getChildren().add(a);
-        this.getChildren().add(inner);
-        this.getChildren().add(p);
 
     }
 
@@ -133,19 +121,24 @@ public class InternField extends HBox {
     }
 
     public void setBusyInUse() {
-        p.setStyle("-fx-background-color: #FF0000; -fx-background-radius: 6px; -fx-border-width: 6px;");
+        a.getStyleClass().clear();
+        a.getStyleClass().add("fields-label-blocked");
     }
 
     public void setIdle() {
-        p.setStyle("-fx-background-color: #00FF00; -fx-background-radius: 6px; -fx-border-width: 6px;");
+        a.getStyleClass().clear();
+        a.getStyleClass().add("fields-label-active");
     }
 
     public void setNotFoundUnavailable() {
-        p.setStyle("-fx-background-color: #0000FF; -fx-background-radius: 6px; -fx-border-width: 6px;");
+
+        a.getStyleClass().removeAll();
+        a.getStyleClass().add("fields-label-notfound");
     }
 
     public void setRinging() {
-        p.setStyle("-fx-background-color: #eeff00; -fx-background-radius: 6px; -fx-border-width: 6px;");
+        a.getStyleClass().clear();
+        a.getStyleClass().add("fields-label-calling");
     }
 
     public void setVisisble(boolean value) {
