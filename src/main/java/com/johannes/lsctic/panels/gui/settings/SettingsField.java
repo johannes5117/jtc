@@ -5,6 +5,8 @@
  */
 package com.johannes.lsctic.panels.gui.settings;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -33,7 +35,8 @@ public abstract class SettingsField extends VBox {
         this.setMaxWidth(Double.MAX_VALUE);
         this.setPadding(new Insets(12, 12, 12, 12));
         this.setSpacing(3);
-        this.setStyle(" -fx-border-color: #FFFFFF; -fx-border-width: 1px;");
+        this.getStyleClass().clear();
+        this.getStyleClass().add("setting-box");
         this.setFocusTraversable(true);
 
         HBox inner = new HBox();
@@ -45,21 +48,12 @@ public abstract class SettingsField extends VBox {
         innerChild.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(innerChild, Priority.ALWAYS);
         Label a = new Label(name);
-        a.setStyle(" -fx-font-size: 12px;  -fx-font-weight: bold;");
+        a.getStyleClass().clear();
+        a.getStyleClass().add("setting-label");
         this.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
 
             SettingsField.this.requestFocus();
             event.consume();
-
-        });
-        this.focusedProperty().addListener((observable, oldValue, newValue) -> {
-
-            if (newValue) {
-                SettingsField.this.setStyle("-fx-border-color: #0093ff; -fx-border-width: 1px;");
-            } else {
-                SettingsField.this.setStyle("-fx-border-color: #FFFFFF; -fx-border-width: 1px;");
-            }
-
 
         });
         inner.getChildren().add(a);

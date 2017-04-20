@@ -8,6 +8,8 @@ package com.johannes.lsctic.panels.gui.fields;
 import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.RemoveCdrAndUpdateEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.CallEvent;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -59,8 +61,10 @@ public class HistoryField extends VBox {
         this.setMaxWidth(Double.MAX_VALUE);
         this.setPadding(new Insets(12, 12, 12, 12));
         this.setSpacing(3);
-        this.setStyle(" -fx-border-color: #FFFFFF; -fx-border-width: 1px;");
         this.setFocusTraversable(true);
+        this.getStyleClass().clear();
+        this.getStyleClass().add("history-box");
+
 
         HBox inner = new HBox();
         inner.setSpacing(5);
@@ -82,26 +86,22 @@ public class HistoryField extends VBox {
 
         Label a = new Label(labelText);
         a.getStyleClass().clear();
-        a.getStyleClass().add("fields-label");
+        a.getStyleClass().add("history-label-big");
         Label b = null;
         if (outgoing) {
             b = new Label("Outgoing");
+            b.getStyleClass().clear();
+            b.getStyleClass().add("history-out");
         } else {
             b = new Label("Incoming");
+            b.getStyleClass().clear();
+            b.getStyleClass().add("history-in");
         }
         inner.getChildren().add(a);
         this.getChildren().add(inner);
         inner.getChildren().add(innerinner);
         inner.getChildren().add(b);
-        this.focusedProperty().addListener((observable, oldValue, newValue) -> {
 
-            if (newValue) {
-                this.setStyle("-fx-border-color: #0093ff; -fx-border-width: 1px;");
-            } else {
-                this.setStyle("-fx-border-color: #FFFFFF; -fx-border-width: 1px;");
-            }
-
-        });
         this.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.ENTER) {
                 this.eventBus.post(new CallEvent(HistoryField.this.getWho()));
@@ -119,15 +119,19 @@ public class HistoryField extends VBox {
         HBox.setHgrow(innerinnerLine2, Priority.ALWAYS);
 
         Label aLine2 = new Label(when);
+        aLine2.getStyleClass().clear();
+        aLine2.getStyleClass().add("history-label");
         Label bLine2 = new Label(howLong);
+        bLine2.getStyleClass().clear();
+        bLine2.getStyleClass().add("history-label");
         innerLine2.getChildren().add(aLine2);
         this.getChildren().add(innerLine2);
         innerLine2.getChildren().add(innerinnerLine2);
         innerLine2.getChildren().add(bLine2);
 
         final ContextMenu contextMenu = new ContextMenu();
-        MenuItem del = new MenuItem("Löschen");
-        MenuItem call = new MenuItem("Anrufen");
+        MenuItem del = new MenuItem("Delete");
+        MenuItem call = new MenuItem("Call");
         contextMenu.getItems().addAll(del, call);
 
         del.setOnAction(event -> {

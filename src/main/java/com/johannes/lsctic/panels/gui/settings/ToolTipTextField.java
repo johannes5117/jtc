@@ -14,6 +14,7 @@ public class ToolTipTextField extends TextField {
     public ToolTipTextField(String description) {
         super();
         Tooltip fieldToolTip = new Tooltip();
+        this.getStyleClass().add("textfield-search");
 
         this.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
