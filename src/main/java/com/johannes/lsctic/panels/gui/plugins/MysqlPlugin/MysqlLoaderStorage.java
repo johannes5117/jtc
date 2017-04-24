@@ -73,7 +73,7 @@ public class MysqlLoaderStorage {
         }
     }
 
-    public boolean addToMysqlFields(String text, String text1, int notTelMob) {
+    public boolean addToMysqlFields(String text, String text1) {
         for (PluginDataField entry : mysqlFields) {
             if (entry.getFieldname().equals(text) || entry.getFieldvalue().equals(text1)) {
                 //One of the entries is already available
@@ -97,6 +97,8 @@ public class MysqlLoaderStorage {
         this.mobile = mobile;
     }
 
+    public void unsetMobile() {this.mobile = -1;}
+
     public int getTelephone() {
         return telephone;
     }
@@ -104,4 +106,6 @@ public class MysqlLoaderStorage {
     public void setTelephone(int telephone) {
         this.telephone = telephone;
     }
+
+    public void unsetTelephone() {this.telephone =-1;}
 }

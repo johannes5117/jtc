@@ -10,13 +10,11 @@ import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.CallE
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import com.johannes.lsctic.panels.gui.plugins.DataSource;
 import com.johannes.lsctic.panels.gui.plugins.PluginDataField;
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleStringProperty;
+import com.johannes.lsctic.panels.gui.plugins.TransparentImageButton;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -36,10 +34,9 @@ public class AddressField extends VBox {
     private final AddressBookEntry addressBookEntry;
     private final ArrayList<String> fieldNames;
     private final EventBus eventBus;
-    private final String BORDER_RADIUS = "-fx-border-radius:3px";
     private String name;
     private String tag;
-    private ImageView vUpDown;
+    private TransparentImageButton vUpDown;
     private boolean expanded;
     private int mobile = -1;
     private int telephone = -1;
@@ -102,53 +99,20 @@ public class AddressField extends VBox {
         });
 
         if (telephone>-1) {
-            Image image = new Image("/pics/phone.png");
-            ImageView v = new ImageView(image);
-            v.setFitHeight(15);
-            v.setFitWidth(15);
-            v.setOpacity(0.2);
-            v.setStyle(BORDER_RADIUS);
-
+            TransparentImageButton v = new TransparentImageButton("/pics/telephone-of-old-design.png");
             inner.getChildren().add(v);
             v.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
                 this.eventBus.post(new CallEvent(String.valueOf(addressBookEntry.get(telephone))));
                 event.consume();
             });
-            v.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> {
-                ImageView v15 = (ImageView) event.getSource();
-                v15.setOpacity(1);
-                event.consume();
-            });
-            v.addEventHandler(MouseEvent.MOUSE_EXITED, event -> {
-                ImageView v14 = (ImageView) event.getSource();
-                v14.setOpacity(0.2);
-                event.consume();
-            });
+
         }
         if (mobile>-1) {
 
-            Image image = new Image("/pics/mobile.png");
-            ImageView v = new ImageView(image);
-
-            v.setFitHeight(15);
-            v.setFitWidth(15);
-            v.setStyle(BORDER_RADIUS);
-            v.setOpacity(0.2);
+            TransparentImageButton v = new TransparentImageButton("/pics/smartphone-call.png");
             inner.getChildren().add(v);
-
             v.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
                 this.eventBus.post(new CallEvent(addressBookEntry.get(mobile)));
-                event.consume();
-            });
-            v.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> {
-                ImageView v12 = (ImageView) event.getSource();
-
-                v12.setOpacity(1);
-                event.consume();
-            });
-            v.addEventHandler(MouseEvent.MOUSE_EXITED, event -> {
-                ImageView v1 = (ImageView) event.getSource();
-                v1.setOpacity(0.2);
                 event.consume();
             });
         }
@@ -159,12 +123,8 @@ public class AddressField extends VBox {
         inner.setAlignment(Pos.CENTER);
         inner.getChildren().add(tagLabel);
 
-        Image image = new Image("/pics/down.png");
-        vUpDown = new ImageView(image);
-        vUpDown.setFitHeight(15);
-        vUpDown.setFitWidth(15);
-        vUpDown.setOpacity(0.05);
-        vUpDown.setStyle(BORDER_RADIUS);
+        vUpDown = new TransparentImageButton("/pics/down-arrow.png");
+
 
         inner.getChildren().add(vUpDown);
 
@@ -172,29 +132,18 @@ public class AddressField extends VBox {
             handleCollapseExpand();
             event.consume();
         });
-        vUpDown.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> {
-            ImageView v = (ImageView) event.getSource();
-            v.setOpacity(0.6);
-            event.consume();
-        });
-        vUpDown.addEventHandler(MouseEvent.MOUSE_EXITED, event -> {
-            ImageView v = (ImageView) event.getSource();
-            v.setOpacity(0.05);
-            event.consume();
-        });
+
 
     }
 
     private void handleCollapseExpand() {
         if (expanded) {
-            Image image1 = new Image("/pics/down.png");
             AddressField.this.requestFocus();
-            vUpDown.setImage(image1);
+            vUpDown.setDown();
             collapse();
         } else {
-            Image image1 = new Image("/pics/up.png");
             AddressField.this.requestFocus();
-            vUpDown.setImage(image1);
+            vUpDown.setUp();
             expand();
         }
     }

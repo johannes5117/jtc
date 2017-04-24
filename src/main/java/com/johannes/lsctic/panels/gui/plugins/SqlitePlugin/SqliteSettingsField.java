@@ -117,7 +117,7 @@ public class SqliteSettingsField extends PluginSettingsField {
                 vLdapFields.getChildren().remove(but.getParent());
                 hasChanged = true;
             } else {
-                boolean r = loader.getStorageTemp().addToMysqlFields(t1.getText(), t2.getText(),0);
+                boolean r = loader.getStorageTemp().addToMysqlFields(t1.getText(), t2.getText());
                 if (r) {
                     makeAdditionalField("", "", vLdapFields, "+");
                     but.setText("X");

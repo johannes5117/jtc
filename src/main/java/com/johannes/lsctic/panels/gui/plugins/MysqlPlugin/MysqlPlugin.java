@@ -73,6 +73,17 @@ public class MysqlPlugin implements AddressPlugin {
         loader.getDataSource().setAvailableFields(datasourceFields);
         loader.getStorage().setMysqlFields(datasourceFields);
         loader.getStorageTemp().setMysqlFields(datasourceFields);
+        int i = 0;
+        for(PluginDataField dataField : datasourceFields) {
+            if(dataField.isTelephone()) {
+                loader.getStorageTemp().setTelephone(i);
+                loader.getStorage().setTelephone(i);
+            } else if(dataField.isMobile()) {
+                loader.getStorageTemp().setMobile(i);
+                loader.getStorage().setMobile(i);
+            }
+            ++i;
+        }
     }
 
     @Override

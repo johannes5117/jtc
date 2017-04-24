@@ -5,6 +5,7 @@
  */
 package com.johannes.lsctic.panels.gui.settings;
 
+import com.johannes.lsctic.panels.gui.plugins.TransparentImageButton;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
@@ -20,7 +21,7 @@ import javafx.scene.layout.VBox;
  * @author johannesengler
  */
 public abstract class SettingsField extends VBox {
-    private ImageView vUpDown;
+    private TransparentImageButton vUpDown;
     private boolean expanded;
     private String name;
 
@@ -59,32 +60,17 @@ public abstract class SettingsField extends VBox {
         inner.getChildren().add(a);
         this.getChildren().add(inner);
         inner.getChildren().add(innerChild);
-        Image image = new Image("/pics/down.png");
-        vUpDown = new ImageView(image);
-        vUpDown.setFitHeight(15);
-        vUpDown.setFitWidth(15);
-        vUpDown.setOpacity(0.2);
-        vUpDown.setStyle("-fx-border-radius:3px");
 
+
+        vUpDown = new TransparentImageButton("/pics/down-arrow.png");
         inner.getChildren().add(vUpDown);
-
-        this.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            clickAction(true);
-            event.consume();
-        });
-
         vUpDown.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             clickAction(false);
             event.consume();
         });
-        vUpDown.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> {
-            ImageView v = (ImageView) event.getSource();
-            v.setOpacity(1);
-            event.consume();
-        });
-        vUpDown.addEventHandler(MouseEvent.MOUSE_EXITED, event -> {
-            ImageView v = (ImageView) event.getSource();
-            v.setOpacity(0.2);
+
+        this.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            clickAction(true);
             event.consume();
         });
     }
@@ -92,15 +78,13 @@ public abstract class SettingsField extends VBox {
     public void clickAction(boolean fromField) {
         if (expanded) {
             if(!fromField) {
-                Image image1 = new Image("/pics/down.png");
                 SettingsField.this.requestFocus();
-                vUpDown.setImage(image1);
+                vUpDown.setDown();
                 collapse();
             }
         } else {
-            Image image1 = new Image("/pics/up.png");
             SettingsField.this.requestFocus();
-            vUpDown.setImage(image1);
+            vUpDown.setUp();
             expand();
         }
     }
@@ -108,8 +92,7 @@ public abstract class SettingsField extends VBox {
     public void refresh() {
         if(expanded) {
             collapse();
-            Image image1 = new Image("/pics/up.png");
-            vUpDown.setImage(image1);
+            vUpDown.setUp();
             expand();
         }
     }

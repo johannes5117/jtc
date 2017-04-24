@@ -4,21 +4,19 @@ package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;/*
  * and open the template in the editor.
  */
 
-import com.johannes.lsctic.panels.gui.plugins.MinusFieldButton;
+import com.johannes.lsctic.panels.gui.plugins.TransparentImageButton;
 import com.johannes.lsctic.panels.gui.plugins.PluginDataField;
 import com.johannes.lsctic.panels.gui.plugins.PluginSettingsField;
-import com.johannes.lsctic.panels.gui.settings.SettingsFieldButton;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -34,6 +32,7 @@ public class MysqlSettingsField extends PluginSettingsField {
     private final String pluginName;
     private MysqlLoader loader;
     private boolean hasChanged = false;
+    private int lastSetting = 0;
 
     public MysqlSettingsField(MysqlLoader loader, String settingsFieldName, String pluginName) {
         super(pluginName);
@@ -75,6 +74,7 @@ public class MysqlSettingsField extends PluginSettingsField {
 
         Separator s = new Separator();
         Label l = new Label("Mysql Felder");
+        l.setStyle("-fx-text-fill: #c3c3c3");
         VBox.setMargin(s, new Insets(5, 0, 0, 0));
         VBox.setMargin(l, new Insets(0, 0, 0, 5));
         int i = 0;
@@ -82,20 +82,11 @@ public class MysqlSettingsField extends PluginSettingsField {
         VBox vLdapFields = new VBox();
         vLdapFields.setSpacing(3);
         for (PluginDataField g : loader.getStorageTemp().getMysqlFields()) {
-            mysqlFields.add(makeAdditionalField(g.getFieldname(), g.getFieldvalue(), vLdapFields, "X"));
+            mysqlFields.add(makeAdditionalField(g.getFieldname(), g.getFieldvalue(), vLdapFields,false,i));
             ++i;
         }
 
-        // Button plus = new Button("Hizufügen");
-        //  plus.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
-
-        //     @Override
-        //      public void handle(javafx.event.ActionEvent event) {
-        //           ldapFields.add(makeAdditionalField("", "",vLdapFields));
-        //    }
-        //  });
-
-        mysqlFields.add(makeAdditionalField("", "", vLdapFields, "+"));
+        mysqlFields.add(makeAdditionalField("", "", vLdapFields,true,i));
 
         v.getChildren().addAll(vLdapFields);
         this.getChildren().add(v);
@@ -116,7 +107,7 @@ public class MysqlSettingsField extends PluginSettingsField {
         return out;
     }
 
-    public HBox makeAdditionalField(String a, String b, VBox vLdapFields, String sign) {
+    public HBox makeAdditionalField(String a, String b, VBox vLdapFields, boolean add, int num) {
         HBox box = new HBox();
         box.setSpacing(5);
         TextField t1 = new TextField(a);
@@ -124,13 +115,15 @@ public class MysqlSettingsField extends PluginSettingsField {
 
         TextField t2 = new TextField(b);
         t2.setPromptText("Anzeigename");
-        MinusFieldButton but = new MinusFieldButton();
-        if ("+".equals(sign)) {
-            but.setStyle("-fx-font-size:13.5;");
+        TransparentImageButton but;
+        if(add) {
+             but = new TransparentImageButton("/pics/add.png");
+        } else {
+             but = new TransparentImageButton("/pics/remove.png");
         }
-        but.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
+
+        if(!add) {
+            but.setOnMouseClicked(event -> {
                 HBox b1 = (HBox) but.getParent();
                 TextField t11 = (TextField) b1.getChildren().get(0);
                 TextField t21 = (TextField) b1.getChildren().get(2);
@@ -138,59 +131,69 @@ public class MysqlSettingsField extends PluginSettingsField {
                 mysqlFields.remove(but.getParent());
                 vLdapFields.getChildren().remove(but.getParent());
                 hasChanged = true;
-            }
-        });
-     /*   but.setOnAction(event -> {
-            if (("X").equals(but.getText())) {
+            });
 
-            } else {
-                boolean r = loader.getStorageTemp().addToMysqlFields(t1.getText(), t2.getText(),0);
+        }  else {
+            but.setOnMouseClicked(event -> {
+                boolean r = loader.getStorageTemp().addToMysqlFields(t1.getText(), t2.getText());
                 if (r) {
-                    makeAdditionalField("", "", vLdapFields, "+");
-                   // but.setText("X");
-                    but.setStyle("-fx-font-size:13");
+                    this.makeAdditionalField("", "", vLdapFields, true, num +1);
                 } else {
-                    t1.setPromptText("bereits vorhanden");
-                    t2.setPromptText("bereits vorhanden");
+                    t1.setPromptText("already showed");
+                    t2.setPromptText("already showed");
                     t1.setText("");
                     t2.setText("");
                 }
-            }
-        });*/
-        Image image = new Image("/pics/plus.png");
-        ImageView v = new ImageView(image);
-        v.setFitHeight(15);
-        v.setFitWidth(15);
-        v.setOpacity(0.8);
-        v.setStyle("-fx-border-radius:3px");
+            });
+        }
 
-        v.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+        String initialResource = "/pics/right-arrow.png";
+        if(num == loader.getStorage().getMobile()) {
+            initialResource = "/pics/smartphone-call.png";
+        } else if(num == loader.getStorage().getTelephone()) {
+            initialResource = "/pics/telephone-of-old-design.png";
+        }
 
-            //TODO Function to determine which field is mobile or phone
+        TransparentImageButton v = new TransparentImageButton(initialResource,add);
+        if(!add) {
+            lastSetting = 0;
+            v.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
 
-            if (loader.getStorageTemp().getMobile() < 0) {
-                v.setImage(new Image("/pics/mobile.png"));
-                ImageView view = (ImageView) event.getSource();
-                loader.getStorageTemp().setMobile(mysqlFields.indexOf(view.getParent()));
-            } else if (loader.getStorageTemp().getTelephone() < 0) {
-                v.setImage(new Image("/pics/phone.png"));
-                ImageView view = (ImageView) event.getSource();
-                loader.getStorageTemp().setTelephone(mysqlFields.indexOf(view.getParent()));
-            } else {
-                v.setImage(new Image("/pics/plus.png"));
-            }
-            event.consume();
-        });
-        v.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> {
-            ImageView v15 = (ImageView) event.getSource();
-            v15.setOpacity(1);
-            event.consume();
-        });
-        v.addEventHandler(MouseEvent.MOUSE_EXITED, event -> {
-            ImageView v14 = (ImageView) event.getSource();
-            v14.setOpacity(0.8);
-            event.consume();
-        });
+                if (loader.getStorageTemp().getMobile() < 0 && lastSetting == 0) {
+                    v.setImage(new Image("/pics/smartphone-call.png"));
+                    TransparentImageButton view = (TransparentImageButton) event.getSource();
+                    loader.getStorageTemp().setMobile(mysqlFields.indexOf(view.getParent()));
+                    if (mysqlFields.indexOf(view.getParent()) == loader.getStorageTemp().getTelephone()) {
+                        loader.getStorageTemp().unsetTelephone();
+                    }
+                    lastSetting = 1;
+                } else if (loader.getStorageTemp().getTelephone() < 0 && lastSetting == 1) {
+                    v.setImage(new Image("/pics/telephone-of-old-design.png"));
+                    TransparentImageButton view = (TransparentImageButton) event.getSource();
+                    loader.getStorageTemp().setTelephone(mysqlFields.indexOf(view.getParent()));
+                    if (mysqlFields.indexOf(view.getParent()) == loader.getStorageTemp().getMobile()) {
+                        loader.getStorageTemp().unsetMobile();
+                    }
+                    lastSetting = 2;
+                } else {
+                    v.setImage(new Image("/pics/right-arrow.png"));
+                    TransparentImageButton view = (TransparentImageButton) event.getSource();
+                    if (mysqlFields.indexOf(view.getParent()) == loader.getStorageTemp().getTelephone()) {
+                        loader.getStorageTemp().unsetTelephone();
+                    }
+                    if (mysqlFields.indexOf(view.getParent()) == loader.getStorageTemp().getMobile()) {
+                        loader.getStorageTemp().unsetMobile();
+                    }
+                    if (loader.getStorageTemp().getTelephone() < 0 && loader.getStorageTemp().getMobile() > 0) {
+                        lastSetting = 1;
+                    } else {
+                        lastSetting = 0;
+                    }
+
+                }
+                event.consume();
+            });
+        }
 
         box.setAlignment(Pos.CENTER);
 

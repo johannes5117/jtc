@@ -10,6 +10,7 @@ import com.johannes.lsctic.panels.gui.plugins.DataSource;
 import com.johannes.lsctic.panels.gui.plugins.PluginDataField;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 
 /**
