@@ -4,6 +4,7 @@ package com.johannes.lsctic.panels.gui.plugins.SqlitePlugin;
  * and open the template in the editor.
  */
 
+import com.johannes.lsctic.panels.gui.plugins.PluginDataField;
 import com.johannes.lsctic.panels.gui.plugins.PluginSettingsField;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -60,8 +61,8 @@ public class SqliteSettingsField extends PluginSettingsField {
         v.getChildren().addAll(f, f3, s, l);
         VBox vLdapFields = new VBox();
         vLdapFields.setSpacing(3);
-        for (String[] g : loader.getStorageTemp().getMysqlFields()) {
-            mysqlFields.add(makeAdditionalField(g[0], g[1], vLdapFields, "X"));
+        for (PluginDataField g : loader.getStorageTemp().getMysqlFields()) {
+            mysqlFields.add(makeAdditionalField(g.getFieldname(), g.getFieldvalue(), vLdapFields, "X"));
             ++i;
         }
 
@@ -116,7 +117,7 @@ public class SqliteSettingsField extends PluginSettingsField {
                 vLdapFields.getChildren().remove(but.getParent());
                 hasChanged = true;
             } else {
-                boolean r = loader.getStorageTemp().addToMysqlFields(t1.getText(), t2.getText());
+                boolean r = loader.getStorageTemp().addToMysqlFields(t1.getText(), t2.getText(),0);
                 if (r) {
                     makeAdditionalField("", "", vLdapFields, "+");
                     but.setText("X");

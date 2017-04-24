@@ -83,7 +83,7 @@
                                                 <Button alignment="CENTER_RIGHT" contentDisplay="CENTER"  mnemonicParsing="false" text="Next" styleClass="button-ui"/>
                                              </children>
                                               <padding>
-                                                  <Insets bottom="5.0" left="1.0" right="1.0" top="5.0" />
+                                                  <Insets bottom="5.0" left="3.0" right="3.0" top="5.0" />
                                               </padding>
                                              <VBox.margin>
                                                 <Insets />
@@ -124,7 +124,7 @@
                               <Button fx:id="optionReject" mnemonicParsing="false" text="Reset" styleClass="button-ui" />
                            </children>
                            <padding>
-                              <Insets bottom="5.0" left="1.0" right="1.0" top="5.0" />
+                              <Insets bottom="5.0" left="3.0" right="3.0" top="5.0" />
                            </padding>
                             <VBox.margin>
                                 <Insets left="1.0" right="1.0" />

@@ -9,12 +9,10 @@ import org.junit.Test;
 public class SqlLiteConnectionTest {
     @Test
     public void closeConnections() throws Exception {
-        Assert.assertEquals("Closed","Closed");
     }
 
     @Test
     public void query() throws Exception {
-        Assert.assertEquals("Test", "GF");
     }
 
     @Test

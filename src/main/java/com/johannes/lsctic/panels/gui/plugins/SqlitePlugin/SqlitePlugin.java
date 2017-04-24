@@ -64,17 +64,13 @@ public class SqlitePlugin implements AddressPlugin {
     }
 
     @Override
-    public ArrayList<String[]> getDataFields() {
+    public ArrayList<PluginDataField> getDataFields() {
         return loader.getStorage().getMysqlFields();
     }
 
     @Override
-    public void setDataFields(ArrayList<String[]> datasourceFields) {
-        ArrayList<String> datasourceViewNames = new ArrayList<>();
-        for (String[] datasourceField : datasourceFields) {
-            datasourceViewNames.add(datasourceField[1]);
-        }
-        loader.getDataSource().setAvailableFields(datasourceViewNames);
+    public void setDataFields(ArrayList<PluginDataField> datasourceFields) {
+        loader.getDataSource().setAvailableFields(datasourceFields);
         loader.getStorage().setMysqlFields(datasourceFields);
         loader.getStorageTemp().setMysqlFields(datasourceFields);
     }

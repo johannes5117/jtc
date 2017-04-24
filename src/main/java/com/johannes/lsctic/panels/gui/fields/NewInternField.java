@@ -9,6 +9,7 @@ import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.PhoneNumber;
 import com.johannes.lsctic.panels.gui.fields.internevents.AddInternEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.CallEvent;
+import com.johannes.lsctic.panels.gui.settings.SettingsFieldButton;
 import com.sun.org.apache.bcel.internal.generic.NEW;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -46,7 +47,7 @@ public class NewInternField extends HBox{
         TextField extension = new TextField();
         extension.setPromptText("Intern number");
 
-        button = new Button("Add");
+        button = new SettingsFieldButton("Add");
         button.setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE);
         button.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent event) -> {
             String number = extension.getText();

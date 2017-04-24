@@ -7,6 +7,7 @@ package com.johannes.lsctic;
 
 import com.johannes.lsctic.messagestage.ErrorMessage;
 import com.johannes.lsctic.messagestage.SuccessMessage;
+import com.johannes.lsctic.panels.gui.plugins.PluginDataField;
 
 import java.io.File;
 import java.sql.*;
@@ -207,8 +208,8 @@ public class SqlLiteConnection {
         }
     }
 
-    public ArrayList<String[]> getFieldsForDataSource(String datasource) {
-        ArrayList<String[]> dataSourceFields = new ArrayList<>();
+    public ArrayList<PluginDataField> getFieldsForDataSource(String datasource) {
+        ArrayList<PluginDataField> dataSourceFields = new ArrayList<>();
         int i = 0;
         String quField = datasource + "Field";
         while (true) {
@@ -218,7 +219,7 @@ public class SqlLiteConnection {
                     if (fieldRS.next()) {
                         String field = fieldRS.getString("setting");
                         String[] parameter = field.split(";");
-                        dataSourceFields.add(parameter);
+                        dataSourceFields.add(new PluginDataField(parameter[0],parameter[1]));
                         ++i;
                     } else {
                         break;
@@ -230,6 +231,29 @@ public class SqlLiteConnection {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
             }
         }
+            try (Connection connection = DriverManager.getConnection(JDBC + database); PreparedStatement statement = connection.prepareStatement("select setting from settings where description = ?")) {
+                statement.setString(1, quField + "Tel");
+                try (ResultSet fieldRS = statement.executeQuery()) {
+                    if (fieldRS.next()) {
+                        int field = fieldRS.getInt("setting");
+                        dataSourceFields.get(field).setTelephone(true);
+                    }
+                } catch (SQLException e) {
+                    throw new SQLException();
+                }
+                statement.setString(1, quField + "Mob");
+                try (ResultSet fieldRS = statement.executeQuery()) {
+                    if (fieldRS.next()) {
+                        int field = fieldRS.getInt("setting");
+                        dataSourceFields.get(field).setMobile(true);
+                    }
+                } catch (SQLException e) {
+                    throw new SQLException();
+                }
+            } catch (SQLException e) {
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+            }
+
         return dataSourceFields;
     }
 
@@ -260,11 +284,11 @@ public class SqlLiteConnection {
     }
 
 
-    public void writePluginSettingsToDatabase(String name, ArrayList<String> options, ArrayList<String[]> linkFields) {
+    public void writePluginSettingsToDatabase(String name, ArrayList<String> options, ArrayList<PluginDataField> linkFields) {
         queryNoReturn("Delete from settings where description LIKE '" + name + "Field_%%%%%%%%%%%%';");
         int i = 0;
-        for (String[] strings : linkFields) {
-            buildUpdateOrInsertStatementForSetting(name + "Field" + i, strings[0] + ";" + strings[1]);
+        for (PluginDataField fields: linkFields) {
+            buildUpdateOrInsertStatementForSetting(name + "Field" + i, fields.getFieldname() + ";" + fields.getFieldvalue());
             ++i;
         }
         i = 0;

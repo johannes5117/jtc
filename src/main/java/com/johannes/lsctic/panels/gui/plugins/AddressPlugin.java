@@ -23,10 +23,9 @@ public interface AddressPlugin {
 
     ArrayList<AddressBookEntry> getResults(String query, int number);
 
+    ArrayList<PluginDataField> getDataFields();
 
-    ArrayList<String[]> getDataFields();
-
-    void setDataFields(ArrayList<String[]> datasourceValues);
+    void setDataFields(ArrayList<PluginDataField> datasourceValues);
 
     ArrayList<String> getOptions();
 

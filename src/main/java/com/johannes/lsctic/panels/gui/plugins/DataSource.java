@@ -13,7 +13,7 @@ import java.util.ArrayList;
  */
 public class DataSource {
     private String source;
-    private ArrayList<String> availableFields = new ArrayList<>();
+    private ArrayList<PluginDataField> availableFields = new ArrayList<>();
     private String tag;
 
     public DataSource(String source, String tag) {
@@ -21,11 +21,11 @@ public class DataSource {
         this.tag = tag;
     }
 
-    public ArrayList<String> getAvailableFields() {
+    public ArrayList<PluginDataField> getAvailableFields() {
         return availableFields;
     }
 
-    public void setAvailableFields(ArrayList<String> availableFields) {
+    public void setAvailableFields(ArrayList<PluginDataField> availableFields) {
         this.availableFields = availableFields;
     }
     

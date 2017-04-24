@@ -84,6 +84,7 @@ public class AsteriskSettingsField extends SettingsField {
         }
         options[2] = userTextField.getText();
         options[3] = passwordTextField.getText();
+        passwordTextField.setText("");
         return options;
     }
 
@@ -91,6 +92,14 @@ public class AsteriskSettingsField extends SettingsField {
         ipTextField.setText(options[0]);
         portTextField.setText(options[1]);
         userTextField.setText(options[2]);
+    }
+
+    public boolean passwordChanged() {
+        if(passwordTextField.getText().length()>0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override

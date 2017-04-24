@@ -1,5 +1,7 @@
 package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;
 
+import com.johannes.lsctic.panels.gui.plugins.PluginDataField;
+
 import java.util.ArrayList;
 
 /**
@@ -13,7 +15,7 @@ public class MysqlLoaderStorage {
     private int mobile = -1;
     private int telephone = -1;
     // the fields that match database value name and view name eg. tel in database would be showed as telephone in the program
-    private ArrayList<String[]> mysqlFields;
+    private ArrayList<PluginDataField> mysqlFields;
 
     /**
      * Copy Constructor, deep Copy is required for the safe discard functionality
@@ -24,14 +26,6 @@ public class MysqlLoaderStorage {
         this.serverPort = old.getServerPort();
         this.database = old.getDatabase();
         mysqlFields = new ArrayList<>();
-        for(String[] field: old.getMysqlFields()) {
-            String[] newField = new String[field.length];
-            int i = 0;
-            for(String inner: field) {
-                newField[i] = inner;
-                ++i;
-            }
-        }
     }
 
     public MysqlLoaderStorage() {
@@ -62,31 +56,35 @@ public class MysqlLoaderStorage {
         this.database = database;
     }
 
-    public ArrayList<String[]> getMysqlFields() {
+    public ArrayList<PluginDataField> getMysqlFields() {
         return mysqlFields;
     }
 
-    public void setMysqlFields(ArrayList<String[]> mysqlFields) {
+    public void setMysqlFields(ArrayList<PluginDataField> mysqlFields) {
         this.mysqlFields = mysqlFields;
     }
 
     public void removeFromMysqlFields(String text, String text1) {
-        for (String[] entry : mysqlFields) {
-            if (entry[0].equals(text) && entry[1].equals(text1)) {
+        for (PluginDataField entry : mysqlFields) {
+            if (entry.getFieldname().equals(text) && entry.getFieldvalue().equals(text1)) {
                 mysqlFields.remove(entry);
                 return;
             }
         }
     }
 
-    public boolean addToMysqlFields(String text, String text1) {
-        for (String[] entry : mysqlFields) {
-            if (entry[0].equals(text) || entry[1].equals(text1)) {
+    public boolean addToMysqlFields(String text, String text1, int notTelMob) {
+        for (PluginDataField entry : mysqlFields) {
+            if (entry.getFieldname().equals(text) || entry.getFieldvalue().equals(text1)) {
                 //One of the entries is already available
                 return false;
             }
         }
-        String[] g = {text, text1};
+        //String[] g = {text, text1};
+        PluginDataField g = new PluginDataField(text, text1);
+
+        //implement here status
+
         mysqlFields.add(g);
         return true;
     }

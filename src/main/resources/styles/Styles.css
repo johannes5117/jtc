@@ -1,5 +1,6 @@
 .root {
     -fx-font-family: 'Roboto';
+    -red-color: #FC74A7;
 }
 
 .address-box{
@@ -46,7 +47,7 @@
 }
 .fields-label-blocked {
      -fx-font-size: 13px;
-     -fx-text-fill: #FC74A7;
+     -fx-text-fill: -red-color;
  }
 .intern-box:focused .fields-label-blocked {
     -fx-font-size: 13px;
@@ -192,58 +193,6 @@
 }
 
 
-.button-error {
-    -fx-background-color: indianred;
-    -fx-text-fill: white;
-    -fx-padding: 8 26 8 26;
-    -fx-border-color: indianred;
-    -fx-border-width: 2px;
-    -fx-border-radius: 5px;
-    -fx-focus-color: transparent;
-    -fx-border-insets: -1;
-    -fx-skin: "com.sun.javafx.scene.control.skin.ButtonSkin";
-    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
-    -fx-background-radius: 5, 5, 4, 3;
-}
-
-.button-error:hover {
-    -fx-background-color: white;
-    -fx-text-fill: indianred;
-    -fx-padding: 8 26 8 26;
-     -fx-border-color: indianred;
-     -fx-focus-color: transparent;
-    -fx-border-insets: -1;
-
-}
-.button-error:focused{
-    -fx-background-insets: -1.4, 0, 1, 2;
-    -fx-background-radius:  6.4, 5, 4, 3;
-}
-.button-accept {
-    -fx-background-color: teal;
-    -fx-text-fill: white;
-    -fx-padding: 8 26 8 26;
-    -fx-border-color: teal;
-    -fx-border-width: 2px;
-    -fx-border-radius: 5px;
-    -fx-focus-color: transparent;
-    -fx-border-insets: -1;
-    -fx-skin: "com.sun.javafx.scene.control.skin.ButtonSkin";
-    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
-    -fx-background-radius: 5, 5, 4, 3;
-}
-.button-accept:hover {
-    -fx-background-color: white;
-    -fx-text-fill: teal;
-    -fx-padding: 8 26 8 26;
-    -fx-border-color: teal;
-    -fx-focus-color: transparent;
-    -fx-border-insets: -1;
-}
-.button-accept:focused{
-    -fx-background-insets: -1.4, 0, 1, 2;
-    -fx-background-radius:  6.4, 5, 4, 3;
-}
 
 .button-ui {
     -fx-background-color: rgba(32, 68, 89, 0.90);
@@ -254,7 +203,6 @@
     -fx-border-radius: 1px;
     -fx-focus-color: transparent;
     -fx-border-insets: -1;
-    -fx-skin: "com.sun.javafx.scene.control.skin.ButtonSkin";
     -fx-background-insets: 0 0 -1 0, 0, 1, 2;
 }
 .button-ui:focused{
@@ -306,33 +254,54 @@
      -fx-background-radius: 1.4, 0, 0;
      -fx-padding: 1;
  }
-.button {
-    -fx-background-color: rgba(32, 68, 89, 0.90);
-    -fx-text-fill: #c3c3c3;
-    -fx-padding: 2 10 2 10;
-    -fx-border-color: rgba(32, 68, 89, 0.90);
+
+.button-error {
+    -fx-background-color: indianred;
+    -fx-text-fill: white;
+    -fx-padding: 8 26 8 26;
+    -fx-border-color: indianred;
     -fx-border-width: 2px;
-    -fx-border-radius: 1px;
+    -fx-border-radius: 5px;
     -fx-focus-color: transparent;
     -fx-border-insets: -1;
-    -fx-skin: "com.sun.javafx.scene.control.skin.ButtonSkin";
     -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+    -fx-background-radius: 5, 5, 4, 3;
 }
-.button:focused{
-    -fx-background-color: rgba(32, 68, 89, 0.90);
-    -fx-text-fill: #c3c3c3;
-    -fx-border-color: rgba(87, 129, 154, 0.91);
-    -fx-focus-color: transparent;
+
+.button-error:hover {
+    -fx-background-color: white;
+    -fx-text-fill: indianred;
+    -fx-padding: 8 26 8 26;
+     -fx-border-color: indianred;
+     -fx-focus-color: transparent;
     -fx-border-insets: -1;
 
 }
-.button:hover {
-    -fx-background-color: rgba(87, 129, 154, 0.91);
-    -fx-text-fill: #c3c3c3;
-    -fx-border-color: rgba(87, 129, 154, 0.91);
+.button-error:focused{
+    -fx-background-insets: -1.4, 0, 1, 2;
+    -fx-background-radius:  6.4, 5, 4, 3;
+}
+.button-accept {
+    -fx-background-color: teal;
+    -fx-text-fill: white;
+    -fx-padding: 8 26 8 26;
+    -fx-border-color: teal;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-focus-color: transparent;
+    -fx-border-insets: -1;
+    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+    -fx-background-radius: 5, 5, 4, 3;
+}
+.button-accept:hover {
+    -fx-background-color: white;
+    -fx-text-fill: teal;
+    -fx-padding: 8 26 8 26;
+    -fx-border-color: teal;
     -fx-focus-color: transparent;
     -fx-border-insets: -1;
 }
-.button:pressed {
-    -fx-text-fill: white;
+.button-accept:focused{
+    -fx-background-insets: -1.4, 0, 1, 2;
+    -fx-background-radius:  6.4, 5, 4, 3;
 }

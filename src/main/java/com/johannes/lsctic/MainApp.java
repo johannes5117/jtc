@@ -49,6 +49,7 @@ public class MainApp extends Application implements NativeKeyListener {
         Scene scene = new Scene(root);
         scene.setFill(null);
         Font.loadFont(MainApp.class.getResource("/styles/Roboto-Light.ttf").toExternalForm(),13);
+        //scene.getStylesheets().clear();
         scene.getStylesheets().add("/styles/Styles.css");
         stage.setTitle("JavaFX and Maven");
 

@@ -7,6 +7,7 @@ package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;/*
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import com.johannes.lsctic.panels.gui.plugins.AddressLoader;
 import com.johannes.lsctic.panels.gui.plugins.DataSource;
+import com.johannes.lsctic.panels.gui.plugins.PluginDataField;
 
 import java.util.ArrayList;
 

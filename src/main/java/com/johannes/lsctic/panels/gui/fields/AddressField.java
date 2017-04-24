@@ -9,6 +9,7 @@ import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.CallEvent;
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import com.johannes.lsctic.panels.gui.plugins.DataSource;
+import com.johannes.lsctic.panels.gui.plugins.PluginDataField;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
@@ -40,6 +41,8 @@ public class AddressField extends VBox {
     private String tag;
     private ImageView vUpDown;
     private boolean expanded;
+    private int mobile = -1;
+    private int telephone = -1;
 
     //Todo: Implement count function
 
@@ -58,8 +61,15 @@ public class AddressField extends VBox {
         this.getStyleClass().clear();
         this.getStyleClass().add("address-box");
 
-        for (String s : source.getAvailableFields()) {
-            fieldNames.add(s);
+        int z=0;
+        for (PluginDataField s : source.getAvailableFields()) {
+            fieldNames.add(s.getFieldvalue());
+            if(s.isMobile()) {
+                mobile = z;
+            } else if(s.isTelephone()) {
+                telephone = z;
+            }
+            ++z;
         }
 
         HBox inner = new HBox();
@@ -91,7 +101,7 @@ public class AddressField extends VBox {
             }
         });
 
-        if (fieldNames.contains("Telefon")) {
+        if (telephone>-1) {
             Image image = new Image("/pics/phone.png");
             ImageView v = new ImageView(image);
             v.setFitHeight(15);
@@ -101,7 +111,7 @@ public class AddressField extends VBox {
 
             inner.getChildren().add(v);
             v.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-                this.eventBus.post(new CallEvent(String.valueOf(addressBookEntry.get(3))));
+                this.eventBus.post(new CallEvent(String.valueOf(addressBookEntry.get(telephone))));
                 event.consume();
             });
             v.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> {
@@ -115,7 +125,7 @@ public class AddressField extends VBox {
                 event.consume();
             });
         }
-        if (fieldNames.contains("Mobil")) {
+        if (mobile>-1) {
 
             Image image = new Image("/pics/mobile.png");
             ImageView v = new ImageView(image);
@@ -127,7 +137,7 @@ public class AddressField extends VBox {
             inner.getChildren().add(v);
 
             v.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-                this.eventBus.post(new CallEvent(this.getName()));
+                this.eventBus.post(new CallEvent(addressBookEntry.get(mobile)));
                 event.consume();
             });
             v.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> {
