@@ -12,11 +12,9 @@ import com.johannes.lsctic.panels.gui.fields.callrecordevents.*;
 import com.johannes.lsctic.panels.gui.fields.internevents.AddInternEvent;
 import com.johannes.lsctic.panels.gui.fields.NewInternField;
 import com.johannes.lsctic.panels.gui.fields.internevents.RemoveInternAndUpdateEvent;
-import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyEvent;
-import com.johannes.lsctic.panels.gui.fields.otherevents.SetStatusEvent;
-import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
-import com.johannes.lsctic.panels.gui.fields.otherevents.UpdateAddressFieldsEvent;
+import com.johannes.lsctic.panels.gui.fields.otherevents.*;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.AboStatusExtensionEvent;
+import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.CallEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.DeAboStatusExtension;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.UserLoginStatusEvent;
 import javafx.scene.layout.VBox;
@@ -36,6 +34,7 @@ public class DataPanelsRegister {
     private VBox panelA;
     private VBox panelB;
     private VBox panelC;
+    private boolean sortByCallCount = true;
 
     private EventBus eventBus;
 
@@ -151,8 +150,23 @@ public class DataPanelsRegister {
         updateView(new ArrayList<>(internFields.values()));
     }
 
+    @Subscribe
+    public void incrementCallCount(CallEvent event) {
+        if(event.isIntern()) {
+            sqlLiteConnection.updateOneAttribute("internfields", "number",event.getPhoneNumber(), "callcount",
+                    String.valueOf(Integer.valueOf(sqlLiteConnection.query("Select callcount from internfields where number = '"+event.getPhoneNumber()+"'"))+1));
+
+            internFields.get(event.getPhoneNumber()).incCount();
+            updateView(new ArrayList<>(internFields.values()));
+        }
+    }
+
     public void updateView(List<InternField> i) {
-        Collections.sort(i, (InternField o1, InternField o2) -> o2.getCount() - o1.getCount()); //UPDATE: would be nice to choose the sorting
+        if(sortByCallCount) {
+            Collections.sort(i, (InternField o1, InternField o2) -> o2.getCount() - o1.getCount());
+        } else {
+            // Maybe other sorting option
+        }
         panelA.getChildren().clear();
         panelA.getChildren().addAll(i);
         panelA.getChildren().add(new NewInternField(eventBus));
@@ -173,6 +187,12 @@ public class DataPanelsRegister {
     @Subscribe
     public void closeApplication(CloseApplicationSafelyEvent event) {
         eventBus.unregister(this);
+    }
+
+    @Subscribe
+    public void viewOptionsChanged(ViewOptionsChangedEvent event) {
+        this.sortByCallCount = event.isSortByCallCount();
+        updateView(new ArrayList<>(internFields.values()));
     }
 
 }

@@ -8,6 +8,7 @@ import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchDataSourcesF
 import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.UpdateAddressFieldsEvent;
+import com.johannes.lsctic.panels.gui.fields.otherevents.ViewOptionsChangedEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.CallEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.UserLoginStatusEvent;
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
@@ -16,6 +17,8 @@ import com.johannes.lsctic.panels.gui.plugins.PluginRegister;
 import com.johannes.lsctic.panels.gui.plugins.PluginSettingsField;
 import com.johannes.lsctic.panels.gui.settings.AsteriskSettingsField;
 import com.johannes.lsctic.panels.gui.settings.DataSourceSettingsField;
+import com.johannes.lsctic.panels.gui.settings.ProgramSettingsField;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 
@@ -35,11 +38,13 @@ public final class OptionsStorage {
     private int amiServerPort;       //AMI Server Port
     private String amiLogIn;         //AMI Login
     private String amiPasswordHash;
+    private boolean sortByCount;
     private long time;               // TimeStamp
     private String pluginFolder;
     private PluginRegister pluginRegister;
     private ArrayList<String> activatedDataSources = new ArrayList<>();
     private AsteriskSettingsField asteriskSettingsField;
+    private ProgramSettingsField programSettingsField;
     private DataSourceSettingsField dataSourceSettingsField;
     private EventBus bus;
     private VBox panelD;
@@ -48,6 +53,8 @@ public final class OptionsStorage {
     public OptionsStorage(Button accept, Button reject, VBox panelD, EventBus bus, SqlLiteConnection sqlLiteConnection) {
         this.asteriskSettingsField = new AsteriskSettingsField();
         this.pluginRegister = new PluginRegister();
+        this.programSettingsField = new ProgramSettingsField();
+
         this.dataSourceSettingsField = new DataSourceSettingsField();
         this.bus = bus;
         bus.register(this);
@@ -60,7 +67,9 @@ public final class OptionsStorage {
 
         setUpPlugins();
 
-        panelD.getChildren().addAll(asteriskSettingsField, dataSourceSettingsField);
+
+
+        panelD.getChildren().addAll(asteriskSettingsField,programSettingsField, dataSourceSettingsField);
         panelD.getChildren().addAll(this.getPluginRegister().getAllPluginSettingsFields());
 
         accept.setOnAction(event -> accept());
@@ -111,7 +120,8 @@ public final class OptionsStorage {
                 List<AddressBookEntry> ld = getPluginRegister().getResultFromEveryPlugin("", 10);
                 bus.post(new UpdateAddressFieldsEvent(ld));
             }
-            Logger.getLogger(getClass().getName()).info("ÄNDERUNG");
+        } else if(programSettingsField.hasChanged()) {
+            bus.post(new ViewOptionsChangedEvent(sortByCount));
         }
 
         for (AddressPlugin plugin : this.getPluginRegister().getAllActivePlugins()) {
@@ -137,6 +147,8 @@ public final class OptionsStorage {
         amiServerPort = Integer.valueOf(options[1]);
         amiLogIn = options[2];
 
+        boolean[] optionsOther = programSettingsField.getChecked();
+        sortByCount = optionsOther[0];
 
         // compare the old with the new values -> if no change happened its not necessary to reload the plugins
         activatedDataSources = (ArrayList<String>) this.dataSourceSettingsField.getChecked(activatedDataSources);
@@ -151,6 +163,7 @@ public final class OptionsStorage {
         sqlLiteConnection.buildUpdateOrInsertStatementForSetting("amiServerPort", String.valueOf(amiServerPort));
         sqlLiteConnection.buildUpdateOrInsertStatementForSetting("amiLogIn", amiLogIn);
         sqlLiteConnection.buildUpdateOrInsertStatementForSetting("pluginFolder", pluginFolder);
+        sqlLiteConnection.buildUpdateOrInsertStatementForSetting("programSettingSortCallCount", String.valueOf(sortByCount));
     }
 
     /**
@@ -175,6 +188,8 @@ public final class OptionsStorage {
             //Safely read in all Settings. If a setting isnt found a default value will be taken
             final String query = "select setting from settings where description = ?";
             readAmiFields(query, con);
+
+            readOtherOptions(query, con);
 
             readDatabaseForSources(con);
             
@@ -227,6 +242,21 @@ public final class OptionsStorage {
         }
     }
 
+    private void readOtherOptions(String query, Connection con) throws SQLException {
+        ArrayList<OptionTuple> options = new ArrayList<>();
+        try (PreparedStatement ptsm = con.prepareStatement(query)) {
+            ptsm.setString(1, "programSettingSortCallCount");
+            ResultSet amiAddressRS = ptsm.executeQuery();
+            boolean value = !amiAddressRS.next() ? true : Boolean.valueOf(amiAddressRS.getString(SETTING));
+            options.add(new OptionTuple(value, "Sort by call count"));
+            sortByCount = value;
+        }
+        programSettingsField.setCheckBoxes(options);
+    }
+
+
+
+
 
 
     public void readDatabaseForSources(Connection con) throws SQLException {
@@ -252,8 +282,6 @@ public final class OptionsStorage {
 
     @Subscribe
     public void searchNameForCdr(SearchDataSourcesForCdrEvent event) {
-        Logger.getLogger(getClass().getName()).info("TTTTTTT");
-
         String name = getPluginRegister().getNameToNumber(event.getWho());
         if(name.equals("")) {
             bus.post(new NotFoundCdrNameInDataSourceEvent(event));
@@ -275,13 +303,6 @@ public final class OptionsStorage {
         }
     }
 
-    @Subscribe
-    public void incrementCallCount(CallEvent event) {
-        if(event.isIntern()) {
-            sqlLiteConnection.updateOneAttribute("internfields", "number",event.getPhoneNumber(), "callcount",
-                   String.valueOf(Integer.valueOf(sqlLiteConnection.query("Select callcount from internfields where number = '"+event.getPhoneNumber()+"'"))+1));
-        }
-    }
    
     public String getAmiAddress() {
         return amiAddress;

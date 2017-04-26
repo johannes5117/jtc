@@ -63,7 +63,6 @@ public class MysqlLoader implements AddressLoader {
 
     public void saved() {
         this.storage = new MysqlLoaderStorage(this.storageTemp);
-        Logger.getLogger(getClass().getName()).info("Set the data");
     }
 
     public void discarded() {

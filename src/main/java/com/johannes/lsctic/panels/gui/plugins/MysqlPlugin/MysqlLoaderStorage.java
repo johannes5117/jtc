@@ -72,7 +72,6 @@ public class MysqlLoaderStorage {
             } else if(mobile == i) {
                 field.setMobile(true);
             }
-            Logger.getLogger(getClass().getName()).info(field.getFieldname());
             ++i;
         }
         return mysqlFields;

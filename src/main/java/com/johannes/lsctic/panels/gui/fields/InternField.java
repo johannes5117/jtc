@@ -33,7 +33,7 @@ import java.util.Objects;
 public class InternField extends HBox {
 
     private final String name;
-    private final int count;
+    private int count;
     private final String number;
     private final EventBus eventBus;
     private int state;
@@ -172,6 +172,8 @@ public class InternField extends HBox {
     public int getCount() {
         return count;
     }
+
+    public void incCount() {this.count = this.count +1;}
 
     public String getNumber() {
         return number;

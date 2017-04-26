@@ -88,7 +88,6 @@ public class SqlLiteConnection {
      */
     public void buildUpdateOrInsertStatementForSetting(String description, String settingValue) {
         int currentId = getMaxIdValueOfTable("Settings") + 1;
-        Logger.getLogger(getClass().getName()).info(String.valueOf(currentId));
         try (Connection con = DriverManager.getConnection(JDBC + database); Statement statement = con.createStatement()) {
             statement.setQueryTimeout(10);
             con.setAutoCommit(false);
