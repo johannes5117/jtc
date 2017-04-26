@@ -34,7 +34,7 @@ public class SqlLiteConnection {
     public SqlLiteConnection(String database) {
         this.database = database;
         String[] createLines2 = {"create table settings (id integer, setting string, description string)",
-            "create table internfields (id integer  Primary Key AUTOINCREMENT, number string, name string, callcount integer, favorit boolean)"};
+            "create table internfields (id integer  Primary Key AUTOINCREMENT, number string, name string, callcount integer, position integer)"};
         createDatabase(database, createLines2);
     }
 
@@ -289,6 +289,11 @@ public class SqlLiteConnection {
         int i = 0;
         for (PluginDataField fields: linkFields) {
             buildUpdateOrInsertStatementForSetting(name + "Field" + i, fields.getFieldname() + ";" + fields.getFieldvalue());
+            if(fields.isMobile()) {
+                buildUpdateOrInsertStatementForSetting(name+ "FieldMob", String.valueOf(i));
+            } else if (fields.isTelephone()) {
+                buildUpdateOrInsertStatementForSetting(name+ "FieldTel", String.valueOf(i));
+            }
             ++i;
         }
         i = 0;
@@ -310,7 +315,7 @@ public class SqlLiteConnection {
             statement.setQueryTimeout(10);
             try (ResultSet rs = statement.executeQuery("select * from internfields")) {
                 while (rs.next()) {
-                    internNumbers.put(rs.getString(2), new PhoneNumber(true, rs.getString(2), rs.getString(3), rs.getInt(4)));
+                    internNumbers.put(rs.getString(2), new PhoneNumber(true, rs.getString(2), rs.getString(3), rs.getInt(4),rs.getInt(5)));
                 }
             }
         } catch (SQLException ex) {

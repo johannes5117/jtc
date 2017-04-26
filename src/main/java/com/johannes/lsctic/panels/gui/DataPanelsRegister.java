@@ -76,14 +76,14 @@ public class DataPanelsRegister {
     public void addInternAndUpdate(AddInternEvent event) {
         PhoneNumber p = event.getPhoneNumber();
         for (InternField field : internFields.values()) {
-            if (field.getName().equals(event.getPhoneNumber().getName())) {
+            if (field.getName().equals(p.getName())) {
                 Logger.getLogger(getClass().getName()).log(Level.WARNING, "There already exists a user with that phonenumber.");
                 new ErrorMessage("There already exists a user with the same name");
                 return;
             }
         }
         if (!internFields.containsKey(p.getPhoneNumber())) {
-            sqlLiteConnection.queryNoReturn("Insert into internfields (number,name,callcount,favorit) values ('" + p.getPhoneNumber() + "','" + p.getName() + "'," + p.getCount() + ",0)");
+            sqlLiteConnection.queryNoReturn("Insert into internfields (number,name,callcount,position) values ('" + p.getPhoneNumber() + "','" + p.getName() + "'," + p.getCount() + ","+p.getPosition()+")");
             internNumbers.put(p.getPhoneNumber(), p);
             internFields.put(p.getPhoneNumber(), new InternField(p.getName(), p.getCount(), p.getPhoneNumber(), eventBus));
             eventBus.post(new AboStatusExtensionEvent(p.getPhoneNumber()));

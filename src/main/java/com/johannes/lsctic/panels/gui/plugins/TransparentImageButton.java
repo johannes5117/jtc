@@ -16,6 +16,9 @@ import javafx.scene.paint.Color;
 public class TransparentImageButton extends VBox {
     private ImageView view;
 
+    //Used for the choosing of (mobile/telephone/nothing) by clicking through the options
+    private int pos =0;
+
 
     public TransparentImageButton(String resource) {
         Image image = new Image(resource);
@@ -68,6 +71,10 @@ public class TransparentImageButton extends VBox {
             event.consume();
         });
     }
+
+    public int getPos() {return pos;}
+
+    public void setPos(int pos) {this.pos = pos;}
 
     public void disable() {
         this.setEventHandler(MouseEvent.MOUSE_ENTERED, event -> {});

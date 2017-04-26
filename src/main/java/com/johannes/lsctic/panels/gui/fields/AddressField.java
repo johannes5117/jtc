@@ -6,6 +6,7 @@
 package com.johannes.lsctic.panels.gui.fields;
 
 import com.google.common.eventbus.EventBus;
+import com.johannes.lsctic.messagestage.ErrorMessage;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.CallEvent;
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import com.johannes.lsctic.panels.gui.plugins.DataSource;
@@ -93,7 +94,7 @@ public class AddressField extends VBox {
         inner.getChildren().add(innerinner);
         this.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.ENTER) {
-                this.eventBus.post(new CallEvent(this.getName()));
+                this.eventBus.post(new CallEvent(this.getName(),false));
                 event.consume(); // do nothing
             }
         });
@@ -102,7 +103,9 @@ public class AddressField extends VBox {
             TransparentImageButton v = new TransparentImageButton("/pics/telephone-of-old-design.png");
             inner.getChildren().add(v);
             v.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-                this.eventBus.post(new CallEvent(String.valueOf(addressBookEntry.get(telephone))));
+                if(addressBookEntry.getDataSize()>telephone) {
+                    this.eventBus.post(new CallEvent(String.valueOf(addressBookEntry.get(telephone)),false));
+                }
                 event.consume();
             });
 
@@ -112,7 +115,9 @@ public class AddressField extends VBox {
             TransparentImageButton v = new TransparentImageButton("/pics/smartphone-call.png");
             inner.getChildren().add(v);
             v.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-                this.eventBus.post(new CallEvent(addressBookEntry.get(mobile)));
+                        if(addressBookEntry.getDataSize()>mobile) {
+                            this.eventBus.post(new CallEvent(addressBookEntry.get(mobile),false));
+                        }
                 event.consume();
             });
         }
@@ -174,7 +179,12 @@ public class AddressField extends VBox {
             space.setMaxWidth(Double.MAX_VALUE);
             HBox.setHgrow(space, Priority.ALWAYS);
             h.getChildren().add(space);
-            Label value = new Label(addressBookEntry.get(i));
+            Label value = new Label("Error");
+            try {
+                value.setText(addressBookEntry.get(i));
+            } catch (IndexOutOfBoundsException ex) {
+                new ErrorMessage("Please correct your plugin settings. Values for fields are missed");
+            }
             value.getStyleClass().clear();
             value.getStyleClass().add("address-label");
             value.setWrapText(true);

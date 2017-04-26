@@ -56,7 +56,7 @@ public class InternField extends HBox {
         state = -1;
         this.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent event) -> {
             if (event.getClickCount() == 2 & event.getButton() == MouseButton.PRIMARY) {
-                this.eventBus.post(new CallEvent(InternField.this.getNumber()));
+                this.eventBus.post(new CallEvent(InternField.this.getNumber(), true));
             }
             InternField.this.requestFocus();
 
@@ -66,7 +66,7 @@ public class InternField extends HBox {
 
         this.addEventFilter(KeyEvent.KEY_PRESSED, (javafx.scene.input.KeyEvent event) -> {
             if (event.getCode() == KeyCode.ENTER) {
-                this.eventBus.post(new CallEvent(InternField.this.getNumber()));
+                this.eventBus.post(new CallEvent(InternField.this.getNumber(),true));
                 event.consume(); // do nothing
             }
         });
@@ -82,7 +82,7 @@ public class InternField extends HBox {
 
         });
         call.setOnAction(event -> {
-            this.eventBus.post(new CallEvent(InternField.this.getNumber()));
+            this.eventBus.post(new CallEvent(InternField.this.getNumber(),true));
             contextMenu.hide();
 
         });

@@ -77,7 +77,7 @@ public class HistoryField extends VBox {
 
         this.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             if (event.getClickCount() == 2) {
-                this.eventBus.post(new CallEvent(this.getWho()));
+                this.eventBus.post(new CallEvent(this.getWho(),false));
             }
             HistoryField.this.requestFocus();
             event.consume();
@@ -104,7 +104,7 @@ public class HistoryField extends VBox {
 
         this.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.ENTER) {
-                this.eventBus.post(new CallEvent(HistoryField.this.getWho()));
+                this.eventBus.post(new CallEvent(HistoryField.this.getWho(),false));
                 event.consume(); // do nothing
             }
         });
@@ -139,7 +139,7 @@ public class HistoryField extends VBox {
             contextMenu.hide();
         });
         call.setOnAction(event -> {
-            this.eventBus.post(new CallEvent(HistoryField.this.getWho()));
+            this.eventBus.post(new CallEvent(HistoryField.this.getWho(),false));
             contextMenu.hide();
 
         });

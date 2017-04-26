@@ -3,6 +3,7 @@ package com.johannes.lsctic.panels.gui.plugins.SqlitePlugin;
 import com.johannes.lsctic.panels.gui.plugins.*;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 /**
  * Created by johannes on 22.03.2017.

@@ -7,16 +7,13 @@ package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;/*
 import com.johannes.lsctic.panels.gui.plugins.TransparentImageButton;
 import com.johannes.lsctic.panels.gui.plugins.PluginDataField;
 import com.johannes.lsctic.panels.gui.plugins.PluginSettingsField;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -28,17 +25,14 @@ import java.util.logging.Logger;
  * @author johannesengler
  */
 public class MysqlSettingsField extends PluginSettingsField {
-    private final ArrayList<HBox> mysqlFields;
-    private final String pluginName;
+    private final ArrayList<HBox> mysqlBoxes;
     private MysqlLoader loader;
     private boolean hasChanged = false;
-    private int lastSetting = 0;
 
-    public MysqlSettingsField(MysqlLoader loader, String settingsFieldName, String pluginName) {
+    public MysqlSettingsField(MysqlLoader loader, String pluginName) {
         super(pluginName);
         this.loader = loader;
-        mysqlFields = new ArrayList<>();
-        this.pluginName = pluginName;
+        mysqlBoxes = new ArrayList<>();
     }
 
     @Override
@@ -82,13 +76,13 @@ public class MysqlSettingsField extends PluginSettingsField {
         VBox vLdapFields = new VBox();
         vLdapFields.setSpacing(3);
         for (PluginDataField g : loader.getStorageTemp().getMysqlFields()) {
-            mysqlFields.add(makeAdditionalField(g.getFieldname(), g.getFieldvalue(), vLdapFields,false,i));
+            mysqlBoxes.add(makeAdditionalField(g.getFieldname(), g.getFieldvalue(), vLdapFields,false,i));
             ++i;
         }
 
-        mysqlFields.add(makeAdditionalField("", "", vLdapFields,true,i));
+        mysqlBoxes.add(makeAdditionalField("", "", vLdapFields,true,i));
 
-        v.getChildren().addAll(vLdapFields);
+        v.getChildren().add(vLdapFields);
         this.getChildren().add(v);
         super.expand();
     }
@@ -126,18 +120,27 @@ public class MysqlSettingsField extends PluginSettingsField {
             but.setOnMouseClicked(event -> {
                 HBox b1 = (HBox) but.getParent();
                 TextField t11 = (TextField) b1.getChildren().get(0);
-                TextField t21 = (TextField) b1.getChildren().get(2);
-                loader.getStorageTemp().removeFromMysqlFields(t11.getText(), t21.getText());
-                mysqlFields.remove(but.getParent());
+                TextField t21 = (TextField) b1.getChildren().get(1);
+                int deleted = loader.getStorageTemp().removeFromMysqlFields(t11.getText(), t21.getText());
+                if(deleted == loader.getStorageTemp().getTelephone()) {
+                    loader.getStorageTemp().unsetTelephone();
+                } else if(deleted == loader.getStorageTemp().getMobile()) {
+                    loader.getStorageTemp().unsetMobile();
+                }
+                mysqlBoxes.remove(b1);
                 vLdapFields.getChildren().remove(but.getParent());
                 hasChanged = true;
             });
-
         }  else {
             but.setOnMouseClicked(event -> {
                 boolean r = loader.getStorageTemp().addToMysqlFields(t1.getText(), t2.getText());
                 if (r) {
-                    this.makeAdditionalField("", "", vLdapFields, true, num +1);
+                    mysqlBoxes.remove(but.getParent());
+                    vLdapFields.getChildren().remove(but.getParent());
+                    mysqlBoxes.add(this.makeAdditionalField(t1.getText(), t2.getText(), vLdapFields, false, num+1));
+                    loader.getStorageTemp().addToMysqlFields(t1.getText(),t2.getText());
+                    this.makeAdditionalField("", "", vLdapFields, true, num+2);
+                    hasChanged = true;
                 } else {
                     t1.setPromptText("already showed");
                     t2.setPromptText("already showed");
@@ -156,41 +159,33 @@ public class MysqlSettingsField extends PluginSettingsField {
 
         TransparentImageButton v = new TransparentImageButton(initialResource,add);
         if(!add) {
-            lastSetting = 0;
             v.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-
-                if (loader.getStorageTemp().getMobile() < 0 && lastSetting == 0) {
+                TransparentImageButton view = (TransparentImageButton) event.getSource();
+                if (loader.getStorageTemp().getMobile() < 0 && view.getPos()!=1 && view.getPos()!=2) {
                     v.setImage(new Image("/pics/smartphone-call.png"));
-                    TransparentImageButton view = (TransparentImageButton) event.getSource();
-                    loader.getStorageTemp().setMobile(mysqlFields.indexOf(view.getParent()));
-                    if (mysqlFields.indexOf(view.getParent()) == loader.getStorageTemp().getTelephone()) {
+                    loader.getStorageTemp().setMobile(mysqlBoxes.indexOf(view.getParent()));
+                    view.setPos(1);
+                    if (mysqlBoxes.indexOf(view.getParent()) == loader.getStorageTemp().getTelephone()) {
                         loader.getStorageTemp().unsetTelephone();
                     }
-                    lastSetting = 1;
-                } else if (loader.getStorageTemp().getTelephone() < 0 && lastSetting == 1) {
+                } else if (loader.getStorageTemp().getTelephone() < 0 && view.getPos()!=2) {
                     v.setImage(new Image("/pics/telephone-of-old-design.png"));
-                    TransparentImageButton view = (TransparentImageButton) event.getSource();
-                    loader.getStorageTemp().setTelephone(mysqlFields.indexOf(view.getParent()));
-                    if (mysqlFields.indexOf(view.getParent()) == loader.getStorageTemp().getMobile()) {
+                    loader.getStorageTemp().setTelephone(mysqlBoxes.indexOf(view.getParent()));
+                    view.setPos(2);
+                    if (mysqlBoxes.indexOf(view.getParent()) == loader.getStorageTemp().getMobile()) {
                         loader.getStorageTemp().unsetMobile();
                     }
-                    lastSetting = 2;
                 } else {
                     v.setImage(new Image("/pics/right-arrow.png"));
-                    TransparentImageButton view = (TransparentImageButton) event.getSource();
-                    if (mysqlFields.indexOf(view.getParent()) == loader.getStorageTemp().getTelephone()) {
+                    if (mysqlBoxes.indexOf(view.getParent()) == loader.getStorageTemp().getTelephone()) {
                         loader.getStorageTemp().unsetTelephone();
                     }
-                    if (mysqlFields.indexOf(view.getParent()) == loader.getStorageTemp().getMobile()) {
+                    if (mysqlBoxes.indexOf(view.getParent()) == loader.getStorageTemp().getMobile()) {
                         loader.getStorageTemp().unsetMobile();
                     }
-                    if (loader.getStorageTemp().getTelephone() < 0 && loader.getStorageTemp().getMobile() > 0) {
-                        lastSetting = 1;
-                    } else {
-                        lastSetting = 0;
-                    }
-
+                    view.setPos(0);
                 }
+                hasChanged = true;
                 event.consume();
             });
         }

@@ -29,6 +29,9 @@ public class AddressBookEntry {
     public String get(int i) {
         return data.get(i);
     }
+    public int getDataSize() {
+        return data.size();
+    }
     public DataSource getSource() {
         return source;
     }

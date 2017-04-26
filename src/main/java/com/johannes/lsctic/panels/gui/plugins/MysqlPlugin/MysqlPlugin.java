@@ -3,6 +3,7 @@ package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;
 import com.johannes.lsctic.panels.gui.plugins.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by johannes on 22.03.2017.
@@ -19,7 +20,7 @@ public class MysqlPlugin implements AddressPlugin {
 
         DataSource source = new DataSource(PLUGIN_NAME, PLUGIN_TAG);
         loader = new MysqlLoader(source);
-        settingsField = new MysqlSettingsField(loader, "MySql", PLUGIN_NAME);
+        settingsField = new MysqlSettingsField(loader, PLUGIN_NAME);
 
     }
 
@@ -72,7 +73,12 @@ public class MysqlPlugin implements AddressPlugin {
     public void setDataFields(ArrayList<PluginDataField> datasourceFields) {
         loader.getDataSource().setAvailableFields(datasourceFields);
         loader.getStorage().setMysqlFields(datasourceFields);
-        loader.getStorageTemp().setMysqlFields(datasourceFields);
+        ArrayList<PluginDataField> datasourceFieldsTemp = new ArrayList<>();
+        // Deep Copy for being able to reset
+        for(PluginDataField plug : datasourceFields) {
+            datasourceFieldsTemp.add(new PluginDataField(plug.getFieldname(),plug.getFieldvalue(),plug.isTelephone(),plug.isMobile()));
+        }
+        loader.getStorageTemp().setMysqlFields(datasourceFieldsTemp);
         int i = 0;
         for(PluginDataField dataField : datasourceFields) {
             if(dataField.isTelephone()) {

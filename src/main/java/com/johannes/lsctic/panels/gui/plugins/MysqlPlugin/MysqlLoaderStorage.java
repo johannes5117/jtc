@@ -3,6 +3,7 @@ package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;
 import com.johannes.lsctic.panels.gui.plugins.PluginDataField;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 /**
  * Created by johannes on 31.03.2017.
@@ -25,7 +26,12 @@ public class MysqlLoaderStorage {
         this.serverAddress = old.getServerAddress();
         this.serverPort = old.getServerPort();
         this.database = old.getDatabase();
+        this.telephone = old.getTelephone();
+        this.mobile = old.getMobile();
         mysqlFields = new ArrayList<>();
+        for(PluginDataField oldFields : old.getMysqlFields()) {
+            mysqlFields.add(new PluginDataField(oldFields.getFieldname(),oldFields.getFieldvalue(), oldFields.isTelephone(),oldFields.isMobile()));
+        }
     }
 
     public MysqlLoaderStorage() {
@@ -57,6 +63,18 @@ public class MysqlLoaderStorage {
     }
 
     public ArrayList<PluginDataField> getMysqlFields() {
+        int i = 0;
+        for(PluginDataField field: mysqlFields) {
+            field.setMobile(false);
+            field.setTelephone(false);
+            if(telephone == i) {
+                field.setTelephone(true);
+            } else if(mobile == i) {
+                field.setMobile(true);
+            }
+            Logger.getLogger(getClass().getName()).info(field.getFieldname());
+            ++i;
+        }
         return mysqlFields;
     }
 
@@ -64,27 +82,34 @@ public class MysqlLoaderStorage {
         this.mysqlFields = mysqlFields;
     }
 
-    public void removeFromMysqlFields(String text, String text1) {
+    public int removeFromMysqlFields(String text, String text1) {
+        int i =0;
         for (PluginDataField entry : mysqlFields) {
             if (entry.getFieldname().equals(text) && entry.getFieldvalue().equals(text1)) {
+                if(entry.isTelephone()) {
+                    unsetTelephone();
+                } else if(entry.isMobile()) {
+                    unsetMobile();
+                }
                 mysqlFields.remove(entry);
-                return;
+                return i;
             }
+            ++i;
         }
+        return 0;
     }
 
     public boolean addToMysqlFields(String text, String text1) {
         for (PluginDataField entry : mysqlFields) {
-            if (entry.getFieldname().equals(text) || entry.getFieldvalue().equals(text1)) {
+            if ((entry.getFieldname().equals(text) || entry.getFieldvalue().equals(text1)) ||
+                    (text.length()==0 || text1.length()==0)) {
                 //One of the entries is already available
                 return false;
             }
         }
         //String[] g = {text, text1};
         PluginDataField g = new PluginDataField(text, text1);
-
         //implement here status
-
         mysqlFields.add(g);
         return true;
     }

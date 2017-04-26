@@ -8,6 +8,7 @@ import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchDataSourcesF
 import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.UpdateAddressFieldsEvent;
+import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.CallEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.UserLoginStatusEvent;
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import com.johannes.lsctic.panels.gui.plugins.AddressPlugin;
@@ -116,6 +117,9 @@ public final class OptionsStorage {
         for (AddressPlugin plugin : this.getPluginRegister().getAllActivePlugins()) {
             if (plugin.getPluginSettingsField().hasChanged()) {
                 sqlLiteConnection.writePluginSettingsToDatabase(plugin.getName(), plugin.getOptions(), plugin.getDataFields());
+                List<AddressBookEntry> ld = getPluginRegister().getResultFromEveryPlugin("", 10);
+                bus.post(new UpdateAddressFieldsEvent(ld));
+
             }
         }
 
@@ -271,7 +275,13 @@ public final class OptionsStorage {
         }
     }
 
-
+    @Subscribe
+    public void incrementCallCount(CallEvent event) {
+        if(event.isIntern()) {
+            sqlLiteConnection.updateOneAttribute("internfields", "number",event.getPhoneNumber(), "callcount",
+                   String.valueOf(Integer.valueOf(sqlLiteConnection.query("Select callcount from internfields where number = '"+event.getPhoneNumber()+"'"))+1));
+        }
+    }
    
     public String getAmiAddress() {
         return amiAddress;

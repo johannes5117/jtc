@@ -14,12 +14,14 @@ public class PhoneNumber {
     private String phoneNumber;
     private String name;
     private int count;
+    private int position;
 
-    public PhoneNumber(boolean intern, String phoneNumber, String name, int count) {
+    public PhoneNumber(boolean intern, String phoneNumber, String name, int count, int position) {
         this.intern = intern;
         this.phoneNumber = phoneNumber;
         this.name = name;
         this.count = count;
+        this.position = position;
     }
 
     public boolean isIntern() {
@@ -55,5 +57,12 @@ public class PhoneNumber {
     }
     public void plusCount() {
         this.count++;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+    public void setPosition(int position) {
+        this.position = position;
     }
 }

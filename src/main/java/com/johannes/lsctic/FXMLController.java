@@ -94,7 +94,7 @@ public class FXMLController implements Initializable {
         paneATextIn.addEventFilter(KeyEvent.KEY_PRESSED, (javafx.scene.input.KeyEvent event) -> {
             if (event.getCode() == KeyCode.ENTER) {
                 if (quickfireString.matches("^[0-9]*$")) {
-                    eventBus.post(new CallEvent(quickfireString));
+                    eventBus.post(new CallEvent(quickfireString,false));
                 }
                 event.consume();
             }

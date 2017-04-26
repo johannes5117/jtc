@@ -15,6 +15,12 @@ public class PluginDataField {
         this.telephone = false;
         this.mobile = false;
     }
+    public PluginDataField(String fieldname, String fieldvalue, boolean telephone, boolean mobile) {
+        this.fieldname = fieldname;
+        this.fieldvalue = fieldvalue;
+        this.telephone = telephone;
+        this.mobile = mobile;
+    }
 
     public String getFieldname() {
         return fieldname;
@@ -39,4 +45,21 @@ public class PluginDataField {
     public void setMobile(boolean mobile) {
         this.mobile = mobile;
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PluginDataField dataField = (PluginDataField) o;
+
+        if (telephone != dataField.telephone) return false;
+        if (mobile != dataField.mobile) return false;
+        if (!fieldname.equals(dataField.fieldname)) return false;
+        return fieldvalue.equals(dataField.fieldvalue);
+    }
+
+
 }
+

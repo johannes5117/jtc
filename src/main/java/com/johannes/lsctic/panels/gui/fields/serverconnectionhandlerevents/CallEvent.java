@@ -5,12 +5,18 @@ package com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents;
  */
 public class CallEvent {
     private String phoneNumber;
+    private boolean intern;
 
-    public CallEvent(String phoneNumber) {
+    public CallEvent(String phoneNumber, boolean intern) {
         this.phoneNumber = phoneNumber;
+        this.intern = intern;
     }
 
     public String getPhoneNumber() {
         return phoneNumber;
+    }
+
+    public boolean isIntern() {
+        return intern;
     }
 }

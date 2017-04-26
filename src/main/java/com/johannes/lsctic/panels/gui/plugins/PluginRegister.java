@@ -99,6 +99,11 @@ public class PluginRegister {
         }
     }
 
+    public void resetSpecificPlugin(SqlLiteConnection sqlLiteConnection, AddressPlugin addressPlugin) {
+            addressPlugin.setDataFields(sqlLiteConnection.getFieldsForDataSource(addressPlugin.getName()));
+            addressPlugin.setOptions(sqlLiteConnection.getOptionsForDataSource(addressPlugin.getName()));
+    }
+
     private ArrayList<String> getAvailablePluginsFromFolder(String folder) {
         File dir = new File(folder);
         ArrayList<String> fileList = new ArrayList();
@@ -164,6 +169,7 @@ public class PluginRegister {
 
     public void acceptAllPlugins() {
         for (AddressPlugin l : loadedPlugins) {
+            l.getPluginSettingsField().refresh();
             l.getLoader().saved();
         }
     }
@@ -171,6 +177,7 @@ public class PluginRegister {
 
     public void discardAllPlugins() {
         for (AddressPlugin l : loadedPlugins) {
+            l.getPluginSettingsField().refresh();
             l.getLoader().discarded();
         }
     }
