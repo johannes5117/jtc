@@ -2,6 +2,7 @@ package com.johannes.lsctic;
 
 import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.amiapi.netty.ServerConnectionHandler;
+import com.johannes.lsctic.messagestage.PasswordChange;
 import com.johannes.lsctic.panels.gui.DataPanelsRegister;
 import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.UpdateAddressFieldsEvent;
@@ -45,6 +46,11 @@ public class FXMLController implements Initializable {
     private TextField paneBTextIn;
     @FXML
     private TabPane tabPane;
+    @FXML
+    private Button btnlast;
+    @FXML
+    private Button btnnext;
+
 
     private String quickfireString;
     private DataPanelsRegister dataPanelsRegister;
@@ -54,7 +60,6 @@ public class FXMLController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
     }
 
     public void setStage(Stage stage) {
@@ -84,7 +89,8 @@ public class FXMLController implements Initializable {
         eventBus.post(new StartConnectionEvent(storage.getAmiAddress(), storage.getAmiServerPort(), storage.getAmiLogIn(), storage.getAmiPasswordHash(), true));
 
         VBox[] panels = {panelA, panelB, panelC, panelD};
-        dataPanelsRegister = new DataPanelsRegister(eventBus, sqlLiteConnection, panels);
+        Button[] buttons = {btnlast, btnnext};
+        dataPanelsRegister = new DataPanelsRegister(eventBus, sqlLiteConnection, panels, buttons);
 
         //Initally show 10 first entries in the Addressbook View
         List<AddressBookEntry> ld = storage.getPluginRegister().getResultFromEveryPlugin("", 10);

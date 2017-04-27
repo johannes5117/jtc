@@ -10,6 +10,7 @@ package com.johannes.lsctic.amiapi.netty;
  */
 
 import com.google.common.eventbus.EventBus;
+import com.johannes.lsctic.messagestage.ErrorMessage;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.AddCdrAndUpdateEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.SetStatusEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.ReceivedOwnExtensionEvent;
@@ -52,6 +53,8 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
         } else if (msg.startsWith("owne")) {
             bus.post(new ReceivedOwnExtensionEvent(msg.substring(4)));
             ownExtension = msg.substring(4);
+        } else if("chfa".equals(msg)) {
+            displayPasswordChangeFailedError();
         } else {
             try {
                 String chatInput = msg;
@@ -108,4 +111,13 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
         });
     }
 
+    public void displayPasswordChangeFailedError() {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                new ErrorMessage("Password change not possible. Old password seems to be wrong. " +
+                        "You were logged out. You need to login again in the server settings with your old password.");
+            }
+        });
+    }
 }

@@ -12,6 +12,7 @@ import com.johannes.lsctic.messagestage.SuccessMessage;
 import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.*;
+import com.johannes.lsctic.panels.gui.settings.PasswordChangeRequestEvent;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
@@ -63,6 +64,12 @@ public class ServerConnectionHandler {
     }
 
     @Subscribe
+    public  void passwordChange(PasswordChangeRequestEvent event) {
+        Logger.getLogger(getClass().getName()).info(event.getUser() + "   "+ event.getOldPw());
+        this.write("chpw"+event.getUser()+";"+event.getOldPw()+";"+event.getNewPw()+"\r\n");
+    }
+
+    @Subscribe
     public void aboStatusExtension(AboStatusExtensionEvent event) {
         this.write("000" + event.getPhonenumber() + "\r\n");
     }
@@ -70,6 +77,11 @@ public class ServerConnectionHandler {
     @Subscribe
     public void deAboStatusExtension(DeAboStatusExtension event) {
         this.write("001" + event.getPhonenumber() + "\r\n");
+    }
+
+    @Subscribe
+    public void orderCdrsHistory(OrderCDRsEvent event) {
+        this.write("005"+event.getStart()+";"+event.getAmount()+"\r\n");
     }
 
     @Subscribe
@@ -144,8 +156,7 @@ public class ServerConnectionHandler {
         }
         firstStart = false;
 
-        // TODO: implement password change box
-        //write("chpw"+"johannes;"+"NeuesPasswort000201;TestPasswort"+"\r\n");
+
     }
 
 

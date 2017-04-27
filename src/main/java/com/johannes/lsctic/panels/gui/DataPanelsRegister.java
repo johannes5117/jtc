@@ -13,13 +13,13 @@ import com.johannes.lsctic.panels.gui.fields.internevents.AddInternEvent;
 import com.johannes.lsctic.panels.gui.fields.NewInternField;
 import com.johannes.lsctic.panels.gui.fields.internevents.RemoveInternAndUpdateEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.*;
-import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.AboStatusExtensionEvent;
-import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.CallEvent;
-import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.DeAboStatusExtension;
-import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.UserLoginStatusEvent;
+import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.*;
+import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 
+import java.awt.event.MouseEvent;
 import java.util.*;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,15 +34,21 @@ public class DataPanelsRegister {
     private VBox panelA;
     private VBox panelB;
     private VBox panelC;
+    private Button buttonNext;
+    private Button buttonLast;
+    private int historyfieldCount = 0;
     private boolean sortByCallCount = true;
 
     private EventBus eventBus;
 
-    public DataPanelsRegister(EventBus bus, SqlLiteConnection sqlLiteConnection, VBox[] panels){
+    public DataPanelsRegister(EventBus bus, SqlLiteConnection sqlLiteConnection, VBox[] panels, Button[] buttons){
 
         this.panelA = panels[0];
         this.panelB = panels[1];
         this.panelC = panels[2];
+
+        this.buttonLast = buttons[0];
+        this.buttonNext = buttons[1];
 
         this.eventBus = bus;
         this.eventBus.register(this);
@@ -56,12 +62,28 @@ public class DataPanelsRegister {
         internNumbers.entrySet().stream().forEach(g
                 -> internFields.put(g.getKey(), new InternField(g.getValue().getName(), g.getValue().getCount(), g.getKey(), eventBus)));
 
-
         updateView(new ArrayList<>(internFields.values()));
-
         historyFields = new ArrayList<>();
-
         panelC.getChildren().addAll(historyFields);
+
+        buttonNext.setOnMouseClicked(event -> {
+            ++historyfieldCount;
+            this.buttonLast.setDisable(false);
+            historyFields.clear();
+            this.eventBus.post(new OrderCDRsEvent(historyfieldCount*10 ));
+            Logger.getLogger(getClass().getName()).info(String.valueOf(historyfieldCount));
+        });
+
+        buttonLast.setOnMouseClicked(event -> {
+            --historyfieldCount;
+            if(historyfieldCount==0) {
+                this.buttonLast.setDisable(true);
+            }
+            historyFields.clear();
+            this.eventBus.post(new OrderCDRsEvent(historyfieldCount*10 ));
+            Logger.getLogger(getClass().getName()).info(String.valueOf(historyfieldCount));
+
+        });
     }
 
     @Subscribe
@@ -131,6 +153,7 @@ public class DataPanelsRegister {
     @Subscribe
     public void removeCdrAndUpdate(RemoveCdrAndUpdateEvent event) {
         HistoryField f = event.getHistoryField();
+        //Todo remove cdr also from database on server
         historyFields.remove(f);
         panelC.getChildren().clear();
         panelC.getChildren().addAll(historyFields);

@@ -51,7 +51,7 @@ public final class OptionsStorage {
     private SqlLiteConnection sqlLiteConnection;
 
     public OptionsStorage(Button accept, Button reject, VBox panelD, EventBus bus, SqlLiteConnection sqlLiteConnection) {
-        this.asteriskSettingsField = new AsteriskSettingsField();
+        this.asteriskSettingsField = new AsteriskSettingsField(bus);
         this.pluginRegister = new PluginRegister();
         this.programSettingsField = new ProgramSettingsField();
 

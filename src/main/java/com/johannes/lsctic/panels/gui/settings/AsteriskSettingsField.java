@@ -5,7 +5,14 @@
  */
 package com.johannes.lsctic.panels.gui.settings;
 
+import com.google.common.eventbus.EventBus;
+import com.johannes.lsctic.messagestage.PasswordChange;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
 /**
@@ -19,11 +26,14 @@ public class AsteriskSettingsField extends SettingsField {
     private ToolTipTextField portTextField;
     private ToolTipTextField userTextField;
     private ToolTipTextField passwordTextField;
+    private Button changePassword;
     private boolean changed;
+    private EventBus bus = null;
 
 
-    public AsteriskSettingsField() {
+    public AsteriskSettingsField(EventBus bus) {
         super("Asterisk (AMI)");
+        this.bus = bus;
         ipTextField = new ToolTipTextField("Address of the server");
         ipTextField.setPromptText("IP Adresse (Beispiel: server)");
         portTextField = new ToolTipTextField("Port on the server");
@@ -37,6 +47,13 @@ public class AsteriskSettingsField extends SettingsField {
         userTextField.setPromptText("AMI Benutzer (Beispiel: user)");
         passwordTextField = new ToolTipTextField("Your password");
         passwordTextField.setPromptText("AMI Passwort (Beispiel: vogel)");
+        changePassword = new Button("Change password");
+        changePassword.getStyleClass().add("button-ui");
+        changePassword.setOnMouseClicked(event -> {
+            PasswordChange passwordChange = new PasswordChange(bus, userTextField.getText());
+            passwordChange.start();
+
+        });
         changed = false;
     }
 
@@ -47,7 +64,11 @@ public class AsteriskSettingsField extends SettingsField {
         VBox v = new VBox();
         v.setSpacing(3);
         VBox.setMargin(v, new Insets(6, 0, 3, 0));
-        v.getChildren().addAll(ipTextField, portTextField, userTextField, passwordTextField);
+        VBox spaceButton = new VBox();
+        spaceButton.setAlignment(Pos.CENTER);
+        spaceButton.setPadding(new Insets(5,5,0,5));
+        spaceButton.getChildren().addAll(changePassword);
+        v.getChildren().addAll(ipTextField, portTextField, userTextField, passwordTextField, spaceButton);
         this.getChildren().add(v);
         super.expand();
     }

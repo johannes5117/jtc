@@ -78,9 +78,9 @@
 
                                           <HBox prefWidth="200.0" >
                                              <children>
-                                                <Button mnemonicParsing="false" disable="true" text="Last" styleClass="button-ui" />
+                                                <Button fx:id="btnlast" mnemonicParsing="false" disable="true" text="Last" styleClass="button-ui" />
                                                 <HBox HBox.hgrow="ALWAYS" />
-                                                <Button alignment="CENTER_RIGHT" contentDisplay="CENTER"  mnemonicParsing="false" text="Next" styleClass="button-ui"/>
+                                                <Button fx:id="btnnext" alignment="CENTER_RIGHT" contentDisplay="CENTER"  mnemonicParsing="false" text="Next" styleClass="button-ui"/>
                                              </children>
                                               <padding>
                                                   <Insets bottom="5.0" left="3.0" right="3.0" top="5.0" />
