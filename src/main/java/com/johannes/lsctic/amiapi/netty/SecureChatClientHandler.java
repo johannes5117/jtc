@@ -120,4 +120,5 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
             }
         });
     }
+
 }

@@ -24,6 +24,9 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import javafx.application.Platform;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,8 +37,11 @@ public class ServerConnectionHandler {
     private final EventBus bus;
     private String ownExtension;
     private boolean firstStart = true;
+    private boolean silentReconnect;
     private String address;
     private int port;
+    private String id;
+    private String actHash;
     private Channel ch;
     private boolean loggedIn;
 
@@ -103,6 +109,8 @@ public class ServerConnectionHandler {
         }
         this.address = event.getAddress();
         this.port = event.getPort();
+        this.id = event.getId();
+        this.silentReconnect = event.isSilentRetry();
         try {
             final SslContext sslCtx = SslContextBuilder.forClient()
                     .trustManager(InsecureTrustManagerFactory.INSTANCE).build();
@@ -119,13 +127,16 @@ public class ServerConnectionHandler {
 
         } catch (InterruptedException | IOException | IllegalArgumentException ex) {
             Logger.getLogger(ServerConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
-            new ErrorMessage("Could not establish connection to server. Please edit connection to server under options.");
-            firstStart = false;
+            if(!event.isSilentRetry()) {
+                new ErrorMessage("Could not establish connection to server. Please edit connection to server under options.");
+                firstStart = false;
+            }
         }
         if(ch!=null && ch.isOpen()) {
             if (event.isHash()) {
                 Logger.getLogger(getClass().getName()).info(event.getPw());
                 ch.writeAndFlush(event.getId() + ";" + event.getPw() + "\r\n");
+                this.actHash = event.getPw();
             } else {
                 ch.writeAndFlush("ndb" + event.getId() + ";" + event.getPw() + "\r\n");
             }
@@ -136,23 +147,43 @@ public class ServerConnectionHandler {
     public void userLoggedInStatusChanged(UserLoginStatusEvent event) {
         this.loggedIn = event.isLoggedIn();
         if (!event.isLoggedIn()) {
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    new ErrorMessage("Could not log in on server. Please edit username or password for server.");
-                }
-            });
+            Platform.runLater(() -> new ErrorMessage("Could not log in on server. Please edit username or password for server."));
             this.ch.disconnect();
             this.ch.close();
+        } else if(event.isLoggedIn()) {
+            this.actHash = event.getHashedPw();
+            // Check cyclically if the user is still connected -> if not reconnect attempt until hes again connected
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            executor.submit(() -> {
+                while(ch.isOpen()) {
+                    try {
+                        TimeUnit.SECONDS.sleep(5);
+                    } catch (InterruptedException e) {
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                // If connection becomes closed: inform!
+                int i = 1;
+                while(!ch.isOpen()) {
+                    bus.post(new StartConnectionEvent(this.address,this.port,this.id,this.actHash,true, true));
+                    try {
+                        TimeUnit.SECONDS.sleep(5);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if(ch.isOpen()) {
+                        break;
+                    }
+                    Logger.getLogger(getClass().getName()).info("Login attempt: " + String.valueOf(i));
+                    ++i;
+                }
+
+            });
         }
         // It would be annoying if every time you start the program a message pops up that informs about the connection
-        if (!firstStart && event.isLoggedIn()) {
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    new SuccessMessage("Established connection to server: " + address + "\n Logged in successfully");
-                }
-            });
+        if (!firstStart && event.isLoggedIn() && !this.silentReconnect) {
+            Platform.runLater(() -> new SuccessMessage("Established connection to server: " + address + "\n Logged in successfully"));
         }
         firstStart = false;
 

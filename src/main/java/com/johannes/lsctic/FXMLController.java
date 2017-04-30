@@ -86,7 +86,7 @@ public class FXMLController implements Initializable {
         OptionsStorage storage = new OptionsStorage(optionAccept, optionReject, panelD, eventBus, sqlLiteConnection);
 
         new ServerConnectionHandler(eventBus);
-        eventBus.post(new StartConnectionEvent(storage.getAmiAddress(), storage.getAmiServerPort(), storage.getAmiLogIn(), storage.getAmiPasswordHash(), true));
+        eventBus.post(new StartConnectionEvent(storage.getAmiAddress(), storage.getAmiServerPort(), storage.getAmiLogIn(), storage.getAmiPasswordHash(), true,false));
 
         VBox[] panels = {panelA, panelB, panelC, panelD};
         Button[] buttons = {btnlast, btnnext};

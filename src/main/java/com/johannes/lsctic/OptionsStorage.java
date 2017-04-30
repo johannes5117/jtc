@@ -106,7 +106,7 @@ public final class OptionsStorage {
     private void refreshProgram() {
         if(asteriskSettingsField.hasChanged() || asteriskSettingsField.passwordChanged()) {
             String[] options = asteriskSettingsField.getOptions();
-            bus.post(new StartConnectionEvent(options[0], Integer.parseInt(options[1]), options[2], options[3], false));
+            bus.post(new StartConnectionEvent(options[0], Integer.parseInt(options[1]), options[2], options[3], false,false));
         } else if(dataSourceSettingsField.hasChanged()) {
             setUpPlugins();
             writeActivatedDataSourcesToDatabase();

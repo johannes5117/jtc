@@ -16,8 +16,6 @@ import com.johannes.lsctic.panels.gui.fields.otherevents.*;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.*;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
-
-import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
 import java.util.logging.Level;

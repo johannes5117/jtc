@@ -9,13 +9,15 @@ public class StartConnectionEvent {
     private String id;
     private String pw;
     private boolean hash;
+    private boolean silentRetry;
 
-    public StartConnectionEvent(String address, int port, String id, String pw, boolean hash) {
+    public StartConnectionEvent(String address, int port, String id, String pw, boolean hash, boolean silentRetry) {
         this.address = address;
         this.port = port;
         this.id = id;
         this.pw = pw;
         this.hash = hash;
+        this.silentRetry = silentRetry;
     }
 
     public String getAddress() {
@@ -36,5 +38,9 @@ public class StartConnectionEvent {
 
     public boolean isHash() {
         return hash;
+    }
+
+    public boolean isSilentRetry() {
+        return silentRetry;
     }
 }
