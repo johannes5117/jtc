@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" id="AnchorPane" prefHeight="380.0"
-            style="-fx-background-color: rgba(0, 0, 0, 0.0);" xmlns="http://javafx.com/javafx/8"
-            fx:controller="com.johannes.lsctic.FXMLController">
+
+<AnchorPane id="AnchorPane" prefHeight="380.0" style="-fx-background-color: rgba(0, 0, 0, 0.0);" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.johannes.lsctic.FXMLController">
     <children>
       <TabPane fx:id="tabPane" focusTraversable="false" prefHeight="380.0" side="LEFT" style="-fx-background-color: rgba(0, 0, 0, 0.0);" tabClosingPolicy="UNAVAILABLE">
         <tabs>
@@ -15,13 +15,24 @@
                      <children>
                         <VBox minWidth="220.0" prefHeight="380.0">
                            <children>
-                               <TextField fx:id="paneATextIn" promptText="Search....." styleClass="textfield-search"/>
+                               <TextField fx:id="paneATextIn" promptText="Search....." styleClass="textfield-search" />
+                              <VBox prefWidth="100.0" style="-fx-background-color: #FFFFFF11;">
+                                 <children>
+                                    <HBox prefWidth="200.0" spacing="30.0" style="-fx-background-color: rgba(38, 45, 70, 0.58);">
+                                       <children>
+                                          <ToggleButton mnemonicParsing="false" text="Server" />
+                                          <ToggleButton mnemonicParsing="false" text="DND" />
+                                          <ToggleButton mnemonicParsing="false" text="Redirect" />
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                       </padding>
+                                    </HBox>
+                                 </children>
+                              </VBox>
                               <ScrollPane fx:id="scrollPaneA" hbarPolicy="NEVER" hmax="0.0" prefViewportHeight="380.0" prefViewportWidth="300.0" style="-fx-background-color: #FFFFFF11;" vbarPolicy="NEVER">
                                  <content>
-                                     <VBox fx:id="panelA" layoutX="29.0" layoutY="79.0" prefHeight="360.0"
-                                           prefWidth="300.0" style="-fx-background-color: rgba(38, 45, 70, 0.58);"
-                                           AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                           AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                     <VBox fx:id="panelA" layoutX="29.0" layoutY="79.0" prefHeight="360.0" prefWidth="300.0" style="-fx-background-color: rgba(38, 45, 70, 0.58);" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 
                                     </VBox>
                                  </content>
@@ -41,7 +52,7 @@
                      <children>
                         <VBox prefHeight="380.0">
                            <children>
-                              <TextField fx:id="paneBTextIn" promptText="Search....." VBox.vgrow="NEVER" styleClass="textfield-search" />
+                              <TextField fx:id="paneBTextIn" promptText="Search....." styleClass="textfield-search" VBox.vgrow="NEVER" />
                               <ScrollPane hbarPolicy="NEVER" hmax="0.0" prefViewportHeight="380.0" prefViewportWidth="300.0" style="-fx-background-color: #FFFFFF11;" vbarPolicy="NEVER">
                                  <content>
                                     <VBox fx:id="panelB" layoutX="65.0" layoutY="122.0" prefHeight="380.0" prefWidth="300.0" style="-fx-background-color: rgba(38, 45, 70, 0.58);" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -63,7 +74,7 @@
                      <children>
                         <VBox prefHeight="380.0">
                            <children>
-                              <TextField fx:id="paneCTextIn" promptText="Search....." VBox.vgrow="NEVER" styleClass="textfield-search" />
+                              <TextField fx:id="paneCTextIn" promptText="Search....." styleClass="textfield-search" VBox.vgrow="NEVER" />
                               <ScrollPane hbarPolicy="NEVER" hmax="0.0" prefViewportHeight="380.0" prefViewportWidth="300.0" vbarPolicy="NEVER">
                                  <content>
                                     <VBox prefHeight="380.0" prefWidth="300.0" style="-fx-background-color: rgba(38, 45, 70, 0.58);">
@@ -76,11 +87,11 @@
                                              </content>
                                           </ScrollPane>
 
-                                          <HBox prefWidth="200.0" >
+                                          <HBox prefWidth="200.0">
                                              <children>
-                                                <Button fx:id="btnlast" mnemonicParsing="false" disable="true" text="Last" styleClass="button-ui" />
+                                                <Button fx:id="btnlast" disable="true" mnemonicParsing="false" styleClass="button-ui" text="Last" />
                                                 <HBox HBox.hgrow="ALWAYS" />
-                                                <Button fx:id="btnnext" alignment="CENTER_RIGHT" contentDisplay="CENTER"  mnemonicParsing="false" text="Next" styleClass="button-ui"/>
+                                                <Button fx:id="btnnext" alignment="CENTER_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" styleClass="button-ui" text="Next" />
                                              </children>
                                               <padding>
                                                   <Insets bottom="5.0" left="3.0" right="3.0" top="5.0" />
@@ -119,9 +130,9 @@
                         </ScrollPane>
                         <HBox prefWidth="200.0" styleClass="button-hbox">
                            <children>
-                              <Button fx:id="optionAccept" mnemonicParsing="false" text="Accept" styleClass="button-ui" />
+                              <Button fx:id="optionAccept" mnemonicParsing="false" styleClass="button-ui" text="Accept" />
                               <HBox HBox.hgrow="ALWAYS" />
-                              <Button fx:id="optionReject" mnemonicParsing="false" text="Reset" styleClass="button-ui" />
+                              <Button fx:id="optionReject" mnemonicParsing="false" styleClass="button-ui" text="Reset" />
                            </children>
                            <padding>
                               <Insets bottom="5.0" left="3.0" right="3.0" top="5.0" />

@@ -305,3 +305,24 @@
     -fx-background-insets: -1.4, 0, 1, 2;
     -fx-background-radius:  6.4, 5, 4, 3;
 }
+.toggle-button {
+    -fx-text-fill: #c3c3c3;
+    -fx-focus-color: transparent;
+    -fx-border-color: transparent;
+    -fx-effect: null;
+    -fx-background-color: rgba(32, 68, 89, 0.90);
+
+}
+
+.toggle-button:hover {
+    -fx-text-fill: white;
+    -fx-focus-color: transparent;
+    -fx-border-color: transparent;
+    -fx-effect: null;
+     -fx-background-color: rgba(32, 68, 89, 0.90);
+
+}
+.toggle-button:selected {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
+    -fx-background-color: #5FED7E;
+}
