@@ -9,16 +9,16 @@ import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyE
 import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.UpdateAddressFieldsEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.ViewOptionsChangedEvent;
-import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.CallEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.UserLoginStatusEvent;
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import com.johannes.lsctic.panels.gui.plugins.AddressPlugin;
 import com.johannes.lsctic.panels.gui.plugins.PluginRegister;
 import com.johannes.lsctic.panels.gui.plugins.PluginSettingsField;
+import com.johannes.lsctic.panels.gui.plugins.pluginevents.CheckLicenseForPluginEvent;
+import com.johannes.lsctic.panels.gui.plugins.pluginevents.PluginLicenseApprovedEvent;
 import com.johannes.lsctic.panels.gui.settings.AsteriskSettingsField;
 import com.johannes.lsctic.panels.gui.settings.DataSourceSettingsField;
 import com.johannes.lsctic.panels.gui.settings.ProgramSettingsField;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 
@@ -65,12 +65,7 @@ public final class OptionsStorage {
 
         this.pluginRegister.explorePluginFolder(this.pluginFolder);
 
-        setUpPlugins();
-
-
-
         panelD.getChildren().addAll(asteriskSettingsField,programSettingsField, dataSourceSettingsField);
-        panelD.getChildren().addAll(this.getPluginRegister().getAllPluginSettingsFields());
 
         accept.setOnAction(event -> accept());
         reject.setOnAction(event -> setTempVariables());
@@ -78,10 +73,23 @@ public final class OptionsStorage {
 
 
     private void setUpPlugins() {
-        this.pluginRegister.loadPlugins(activatedDataSources, pluginFolder);
-        this.pluginRegister.activateAllPlugins(sqlLiteConnection);
+        for(String g : activatedDataSources) {
+            bus.post(new CheckLicenseForPluginEvent(g,this.pluginRegister.getPluginLicense(g, this.pluginFolder)));
+        }
         dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(), activatedDataSources, this.pluginRegister.getLoadedPluginNames());
+
     }
+
+    @Subscribe
+    public void loadApprovedPlugin(PluginLicenseApprovedEvent event) {
+        this.pluginRegister.loadPlugin(event.getPluginname(), pluginFolder);
+        this.pluginRegister.activateAllPlugins(sqlLiteConnection);
+        panelD.getChildren().addAll(this.getPluginRegister().getAllPluginSettingsFields());
+        List<AddressBookEntry> ld = getPluginRegister().getResultFromEveryPlugin("", 10);
+        dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(), activatedDataSources, this.pluginRegister.getLoadedPluginNames());
+        bus.post(new UpdateAddressFieldsEvent(ld));
+    }
+
 
         /**
      * Used to store the temp. vars.
@@ -117,8 +125,6 @@ public final class OptionsStorage {
                         panelD.getChildren().add(settingsField);
                     }
                 }
-                List<AddressBookEntry> ld = getPluginRegister().getResultFromEveryPlugin("", 10);
-                bus.post(new UpdateAddressFieldsEvent(ld));
             }
         } else if(programSettingsField.hasChanged()) {
             bus.post(new ViewOptionsChangedEvent(sortByCount));
@@ -300,6 +306,7 @@ public final class OptionsStorage {
         if (event.isLoggedIn()) {
             this.amiPasswordHash = event.getHashedPw();
             sqlLiteConnection.buildUpdateOrInsertStatementForSetting("amiPasswordHash", this.amiPasswordHash);
+            setUpPlugins();
         }
     }
 

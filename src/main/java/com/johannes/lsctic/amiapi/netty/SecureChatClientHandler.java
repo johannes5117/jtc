@@ -11,13 +11,16 @@ package com.johannes.lsctic.amiapi.netty;
 
 import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.messagestage.ErrorMessage;
+import com.johannes.lsctic.messagestage.SuccessMessage;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.AddCdrAndUpdateEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.SetStatusEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.ReceivedOwnExtensionEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.UserLoginStatusEvent;
+import com.johannes.lsctic.panels.gui.plugins.pluginevents.PluginLicenseApprovedEvent;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import javafx.application.Platform;
+import sun.plugin.navig.motif.Plugin;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -53,7 +56,7 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
         } else if (msg.startsWith("owne")) {
             bus.post(new ReceivedOwnExtensionEvent(msg.substring(4)));
             ownExtension = msg.substring(4);
-        } else if("chfa".equals(msg)) {
+        } else if ("chfa".equals(msg)) {
             displayPasswordChangeFailedError();
         } else {
             try {
@@ -67,6 +70,22 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
                     }
                     case 10: {
                         createAndPropagateCdrField(param);
+                        break;
+                    }
+                    case 15: {
+                        Platform.runLater(() -> bus.post(new PluginLicenseApprovedEvent(param)));
+                        break;
+                    }
+                    case 16: {
+                        displayLicenseError(param);
+                        break;
+                    }
+                    case 17: {
+                        displayLicenseExceed(param);
+                        break;
+                    }
+                    case 18: {
+                        displayTestPhaseEnded(param);
                         break;
                     }
                     default: {
@@ -110,6 +129,22 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
             }
         });
     }
+
+    public void displayLicenseError(String param) {
+        String errorMessage = "Could not verify the license for " + param + ". Is the right certificate for your license installed on the server?";
+        Platform.runLater(() -> new ErrorMessage(errorMessage));
+    }
+
+    public void displayLicenseExceed(String param) {
+        String errorMessage = "Amount of registered users for plugin " + param + " exceeds the amount purchased. Please consider to buy more licenses.";
+        Platform.runLater(() -> new ErrorMessage(errorMessage));
+    }
+    public void displayTestPhaseEnded(String param) {
+        String errorMessage = "The test phase for " + param + " is over. Please consider to buy licenses.";
+        Platform.runLater(() -> new ErrorMessage(errorMessage));
+    }
+
+
 
     public void displayPasswordChangeFailedError() {
         Platform.runLater(new Runnable() {

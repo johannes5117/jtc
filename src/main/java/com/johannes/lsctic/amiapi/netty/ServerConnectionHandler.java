@@ -12,6 +12,7 @@ import com.johannes.lsctic.messagestage.SuccessMessage;
 import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.*;
+import com.johannes.lsctic.panels.gui.plugins.pluginevents.CheckLicenseForPluginEvent;
 import com.johannes.lsctic.panels.gui.settings.PasswordChangeRequestEvent;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -52,9 +53,11 @@ public class ServerConnectionHandler {
     }
     @Subscribe
     public void closeConnection(CloseApplicationSafelyEvent event) {
-        this.write("loff" + "\r\n");
-        this.ch.disconnect();
-        this.ch.close();
+        Platform.runLater(()->{
+            this.write("loff" + "\r\n");
+            this.ch.disconnect();
+            this.ch.close();
+        });
     }
 
     @Subscribe
@@ -88,6 +91,11 @@ public class ServerConnectionHandler {
     @Subscribe
     public void orderCdrsHistory(OrderCDRsEvent event) {
         this.write("005"+event.getStart()+";"+event.getAmount()+"\r\n");
+    }
+
+    @Subscribe
+    public void checkLicenseForPlugin(CheckLicenseForPluginEvent event) {
+        this.write("011"+event.getPluginName()+";"+event.getPluginLicense()+"\r\n");
     }
 
     @Subscribe

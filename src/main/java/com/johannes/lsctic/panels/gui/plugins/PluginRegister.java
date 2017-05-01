@@ -7,11 +7,13 @@ package com.johannes.lsctic.panels.gui.plugins;
 
 import com.johannes.lsctic.SqlLiteConnection;
 import com.johannes.lsctic.messagestage.ErrorMessage;
+import javafx.application.Platform;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -27,11 +29,13 @@ public class PluginRegister {
     private ArrayList<String> pluginsFound;
     private ArrayList<AddressPlugin> loadedPlugins;
     private String exploredFolder;
+    private ArrayList<String> approvedPlugins;
 
 
     public PluginRegister() {
         loadedPlugins = new ArrayList<>();
         pluginsFound = new ArrayList<>();
+        approvedPlugins = new ArrayList<>();
     }
 
     public static void addNewLoader(String text) {
@@ -41,29 +45,32 @@ public class PluginRegister {
     public void reloadPlugins(List<String> pluginsToLoad, String folderPath) {
         loadedPlugins.clear();
         explorePluginFolder(folderPath);
-        loadPlugins(pluginsToLoad, folderPath);
+        approvedPlugins.forEach((pluginname)-> loadPlugin(pluginname, folderPath));
     }
 
-    public void loadPlugins(List<String> pluginsToLoad, String folderPath) {
+    public void loadPlugin(String pluginName, String folderPath) {
         if (!folderPath.equals(exploredFolder)) {
             explorePluginFolder(folderPath);
         }
-        for (String pl : pluginsToLoad) {
-            Logger.getLogger(getClass().getName()).info(pl + "    " + pluginsFound.toString());
+
+            Logger.getLogger(getClass().getName()).info(pluginName + "    " + pluginsFound.toString());
 
             // Load the plugins from the folder
-            if (pluginsFound.contains(pl)) {
+            if (pluginsFound.contains(pluginName)) {
                 try {
-                    AddressPlugin plugin = getInstantiatedClass(pl, folderPath);
+                    AddressPlugin plugin = getInstantiatedClass(pluginName, folderPath);
                     loadedPlugins.add(plugin);
+                    if(!approvedPlugins.contains(pluginName)) {
+                        approvedPlugins.add(pluginName);
+                    }
                 } catch (IOException e1) {
                     Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e1);
-                    new ErrorMessage("Plugin "+ pl+" could not be load. The plugin seems to be broken.");
+                    new ErrorMessage("Plugin "+ pluginName+" could not be load. The plugin seems to be broken.");
                 }
             } else {
-                new ErrorMessage("Plugin "+ pl+" could not be load. Is the path correct?");
+                new ErrorMessage("Plugin "+ pluginName+" could not be load. Is the path correct?");
             }
-        }
+
 
     }
 
@@ -180,6 +187,18 @@ public class PluginRegister {
             l.getPluginSettingsField().refresh();
             l.getLoader().discarded();
         }
+    }
+
+    public String getPluginLicense(String pluginname, String folder) {
+            try {
+                byte[] keyBytes = Files.readAllBytes(new File(folder+"/"+pluginname+".lic").toPath());
+                String msg = new String(keyBytes);
+                return msg;
+            } catch (IOException e) {
+                Platform.runLater(()-> new ErrorMessage("Could not load license file for "+pluginname+". Should be "+folder+"/"+pluginname+".lic"));
+            }
+            return "";
+
     }
 
 
