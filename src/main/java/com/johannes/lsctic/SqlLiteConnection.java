@@ -105,11 +105,10 @@ public class SqlLiteConnection {
 
 
     private int getMaxIdValueOfTable(String table) {
-        try (Connection con = DriverManager.getConnection(JDBC + database); Statement statement = con.createStatement()) {
+        final String query = "Select max(id) from " + table;
+        try (Connection con = DriverManager.getConnection(JDBC + database); Statement statement = con.createStatement();
+             ResultSet set = statement.executeQuery(query);) {
             statement.setQueryTimeout(10);
-            final String query = "Select max(id) from " + table;
-
-            ResultSet set = statement.executeQuery(query);
             return set.getInt(1);
         } catch (SQLException ex) {
             Logger.getLogger(getClass().getName()).log(Level.WARNING, null, ex);
@@ -224,7 +223,7 @@ public class SqlLiteConnection {
                         break;
                     }
                 } catch (SQLException e) {
-                    throw new SQLException();
+                    throw e;
                 }
             } catch (SQLException e) {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
@@ -238,7 +237,7 @@ public class SqlLiteConnection {
                         dataSourceFields.get(field).setTelephone(true);
                     }
                 } catch (SQLException e) {
-                    throw new SQLException();
+                    throw e;
                 }
                 statement.setString(1, quField + "Mob");
                 try (ResultSet fieldRS = statement.executeQuery()) {
@@ -247,7 +246,7 @@ public class SqlLiteConnection {
                         dataSourceFields.get(field).setMobile(true);
                     }
                 } catch (SQLException e) {
-                    throw new SQLException();
+                    throw e;
                 }
             } catch (SQLException e) {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
@@ -273,7 +272,7 @@ public class SqlLiteConnection {
                         break;
                     }
                 } catch (SQLException e) {
-                    throw new SQLException();
+                    throw e;
                 }
             } catch (SQLException e) {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
@@ -333,7 +332,8 @@ public class SqlLiteConnection {
     public void queryNoReturn(String query) {
         try(Connection connection = DriverManager.getConnection(JDBC + database); Statement statement = connection.createStatement()) {
             statement.setQueryTimeout(10);
-            statement.executeUpdate(query);
+            statement.execute(query);
+            statement.closeOnCompletion();
         } catch (SQLException ex) {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
             new ErrorMessage("There was a database error with the query: \""+query+"\"");

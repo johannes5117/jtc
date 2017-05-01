@@ -102,7 +102,8 @@ public class DataPanelsRegister {
             }
         }
         if (!internFields.containsKey(p.getPhoneNumber())) {
-            sqlLiteConnection.queryNoReturn("Insert into internfields (number,name,callcount,position) values ('" + p.getPhoneNumber() + "','" + p.getName() + "'," + p.getCount() + ","+p.getPosition()+")");
+            sqlLiteConnection.queryNoReturn("Insert into internfields (id, number,name,callcount,position) " +
+                    "values (((Select max(id) from internfields)+1),'" + p.getPhoneNumber() + "','" + p.getName() + "'," + p.getCount() + ","+p.getPosition()+")");
             internNumbers.put(p.getPhoneNumber(), p);
             internFields.put(p.getPhoneNumber(), new InternField(p.getName(), p.getCount(), p.getPhoneNumber(), eventBus));
             eventBus.post(new AboStatusExtensionEvent(p.getPhoneNumber()));

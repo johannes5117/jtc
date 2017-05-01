@@ -50,9 +50,11 @@ public class NewInternField extends HBox{
         button = new SettingsFieldButton("Add");
         button.setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE);
         button.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent event) -> {
-            String number = extension.getText();
-            PhoneNumber p = new PhoneNumber(true, number, name.getText(), 0,-1);
-            eventBus.post(new AddInternEvent(p));
+            if(extension.getText().length()>0 && name.getText().length()>0) {
+                String number = extension.getText();
+                PhoneNumber p = new PhoneNumber(true, number, name.getText(), 0, -1);
+                eventBus.post(new AddInternEvent(p));
+            }
            event.consume();
         });
 

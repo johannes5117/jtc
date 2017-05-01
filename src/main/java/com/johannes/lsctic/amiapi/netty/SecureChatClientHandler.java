@@ -11,7 +11,6 @@ package com.johannes.lsctic.amiapi.netty;
 
 import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.messagestage.ErrorMessage;
-import com.johannes.lsctic.messagestage.SuccessMessage;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.AddCdrAndUpdateEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.SetStatusEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.ReceivedOwnExtensionEvent;
@@ -20,7 +19,6 @@ import com.johannes.lsctic.panels.gui.plugins.pluginevents.PluginLicenseApproved
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import javafx.application.Platform;
-import sun.plugin.navig.motif.Plugin;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -49,7 +47,6 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
     public void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
         Logger.getLogger(getClass().getName()).info(msg);
         if (msg.startsWith("lsuc")) {
-            Logger.getLogger(getClass().getName()).info(msg.substring(4));
             bus.post(new UserLoginStatusEvent(true, msg.substring(4)));
         } else if ("lfai".equals(msg)) {
             bus.post(new UserLoginStatusEvent(false, ""));
@@ -61,43 +58,41 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
         } else {
             try {
                 String chatInput = msg;
-                int op = Integer.valueOf(chatInput.substring(0, 3));
+                int op = Integer.parseInt(chatInput.substring(0, 3));
                 String param = chatInput.substring(3, chatInput.length());
                 switch (op) {
-                    case 0: {
+                    case 0:
                         updateStatus(param);
                         break;
-                    }
-                    case 10: {
+                    case 10:
                         createAndPropagateCdrField(param);
                         break;
-                    }
-                    case 15: {
-                        Platform.runLater(() -> bus.post(new PluginLicenseApprovedEvent(param)));
+                    case 15:
+                        Platform.runLater(() -> bus.post(new PluginLicenseApprovedEvent(param,0,false)));
                         break;
-                    }
-                    case 16: {
+                    case 16:
                         displayLicenseError(param);
                         break;
-                    }
-                    case 17: {
+                    case 17:
                         displayLicenseExceed(param);
                         break;
-                    }
-                    case 18: {
+                    case 18:
                         displayTestPhaseEnded(param);
                         break;
-                    }
-                    default: {
+                    case 19:
+                        displayTestPhaseWillEndSoon(param);
+                        break;
+                    default:
                         Logger.getLogger(getClass().getName()).log(Level.WARNING, "Command not recognized");
                         break;
-                    }
                 }
             } catch (Exception e) {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
             }
         }
     }
+
+
 
 
     @Override
@@ -130,30 +125,32 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
         });
     }
 
-    public void displayLicenseError(String param) {
+    private void displayLicenseError(String param) {
         String errorMessage = "Could not verify the license for " + param + ". Is the right certificate for your license installed on the server?";
         Platform.runLater(() -> new ErrorMessage(errorMessage));
     }
 
-    public void displayLicenseExceed(String param) {
+    private void displayLicenseExceed(String param) {
         String errorMessage = "Amount of registered users for plugin " + param + " exceeds the amount purchased. Please consider to buy more licenses.";
         Platform.runLater(() -> new ErrorMessage(errorMessage));
     }
-    public void displayTestPhaseEnded(String param) {
+    private void displayTestPhaseEnded(String param) {
         String errorMessage = "The test phase for " + param + " is over. Please consider to buy licenses.";
         Platform.runLater(() -> new ErrorMessage(errorMessage));
     }
+    private void displayTestPhaseWillEndSoon(String param) {
+        String[] parameter = param.split(";");
+        if(Integer.valueOf(parameter[1])<10) {
+            String errorMessage = "The test phase for " + parameter[0] + " will be over in " + parameter[1] + " days. Please consider to buy licenses.";
+            Platform.runLater(() -> new ErrorMessage(errorMessage));
+        }
+        Platform.runLater(()-> bus.post(new PluginLicenseApprovedEvent(parameter[0],Integer.valueOf(parameter[1]),true)));
+    }
 
 
-
-    public void displayPasswordChangeFailedError() {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                new ErrorMessage("Password change not possible. Old password seems to be wrong. " +
-                        "You were logged out. You need to login again in the server settings with your old password.");
-            }
-        });
+    private void displayPasswordChangeFailedError() {
+        Platform.runLater(() -> new ErrorMessage("Password change not possible. Old password seems to be wrong. " +
+                "You were logged out. You need to login again in the server settings with your old password."));
     }
 
 }
