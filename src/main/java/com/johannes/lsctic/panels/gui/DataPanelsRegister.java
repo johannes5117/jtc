@@ -167,7 +167,7 @@ public class DataPanelsRegister {
         sqlLiteConnection.queryNoReturn("Delete from internfields where number='" +event.getNumber() + "'");
         internFields.remove(event.getNumber());
         internNumbers.remove(event.getNumber());
-        eventBus.post(new DeAboStatusExtension(event.getNumber()));
+        eventBus.post(new DeAboStatusExtensionEvent(event.getNumber()));
         updateView(new ArrayList<>(internFields.values()));
     }
 

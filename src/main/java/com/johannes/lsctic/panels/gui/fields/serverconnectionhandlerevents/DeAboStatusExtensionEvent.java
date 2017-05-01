@@ -3,10 +3,10 @@ package com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents;
 /**
  * Created by johannes on 07.04.2017.
  */
-public class DeAboStatusExtension {
+public class DeAboStatusExtensionEvent {
     private String phonenumber;
 
-    public DeAboStatusExtension(String phonenumber) {
+    public DeAboStatusExtensionEvent(String phonenumber) {
         this.phonenumber = phonenumber;
     }
 

@@ -12,13 +12,11 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point2D;
-import javafx.scene.control.Button;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.net.URL;
@@ -50,6 +48,12 @@ public class FXMLController implements Initializable {
     private Button btnlast;
     @FXML
     private Button btnnext;
+    @FXML
+    private ToggleButton dndToggle;
+    @FXML
+    private ToggleButton redirectToggle;
+    @FXML
+    private Text serverStatusText;
 
 
     private String quickfireString;
@@ -87,6 +91,9 @@ public class FXMLController implements Initializable {
 
         new ServerConnectionHandler(eventBus);
         eventBus.post(new StartConnectionEvent(storage.getAmiAddress(), storage.getAmiServerPort(), storage.getAmiLogIn(), storage.getAmiPasswordHash(), true,false));
+
+        //QuickCommandBox -> For DND, Server status, Redirect
+        new QuickCommandBox(eventBus,dndToggle,redirectToggle,serverStatusText);
 
         VBox[] panels = {panelA, panelB, panelC, panelD};
         Button[] buttons = {btnlast, btnnext};

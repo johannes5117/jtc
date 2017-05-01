@@ -81,7 +81,7 @@ public class ServerConnectionHandler {
     }
 
     @Subscribe
-    public void deAboStatusExtension(DeAboStatusExtension event) {
+    public void deAboStatusExtension(DeAboStatusExtensionEvent event) {
         this.write("001" + event.getPhonenumber() + "\r\n");
     }
 
@@ -164,6 +164,9 @@ public class ServerConnectionHandler {
                     }
                 }
                 // If connection becomes closed: inform!
+
+                bus.post(new ConnectionToServerLostEvent());
+
                 int i = 1;
                 while(!ch.isOpen()) {
                     bus.post(new StartConnectionEvent(this.address,this.port,this.id,this.actHash,true, true));
