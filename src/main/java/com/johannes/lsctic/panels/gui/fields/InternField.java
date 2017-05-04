@@ -25,6 +25,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 
 import java.util.Objects;
+import java.util.logging.Logger;
 
 /**
  *
@@ -131,8 +132,7 @@ public class InternField extends HBox {
     }
 
     public void setNotFoundUnavailable() {
-
-        a.getStyleClass().removeAll();
+        a.getStyleClass().clear();
         a.getStyleClass().add("fields-label-notfound");
     }
 
@@ -191,7 +191,6 @@ public class InternField extends HBox {
             case -1:
             case 4:
             case 5:
-            default:
                 setNotFoundUnavailable();
                 break;
             case 8:

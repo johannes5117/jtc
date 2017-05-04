@@ -14,8 +14,11 @@ import com.johannes.lsctic.panels.gui.fields.NewInternField;
 import com.johannes.lsctic.panels.gui.fields.internevents.RemoveInternAndUpdateEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.*;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.*;
+import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+
 import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
@@ -39,7 +42,7 @@ public class DataPanelsRegister {
 
     private EventBus eventBus;
 
-    public DataPanelsRegister(EventBus bus, SqlLiteConnection sqlLiteConnection, VBox[] panels, Button[] buttons){
+    public DataPanelsRegister(EventBus bus, SqlLiteConnection sqlLiteConnection, VBox[] panels, Button[] buttons) {
 
         this.panelA = panels[0];
         this.panelB = panels[1];
@@ -68,17 +71,17 @@ public class DataPanelsRegister {
             ++historyfieldCount;
             this.buttonLast.setDisable(false);
             historyFields.clear();
-            this.eventBus.post(new OrderCDRsEvent(historyfieldCount*10 ));
+            this.eventBus.post(new OrderCDRsEvent(historyfieldCount * 10));
             Logger.getLogger(getClass().getName()).info(String.valueOf(historyfieldCount));
         });
 
         buttonLast.setOnMouseClicked(event -> {
             --historyfieldCount;
-            if(historyfieldCount==0) {
+            if (historyfieldCount == 0) {
                 this.buttonLast.setDisable(true);
             }
             historyFields.clear();
-            this.eventBus.post(new OrderCDRsEvent(historyfieldCount*10 ));
+            this.eventBus.post(new OrderCDRsEvent(historyfieldCount * 10));
             Logger.getLogger(getClass().getName()).info(String.valueOf(historyfieldCount));
 
         });
@@ -86,6 +89,8 @@ public class DataPanelsRegister {
 
     @Subscribe
     public void logInSuccessful(UserLoginStatusEvent event) {
+        historyFields.clear();
+        panelC.getChildren().clear();
         if (event.isLoggedIn()) {
             internFields.entrySet().stream().forEach(g -> eventBus.post(new AboStatusExtensionEvent(g.getValue().getNumber())));
         }
@@ -103,7 +108,7 @@ public class DataPanelsRegister {
         }
         if (!internFields.containsKey(p.getPhoneNumber())) {
             sqlLiteConnection.queryNoReturn("Insert into internfields (id, number,name,callcount,position) " +
-                    "values (((Select max(id) from internfields)+1),'" + p.getPhoneNumber() + "','" + p.getName() + "'," + p.getCount() + ","+p.getPosition()+")");
+                    "values (((Select max(id) from internfields)+1),'" + p.getPhoneNumber() + "','" + p.getName() + "'," + p.getCount() + "," + p.getPosition() + ")");
             internNumbers.put(p.getPhoneNumber(), p);
             internFields.put(p.getPhoneNumber(), new InternField(p.getName(), p.getCount(), p.getPhoneNumber(), eventBus));
             eventBus.post(new AboStatusExtensionEvent(p.getPhoneNumber()));
@@ -113,6 +118,7 @@ public class DataPanelsRegister {
             new ErrorMessage("There already exists a user with the same phone number");
         }
     }
+
     public List<InternField> generateReducedSet(String val) {
         ArrayList<InternField> out = new ArrayList<>();
         internFields.values().stream().filter(f -> f.getName().toLowerCase().contains(val.toLowerCase())).forEachOrdered(f -> out.add(f));
@@ -121,11 +127,11 @@ public class DataPanelsRegister {
 
     @Subscribe
     public void addCdrAndUpdate(AddCdrAndUpdateEvent event) {
-        if(internFields.containsKey(event.getWho())) {
+        if (internFields.containsKey(event.getWho())) {
             InternField internField = internFields.get(event.getWho());
             String name = internField.getName();
-            HistoryField f = new HistoryField(name ,event.getWho(), event.getWhen(),event.getHowLong(),event.isOutgoing(), eventBus);
-            historyFields.add(0,f);
+            HistoryField f = new HistoryField(name, event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(), eventBus);
+            historyFields.add(0, f);
             panelC.getChildren().clear();
             panelC.getChildren().addAll(historyFields);
         } else {
@@ -135,16 +141,16 @@ public class DataPanelsRegister {
 
     @Subscribe
     public void addCdrUpdateWithNameFromDataSource(FoundCdrNameInDataSourceEvent event) {
-        HistoryField f = new HistoryField(event.getName() ,event.getWho(), event.getWhen(),event.getHowLong(),event.isOutgoing(), eventBus);
-        historyFields.add(0,f);
+        HistoryField f = new HistoryField(event.getName(), event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(), eventBus);
+        historyFields.add(0, f);
         panelC.getChildren().clear();
         panelC.getChildren().addAll(historyFields);
     }
 
     @Subscribe
     public void addCdrUpdateWithoutName(NotFoundCdrNameInDataSourceEvent event) {
-        HistoryField f = new HistoryField(event.getWho(), event.getWhen(),event.getHowLong(),event.isOutgoing(), eventBus);
-        historyFields.add(0,f);
+        HistoryField f = new HistoryField(event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(), eventBus);
+        historyFields.add(0, f);
         panelC.getChildren().clear();
         panelC.getChildren().addAll(historyFields);
     }
@@ -165,7 +171,7 @@ public class DataPanelsRegister {
 
     @Subscribe
     public void removeInternAndUpdate(RemoveInternAndUpdateEvent event) {
-        sqlLiteConnection.queryNoReturn("Delete from internfields where number='" +event.getNumber() + "'");
+        sqlLiteConnection.queryNoReturn("Delete from internfields where number='" + event.getNumber() + "'");
         internFields.remove(event.getNumber());
         internNumbers.remove(event.getNumber());
         eventBus.post(new DeAboStatusExtensionEvent(event.getNumber()));
@@ -174,9 +180,9 @@ public class DataPanelsRegister {
 
     @Subscribe
     public void incrementCallCount(CallEvent event) {
-        if(event.isIntern()) {
-            sqlLiteConnection.updateOneAttribute("internfields", "number",event.getPhoneNumber(), "callcount",
-                    String.valueOf(Integer.valueOf(sqlLiteConnection.query("Select callcount from internfields where number = '"+event.getPhoneNumber()+"'"))+1));
+        if (event.isIntern()) {
+            sqlLiteConnection.updateOneAttribute("internfields", "number", event.getPhoneNumber(), "callcount",
+                    String.valueOf(Integer.valueOf(sqlLiteConnection.query("Select callcount from internfields where number = '" + event.getPhoneNumber() + "'")) + 1));
 
             internFields.get(event.getPhoneNumber()).incCount();
             updateView(new ArrayList<>(internFields.values()));
@@ -184,7 +190,7 @@ public class DataPanelsRegister {
     }
 
     public void updateView(List<InternField> i) {
-        if(sortByCallCount) {
+        if (sortByCallCount) {
             Collections.sort(i, (InternField o1, InternField o2) -> o2.getCount() - o1.getCount());
         } else {
             // Maybe other sorting option
@@ -193,17 +199,13 @@ public class DataPanelsRegister {
         panelA.getChildren().addAll(i);
         panelA.getChildren().add(new NewInternField(eventBus));
     }
+
     @Subscribe
     public void updateAddressFields(UpdateAddressFieldsEvent event) {
         panelB.getChildren().clear();
         ArrayList<AddressField> addressFields = new ArrayList<>();
         event.getAddressBookEntries().stream().forEach(ent -> addressFields.add(new AddressField(2, ent, eventBus)));
         panelB.getChildren().addAll(addressFields);
-    }
-
-    @Subscribe
-    public void aboForNewConnection(StartConnectionEvent event){
-        internFields.entrySet().stream().forEach(g -> eventBus.post(new AboStatusExtensionEvent(g.getValue().getNumber())));
     }
 
     @Subscribe
@@ -215,6 +217,13 @@ public class DataPanelsRegister {
     public void viewOptionsChanged(ViewOptionsChangedEvent event) {
         this.sortByCallCount = event.isSortByCallCount();
         updateView(new ArrayList<>(internFields.values()));
+    }
+
+    @Subscribe
+    public void serverConnectionLost(ConnectionToServerLostEvent event) {
+        for (InternField f : internFields.values()) {
+            f.setStatus(4);
+        }
     }
 
 }

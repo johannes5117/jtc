@@ -32,7 +32,7 @@ public class NewInternField extends HBox{
     private Button button;
     public NewInternField(EventBus eventBus) {
         this.setMaxWidth(Double.MAX_VALUE);
-        this.setPadding(new Insets(5,3, 5, 1));
+        this.setPadding(new Insets(5,5, 5, 4));
         this.setSpacing(4);
         this.setAlignment(Pos.CENTER);
         HBox.setHgrow(this, Priority.ALWAYS);

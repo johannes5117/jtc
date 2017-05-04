@@ -40,15 +40,19 @@ public class ServerConnectionHandler {
     private boolean firstStart = true;
     private boolean silentReconnect;
     private String address;
+    private ExecutorService executor;
     private int port;
     private String id;
     private String actHash;
     private Channel ch;
     private boolean loggedIn;
+    // without this var the user would get the loop with retries even if has never connected to the server properly
+    private boolean serverDataChanged;
 
     public ServerConnectionHandler(EventBus bus) {
         this.bus = bus;
         this.loggedIn = false;
+        this.serverDataChanged = true;
         bus.register(this);
     }
     @Subscribe
@@ -159,10 +163,12 @@ public class ServerConnectionHandler {
             this.ch.disconnect();
             this.ch.close();
         } else if(event.isLoggedIn()) {
-            this.actHash = event.getHashedPw();
             // Check cyclically if the user is still connected -> if not reconnect attempt until hes again connected
-            ExecutorService executor = Executors.newSingleThreadExecutor();
+            executor = Executors.newSingleThreadExecutor();
             executor.submit(() -> {
+                final String address = this.address;
+                final String id = this.id;
+                final String actHash = this.actHash;
                 while(ch.isOpen()) {
                     try {
                         TimeUnit.SECONDS.sleep(5);
@@ -172,25 +178,27 @@ public class ServerConnectionHandler {
                     }
                 }
                 // If connection becomes closed: inform!
+                Platform.runLater(() -> bus.post(new ConnectionToServerLostEvent()));
 
-                bus.post(new ConnectionToServerLostEvent());
-
-                int i = 1;
-                while(!ch.isOpen()) {
-                    bus.post(new StartConnectionEvent(this.address,this.port,this.id,this.actHash,true, true));
-                    try {
-                        TimeUnit.SECONDS.sleep(5);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                if(address.equals(this.address)&&id.equals(this.id)&&actHash.equals(this.actHash)) {
+                    int i = 1;
+                    while (!ch.isOpen()) {
+                        bus.post(new StartConnectionEvent(this.address, this.port, this.id, this.actHash, true, true));
+                        try {
+                            TimeUnit.SECONDS.sleep(5);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        if (ch.isOpen()) {
+                            break;
+                        }
+                        Logger.getLogger(getClass().getName()).info("Login attempt: " + String.valueOf(i));
+                        ++i;
                     }
-                    if(ch.isOpen()) {
-                        break;
-                    }
-                    Logger.getLogger(getClass().getName()).info("Login attempt: " + String.valueOf(i));
-                    ++i;
                 }
 
             });
+            this.actHash = event.getHashedPw();
         }
         // It would be annoying if every time you start the program a message pops up that informs about the connection
         if (!firstStart && event.isLoggedIn() && !this.silentReconnect) {

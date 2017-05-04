@@ -7,12 +7,9 @@ package com.johannes.lsctic.panels.gui.settings;
 
 import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.messagestage.PasswordChange;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
 /**
@@ -25,7 +22,7 @@ public class AsteriskSettingsField extends SettingsField {
     private ToolTipTextField ipTextField;
     private ToolTipTextField portTextField;
     private ToolTipTextField userTextField;
-    private ToolTipTextField passwordTextField;
+    private ToolTipPasswordField passwordTextField;
     private Button changePassword;
     private boolean changed;
     private EventBus bus = null;
@@ -35,18 +32,18 @@ public class AsteriskSettingsField extends SettingsField {
         super("Asterisk (AMI)");
         this.bus = bus;
         ipTextField = new ToolTipTextField("Address of the server");
-        ipTextField.setPromptText("IP Adresse (Beispiel: server)");
+        ipTextField.setPromptText("IP address (example: server)");
         portTextField = new ToolTipTextField("Port on the server");
-        portTextField.setPromptText("Port (Beispiel: 5038)");
+        portTextField.setPromptText("Port (example: 12345)");
         portTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             if(!newValue.matches("^[0-9]*$")){
-                portTextField.setText("Der Port ist eine Zahl");
+                portTextField.setText("A port must be a number");
             }
         });
         userTextField = new ToolTipTextField("Your username");
-        userTextField.setPromptText("AMI Benutzer (Beispiel: user)");
-        passwordTextField = new ToolTipTextField("Your password");
-        passwordTextField.setPromptText("AMI Passwort (Beispiel: vogel)");
+        userTextField.setPromptText("Server user (example: user)");
+        passwordTextField = new ToolTipPasswordField("Your password");
+        passwordTextField.setPromptText("Server password (example: vogel)");
         changePassword = new Button("Change password");
         changePassword.getStyleClass().add("button-ui");
         changePassword.setOnMouseClicked(event -> {

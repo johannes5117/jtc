@@ -32,20 +32,17 @@ public class QuickCommandBox {
 
     @Subscribe
     public void serverConnected(UserLoginStatusEvent event) {
-        Logger.getLogger(getClass().getName()).info("EVEEEENT");
-        if(event.isLoggedIn()) {
-            Platform.runLater(() -> {
-                Color c = Color.valueOf("#60EB7E");
-                serverStatusText.setFill(c);});
-            }
+        if (event.isLoggedIn()) {
+            Color c = Color.valueOf("#60EB7E");
+            serverStatusText.setFill(c);
+        }
+
     }
 
     @Subscribe
     public void serverConnectionLost(ConnectionToServerLostEvent event) {
-        Platform.runLater(() -> {
             Color c = Color.valueOf("#FC74A7");
             serverStatusText.setFill(c);
-        });
     }
 
 }

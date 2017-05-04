@@ -47,11 +47,11 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
     public void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
         Logger.getLogger(getClass().getName()).info(msg);
         if (msg.startsWith("lsuc")) {
-            bus.post(new UserLoginStatusEvent(true, msg.substring(4)));
+            Platform.runLater(()->bus.post(new UserLoginStatusEvent(true, msg.substring(4))));
         } else if ("lfai".equals(msg)) {
-            bus.post(new UserLoginStatusEvent(false, ""));
+            Platform.runLater(()->bus.post(new UserLoginStatusEvent(false, "")));
         } else if (msg.startsWith("owne")) {
-            bus.post(new ReceivedOwnExtensionEvent(msg.substring(4)));
+            Platform.runLater(()->bus.post(new ReceivedOwnExtensionEvent(msg.substring(4))));
             ownExtension = msg.substring(4);
         } else if ("chfa".equals(msg)) {
             displayPasswordChangeFailedError();
@@ -104,7 +104,7 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
         String[] d = param.split(":");
         String intern = d[0];
         int state = Integer.parseInt(d[1]);
-        bus.post(new SetStatusEvent(state, intern));
+        Platform.runLater(()->bus.post(new SetStatusEvent(state, intern)));
         Logger.getLogger(getClass().getName()).log(Level.INFO, "New State");
     }
 

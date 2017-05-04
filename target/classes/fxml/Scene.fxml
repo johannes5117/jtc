@@ -89,17 +89,16 @@
                               <TextField fx:id="paneCTextIn" promptText="Search....." styleClass="textfield-search" VBox.vgrow="NEVER" />
                               <ScrollPane hbarPolicy="NEVER" hmax="0.0" prefViewportHeight="380.0" prefViewportWidth="300.0" vbarPolicy="NEVER">
                                  <content>
-                                    <VBox prefHeight="380.0" prefWidth="300.0" style="-fx-background-color: rgba(38, 45, 70, 0.58);">
+                                    <VBox prefHeight="380.0" prefWidth="300.0" style="-fx-background-color: #FFFFFF11;">
                                        <children>
-                                          <ScrollPane hbarPolicy="NEVER" hmax="0.0" prefViewportHeight="380.0" prefViewportWidth="300.0" style="-fx-background-color: #FFFFFF11;" vbarPolicy="NEVER" VBox.vgrow="ALWAYS">
+                                          <ScrollPane hbarPolicy="NEVER" hmax="0.0" prefViewportHeight="380.0" prefViewportWidth="300.0" style="-fx-background-color: rgba(38, 45, 70, 0.58);" vbarPolicy="NEVER" VBox.vgrow="ALWAYS">
                                              <content>
                                                 <VBox fx:id="panelC" layoutX="58.0" layoutY="66.0" prefHeight="380.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-
                                                 </VBox>
                                              </content>
                                           </ScrollPane>
-
-                                          <HBox prefWidth="200.0">
+            
+                                          <HBox prefWidth="200.0" style="-fx-background-color: rgba(38, 45, 70, 0.58);">
                                              <children>
                                                 <Button fx:id="btnlast" disable="true" mnemonicParsing="false" styleClass="button-ui" text="Last" />
                                                 <HBox HBox.hgrow="ALWAYS" />
@@ -113,9 +112,9 @@
                                              </VBox.margin>
                                           </HBox>
                                        </children>
-                                       <VBox.margin>
-                                          <Insets top="1.0" />
-                                       </VBox.margin>
+                                        <VBox.margin>
+                                            <Insets top="1.0" />
+                                        </VBox.margin>
 
                                     </VBox>
                                  </content>
@@ -133,10 +132,9 @@
               <content>
                   <VBox>
                      <children>
-                        <ScrollPane hbarPolicy="NEVER" prefViewportHeight="380.0" prefViewportWidth="300.0" style="-fx-background-color: rgba(0, 0, 0, 0.0);" vbarPolicy="NEVER">
+                        <ScrollPane hbarPolicy="NEVER" prefViewportHeight="380.0" prefViewportWidth="300.0" style="-fx-background-color: #FFFFFF11;" vbarPolicy="NEVER">
                            <content>
                               <VBox fx:id="panelD" layoutX="65.0" layoutY="62.0" prefHeight="380.0" prefWidth="300.0" spacing="3.0" style="-fx-background-color: rgba(38, 45, 70, 0.58);" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-
                               </VBox>
                            </content>
                         </ScrollPane>
@@ -155,10 +153,12 @@
                         </HBox>
                      </children>
                      <padding>
-                        <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+                        <Insets bottom="2.0" left="1.0" right="1.0" />
                      </padding>
+
                   </VBox>
               </content>
+
             </Tab>
         </tabs>
       </TabPane>

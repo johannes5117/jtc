@@ -30,54 +30,54 @@
 
 
 .fields-label-notfound {
-    -fx-font-size: 13px;
+    -fx-font-size: 13;
      -fx-text-fill: #43DBFF;
 }
 .intern-box:focused .fields-label-notfound {
-    -fx-font-size: 13px;
+    -fx-font-size: 13;
     -fx-text-fill: #7fe6ff;
 }
 .fields-label-active {
-    -fx-font-size: 13px;
+    -fx-font-size: 13;
     -fx-text-fill: #5FED7E;
 }
 .intern-box:focused .fields-label-active {
-    -fx-font-size: 13px;
+    -fx-font-size: 13;
     -fx-text-fill: #8ceda0;
 }
 .fields-label-blocked {
-     -fx-font-size: 13px;
+     -fx-font-size: 13;
      -fx-text-fill: -red-color;
  }
 .intern-box:focused .fields-label-blocked {
-    -fx-font-size: 13px;
+    -fx-font-size: 13;
     -fx-text-fill: #fc9fbf;
 }
  .fields-label-calling {
-     -fx-font-size: 13px;
+     -fx-font-size: 13;
      -fx-text-fill: #FFD776;
  }
 .intern-box:focused .fields-label-calling {
-    -fx-font-size: 13px;
+    -fx-font-size: 13;
     -fx-text-fill: #ffe899;
 }
 
 .address-label{
--fx-font-size: 11px;
+-fx-font-size: 11;
     -fx-text-fill: #c3c3c3;
 }
 .address-box:focused .address-label{
     -fx-text-fill: white;
 }
 .address-label-datasource{
-    -fx-font-size: 8px;
+    -fx-font-size: 8;
     -fx-text-fill: #c3c3c3;
 }
 .address-box:focused .address-label-datasource{
     -fx-text-fill: white;
 }
 .address-label-big{
-    -fx-font-size: 13px;
+    -fx-font-size: 13;
     -fx-text-fill: #c3c3c3;
 }
 .address-box:focused .address-label-big{
@@ -85,7 +85,7 @@
 }
 
 .history-label{
-    -fx-font-size: 11px;
+    -fx-font-size: 11;
     -fx-font-family: 'Roboto';
     -fx-text-fill: #c3c3c3;
 }
@@ -93,14 +93,14 @@
     -fx-text-fill: white;
 }
 .history-label-big{
-    -fx-font-size: 13px;
+    -fx-font-size: 13;
     -fx-text-fill: #c3c3c3;
 }
 .history-box:focused .history-label-big{
     -fx-text-fill: white;
 }
 .history-out{
-    -fx-font-size: 11px;
+    -fx-font-size: 11;
     -fx-font-family: 'Roboto';
     -fx-text-fill: #FFD776;
 }
@@ -108,7 +108,7 @@
     -fx-text-fill: #ffe899;
 }
 .history-in{
-    -fx-font-size: 11px;
+    -fx-font-size: 11;
     -fx-text-fill: #43DBFF;
 }
 .history-box:focused .history-in{
@@ -116,7 +116,7 @@
 }
 
 .setting-label {
-    -fx-font-size: 13px;
+    -fx-font-size: 13;
      -fx-text-fill: #c3c3c3;
 }
 .setting-box:focused .setting-label {
@@ -152,7 +152,7 @@
 
 .tab-pane
 {
-    -fx-tab-min-width:60px;
+    -fx-tab-min-width:60;
 }
 
 .tab{
@@ -176,7 +176,7 @@
 .tab .tab-label { 
     -fx-alignment: CENTER;
     -fx-text-fill: #c3c3c3;
-    -fx-font-size: 10px;
+    -fx-font-size: 10;
     -fx-focus-color: transparent;
 }
 
@@ -199,8 +199,8 @@
     -fx-text-fill: #c3c3c3;
     -fx-padding: 2 10 2 10;
     -fx-border-color: rgba(32, 68, 89, 0.90);
-    -fx-border-width: 2px;
-    -fx-border-radius: 1px;
+    -fx-border-width: 2;
+    -fx-border-radius: 1;
     -fx-focus-color: transparent;
     -fx-border-insets: -1;
     -fx-background-insets: 0 0 -1 0, 0, 1, 2;
@@ -260,8 +260,8 @@
     -fx-text-fill: white;
     -fx-padding: 8 26 8 26;
     -fx-border-color: indianred;
-    -fx-border-width: 2px;
-    -fx-border-radius: 5px;
+    -fx-border-width: 2;
+    -fx-border-radius: 5;
     -fx-focus-color: transparent;
     -fx-border-insets: -1;
     -fx-background-insets: 0 0 -1 0, 0, 1, 2;
@@ -286,8 +286,8 @@
     -fx-text-fill: white;
     -fx-padding: 8 26 8 26;
     -fx-border-color: teal;
-    -fx-border-width: 2px;
-    -fx-border-radius: 5px;
+    -fx-border-width: 2;
+    -fx-border-radius: 5;
     -fx-focus-color: transparent;
     -fx-border-insets: -1;
     -fx-background-insets: 0 0 -1 0, 0, 1, 2;
