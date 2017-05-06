@@ -76,14 +76,15 @@ public final class OptionsStorage {
         for(String g : activatedDataSources) {
             bus.post(new CheckLicenseForPluginEvent(g,this.pluginRegister.getPluginLicense(g, this.pluginFolder)));
         }
-        dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(), activatedDataSources, this.pluginRegister.getLoadedPluginNames());
+        //Todo check if this line is needed
+        // dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(), activatedDataSources, this.pluginRegister.getLoadedPluginNames());
 
     }
 
     @Subscribe
     public void loadApprovedPlugin(PluginLicenseApprovedEvent event) {
         this.pluginRegister.loadPlugin(event.getPluginname(), pluginFolder);
-        this.pluginRegister.activateAllPlugins(sqlLiteConnection);
+        this.pluginRegister.activateLicensedPlugins(sqlLiteConnection,event.getPluginname());
         panelD.getChildren().addAll(this.getPluginRegister().getAllPluginSettingsFields());
         List<AddressBookEntry> ld = getPluginRegister().getResultFromEveryPlugin("", 10);
         dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(), activatedDataSources, this.pluginRegister.getLoadedPluginNames());

@@ -99,10 +99,13 @@ public class PluginRegister {
         exploredFolder = folderPath;
     }
 
-    public void activateAllPlugins(SqlLiteConnection sqlLiteConnection) {
+    // Todo change to only load the one approved plugin
+    public void activateLicensedPlugins(SqlLiteConnection sqlLiteConnection, String pluginname) {
         for (AddressPlugin addressPlugin : loadedPlugins) {
-            addressPlugin.setDataFields(sqlLiteConnection.getFieldsForDataSource(addressPlugin.getName()));
-            addressPlugin.setOptions(sqlLiteConnection.getOptionsForDataSource(addressPlugin.getName()));
+            if(addressPlugin.getName().equals(pluginname)) {
+                addressPlugin.setDataFields(sqlLiteConnection.getFieldsForDataSource(addressPlugin.getName()));
+                addressPlugin.setOptions(sqlLiteConnection.getOptionsForDataSource(addressPlugin.getName()));
+            }
         }
     }
 
