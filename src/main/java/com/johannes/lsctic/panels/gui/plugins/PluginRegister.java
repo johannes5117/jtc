@@ -11,6 +11,7 @@ import javafx.application.Platform;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
@@ -46,6 +47,21 @@ public class PluginRegister {
         loadedPlugins.clear();
         explorePluginFolder(folderPath);
         approvedPlugins.forEach((pluginname)-> loadPlugin(pluginname, folderPath));
+    }
+
+    public void removeUnloadedPlugins(ArrayList<String> actualPlugins) {
+        ArrayList<AddressPlugin> delete = new ArrayList<>();
+        for(AddressPlugin addressPlugin : loadedPlugins) {
+            if(!actualPlugins.contains(addressPlugin.getName())) {
+                approvedPlugins.remove(addressPlugin.getName());
+                delete.add(addressPlugin);
+            }
+        }
+        loadedPlugins.removeAll(delete);
+    }
+
+    public ArrayList<String> getApprovedPlugins() {
+        return approvedPlugins;
     }
 
     public void loadPlugin(String pluginName, String folderPath) {

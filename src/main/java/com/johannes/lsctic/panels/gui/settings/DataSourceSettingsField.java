@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * @author johannes
@@ -32,6 +33,7 @@ public class DataSourceSettingsField extends SettingsField {
         checkBoxes.clear();
         for (String found : foundList) {
             CheckBox b = new CheckBox(found);
+            b.setOnAction((event)->changed = true);
             if(activatedList.contains(found)) {
                 b.selectedProperty().setValue(true);
             } else {
@@ -47,6 +49,7 @@ public class DataSourceSettingsField extends SettingsField {
         }
         for (String found : activatedNotFound) {
             CheckBox b = new CheckBox(found);
+            b.setOnAction((event)->changed = true);
             b.selectedProperty().setValue(true);
             checkBoxes.add(b);
         }
@@ -57,20 +60,12 @@ public class DataSourceSettingsField extends SettingsField {
         }
     }
 
-    public List<String> getChecked(List<String> activatedDataSources) {
+    public List<String> getChecked() {
         ArrayList<String> checked = new ArrayList<>();
         for(CheckBox checkBox: checkBoxes){
             if(checkBox.selectedProperty().getValue()) {
                 checked.add(checkBox.getText());
             }
-        }
-        if(checked.containsAll(activatedDataSources)) {
-            if(activatedDataSources.containsAll(checked)) {
-            } else {
-                changed = true;
-            }
-        } else {
-            changed = true;
         }
         return checked;
     }

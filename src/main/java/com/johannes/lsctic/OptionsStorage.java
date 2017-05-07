@@ -64,8 +64,9 @@ public final class OptionsStorage {
         readSettingsFromDatabase();
 
         this.pluginRegister.explorePluginFolder(this.pluginFolder);
+        this.dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(), this.activatedDataSources, new ArrayList<String>() );
 
-        panelD.getChildren().addAll(asteriskSettingsField,programSettingsField, dataSourceSettingsField);
+        addStandardFields();
 
         accept.setOnAction(event -> accept());
         reject.setOnAction(event -> setTempVariables());
@@ -76,9 +77,12 @@ public final class OptionsStorage {
         for(String g : activatedDataSources) {
             bus.post(new CheckLicenseForPluginEvent(g,this.pluginRegister.getPluginLicense(g, this.pluginFolder)));
         }
-        //Todo check if this line is needed
-        // dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(), activatedDataSources, this.pluginRegister.getLoadedPluginNames());
+        this.pluginRegister.removeUnloadedPlugins(activatedDataSources);
+        updateAddressFields();
+    }
 
+    private void addStandardFields() {
+        panelD.getChildren().addAll(asteriskSettingsField,programSettingsField, dataSourceSettingsField);
     }
 
     @Subscribe
@@ -86,11 +90,16 @@ public final class OptionsStorage {
         this.pluginRegister.loadPlugin(event.getPluginname(), pluginFolder);
         this.pluginRegister.activateLicensedPlugins(sqlLiteConnection,event.getPluginname());
         panelD.getChildren().addAll(this.getPluginRegister().getAllPluginSettingsFields());
-        List<AddressBookEntry> ld = getPluginRegister().getResultFromEveryPlugin("", 10);
-        dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(), activatedDataSources, this.pluginRegister.getLoadedPluginNames());
-        bus.post(new UpdateAddressFieldsEvent(ld));
+        updateAddressFields();
     }
 
+    /**
+     * Updates the addressfields which are currently showed
+     */
+    private void updateAddressFields() {
+        List<AddressBookEntry> ld = getPluginRegister().getResultFromEveryPlugin("", 10);
+        bus.post(new UpdateAddressFieldsEvent(ld));
+    }
 
         /**
      * Used to store the temp. vars.
@@ -117,20 +126,16 @@ public final class OptionsStorage {
             String[] options = asteriskSettingsField.getOptions();
             bus.post(new StartConnectionEvent(options[0], Integer.parseInt(options[1]), options[2], options[3], false,false));
         } else if(dataSourceSettingsField.hasChanged()) {
+            Logger.getLogger(getClass().getName()).info("Has changed was triggered");
+            //starts the license check procedure
             setUpPlugins();
             writeActivatedDataSourcesToDatabase();
-            if(dataSourceSettingsField.isExpanded()) {
-                dataSourceSettingsField.refresh();
-                for (PluginSettingsField settingsField : this.getPluginRegister().getAllPluginSettingsFields()) {
-                    if(!panelD.getChildren().contains(settingsField)) {
-                        panelD.getChildren().add(settingsField);
-                    }
-                }
-            }
+            // Delete all fields and add the standardfields + all loaded plugin fields
+            panelD.getChildren().clear();
+            addStandardFields();
         } else if(programSettingsField.hasChanged()) {
             bus.post(new ViewOptionsChangedEvent(sortByCount));
         }
-
         for (AddressPlugin plugin : this.getPluginRegister().getAllActivePlugins()) {
             if (plugin.getPluginSettingsField().hasChanged()) {
                 sqlLiteConnection.writePluginSettingsToDatabase(plugin.getName(), plugin.getOptions(), plugin.getDataFields());
@@ -158,7 +163,7 @@ public final class OptionsStorage {
         sortByCount = optionsOther[0];
 
         // compare the old with the new values -> if no change happened its not necessary to reload the plugins
-        activatedDataSources = (ArrayList<String>) this.dataSourceSettingsField.getChecked(activatedDataSources);
+        activatedDataSources = (ArrayList<String>) this.dataSourceSettingsField.getChecked();
         pluginFolder = this.dataSourceSettingsField.getPluginFolder(pluginFolder);
     }
 
@@ -307,6 +312,8 @@ public final class OptionsStorage {
         if (event.isLoggedIn()) {
             this.amiPasswordHash = event.getHashedPw();
             sqlLiteConnection.buildUpdateOrInsertStatementForSetting("amiPasswordHash", this.amiPasswordHash);
+
+            // Needs to login for the plugin check -> Trigger it if logged in successfully
             setUpPlugins();
         }
     }
