@@ -1,5 +1,6 @@
 package  com.johannes.lsctic;
 import com.google.common.eventbus.EventBus;
+import com.sun.awt.AWTUtilities;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.fxml.FXMLLoader;
@@ -29,9 +30,9 @@ public class Test {
         frame.setUndecorated(true);
 
         final JFXPanel fxPanel = new JFXPanel();
+        fxPanel.setBackground(new Color(0,0,255,0));
         frame.add(fxPanel);
-        frame.setBackground(new Color(0, 255, 0, 0));
-
+        frame.setBackground(new Color(0, 0, 255, 0));
         frame.setSize(337, 380);
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
         frame.setLocation(new Point(
@@ -75,9 +76,11 @@ public class Test {
         controller.startApp(eventBus);
         Scene scene = new Scene(root);
         scene.setFill(null);
+
         Font.loadFont(MainApp.class.getResource("/styles/Roboto-Light.ttf").toExternalForm(),13);
         //scene.getStylesheets().clear();
         scene.getStylesheets().add("/styles/Styles.css");
+        scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
 
         return (scene);
     }

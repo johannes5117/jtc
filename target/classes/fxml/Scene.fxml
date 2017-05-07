@@ -7,7 +7,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="AnchorPane" prefHeight="380.0" style="-fx-background-color: rgba(0, 0, 0, 0.0);" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.johannes.lsctic.FXMLController">
+<AnchorPane id="AnchorPane"  prefHeight="380.0" style="-fx-background-color: rgba(0, 0, 0, 0.0);" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.johannes.lsctic.FXMLController">
     <children>
       <TabPane fx:id="tabPane" focusTraversable="false" prefHeight="380.0" side="LEFT" style="-fx-background-color: rgba(0, 0, 0, 0.0);" tabClosingPolicy="UNAVAILABLE">
         <tabs>
@@ -18,7 +18,7 @@
                         <VBox minWidth="220.0" prefHeight="380.0">
                            <children>
                                <TextField fx:id="paneATextIn" promptText="Search....." styleClass="textfield-search" />
-                              <VBox prefWidth="100.0" style="-fx-background-color: #FFFFFF11;">
+                              <VBox prefWidth="100.0" style="-fx-background-color: rgba(0, 0, 0, 0.0);">
                                  <children>
                                     <HBox alignment="CENTER" prefWidth="200.0" spacing="30.0" style="-fx-background-color: rgba(38, 45, 70, 0.58);" VBox.vgrow="ALWAYS">
                                        <children>
