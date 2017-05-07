@@ -113,14 +113,16 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
         String[] d = param.split(":");
         String source = d[0];
         String destination = d[1];
-        Date stored = new Date(Long.parseLong(d[2]));
+        long timeStamp = Long.parseLong(d[2]);
+        Date stored = new Date(timeStamp);
         String date = dateFormatDB.format(stored);
         Long duration = Long.parseLong(d[3]);
+        String id = d[4];
         Platform.runLater(() -> {
             if (source.equals(ownExtension)) {
-                bus.post(new AddCdrAndUpdateEvent(destination, date, duration.toString(), true));
+                bus.post(new AddCdrAndUpdateEvent(destination, date, duration.toString(), true, timeStamp));
             } else {
-                bus.post(new AddCdrAndUpdateEvent(source, date, duration.toString(), false));
+                bus.post(new AddCdrAndUpdateEvent(source, date, duration.toString(), false, timeStamp));
             }
         });
     }

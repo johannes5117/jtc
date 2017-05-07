@@ -9,6 +9,8 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.johannes.lsctic.messagestage.ErrorMessage;
 import com.johannes.lsctic.messagestage.SuccessMessage;
+import com.johannes.lsctic.panels.gui.fields.HistoryField;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.RemoveCdrAndUpdateEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.*;
@@ -90,6 +92,18 @@ public class ServerConnectionHandler {
     @Subscribe
     public void deAboStatusExtension(DeAboStatusExtensionEvent event) {
         this.write("001" + event.getPhonenumber() + "\r\n");
+    }
+
+    @Subscribe
+    public void removeCdrAndUpdate(RemoveCdrAndUpdateEvent event) {
+        HistoryField f = event.getHistoryField();
+        String source = ownExtension;
+        String destination = f.getWho();
+        if(!f.isOutgoing()) {
+            source = f.getWho();
+            destination = ownExtension;
+        }
+        this.write("006"+String.valueOf(f.getTimeStamp())+";"+source+";"+destination+"\r\n");
     }
 
     @Subscribe

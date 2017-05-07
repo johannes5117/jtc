@@ -9,6 +9,7 @@ public class FoundCdrNameInDataSourceEvent {
     private final String when;
     private final String howLong;
     private final boolean outgoing;
+    private final long timeStamp;
 
     public FoundCdrNameInDataSourceEvent(SearchDataSourcesForCdrEvent event,String name) {
         this.name = name;
@@ -16,6 +17,7 @@ public class FoundCdrNameInDataSourceEvent {
         this.when = event.getWhen();
         this.howLong = event.getHowLong();
         this.outgoing = event.isOutgoing();
+        this.timeStamp = event.getTimeStamp();
     }
 
     public String getName() {
@@ -36,5 +38,9 @@ public class FoundCdrNameInDataSourceEvent {
 
     public boolean isOutgoing() {
         return outgoing;
+    }
+
+    public long getTimeStamp() {
+        return timeStamp;
     }
 }

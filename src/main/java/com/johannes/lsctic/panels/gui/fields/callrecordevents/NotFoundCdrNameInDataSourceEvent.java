@@ -8,12 +8,14 @@ public class NotFoundCdrNameInDataSourceEvent {
     private final String when;
     private final String howLong;
     private final boolean outgoing;
+    private final long timeStamp;
 
     public NotFoundCdrNameInDataSourceEvent(SearchDataSourcesForCdrEvent event) {
         this.who = event.getWho();
         this.when = event.getWhen();
         this.howLong = event.getHowLong();
         this.outgoing = event.isOutgoing();
+        this.timeStamp = event.getTimeStamp();
     }
 
     public String getWho() {
@@ -30,5 +32,9 @@ public class NotFoundCdrNameInDataSourceEvent {
 
     public boolean isOutgoing() {
         return outgoing;
+    }
+
+    public long getTimeStamp() {
+        return timeStamp;
     }
 }

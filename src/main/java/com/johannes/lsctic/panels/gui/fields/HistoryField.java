@@ -35,17 +35,19 @@ public class HistoryField extends VBox {
     private final boolean outgoing;
     private final EventBus eventBus;
     private String name;
+    private final long timeStamp;
 
-    public HistoryField(String who, String when, String howLong, boolean outgoing, EventBus eventBus) {
+    public HistoryField(String who, String when, String howLong, boolean outgoing, long timeStamp, EventBus eventBus) {
         this.when = when;
         this.who = who;
         this.howLong = howLong + "min";
         this.outgoing = outgoing;
         this.eventBus = eventBus;
         this.labelText = who + " (not found)";
+        this.timeStamp = timeStamp;
         buildField();
     }
-    public HistoryField(String name, String who, String when, String howLong, boolean outgoing, EventBus eventBus) {
+    public HistoryField(String name, String who, String when, String howLong, boolean outgoing, long timeStamp, EventBus eventBus) {
         this.when = when;
         this.name = name;
         this.who = who;
@@ -53,6 +55,7 @@ public class HistoryField extends VBox {
         this.outgoing = outgoing;
         this.eventBus = eventBus;
         this.labelText = who + " ("+name+")";
+        this.timeStamp = timeStamp;
         buildField();
     }
 
@@ -166,8 +169,12 @@ public class HistoryField extends VBox {
         return howLong;
     }
 
-    public boolean isAusEin() {
+    public boolean isOutgoing() {
         return outgoing;
+    }
+
+    public long getTimeStamp() {
+        return timeStamp;
     }
 
 }

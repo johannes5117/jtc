@@ -23,4 +23,6 @@ public class SearchDataSourcesForCdrEvent {
     public boolean isOutgoing() {
         return event.isOutgoing();
     }
+
+    public long getTimeStamp() {return  event.getTimeStamp();}
 }

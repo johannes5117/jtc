@@ -130,7 +130,7 @@ public class DataPanelsRegister {
         if (internFields.containsKey(event.getWho())) {
             InternField internField = internFields.get(event.getWho());
             String name = internField.getName();
-            HistoryField f = new HistoryField(name, event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(), eventBus);
+            HistoryField f = new HistoryField(name, event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(), event.getTimeStamp(), eventBus);
             historyFields.add(0, f);
             panelC.getChildren().clear();
             panelC.getChildren().addAll(historyFields);
@@ -141,7 +141,7 @@ public class DataPanelsRegister {
 
     @Subscribe
     public void addCdrUpdateWithNameFromDataSource(FoundCdrNameInDataSourceEvent event) {
-        HistoryField f = new HistoryField(event.getName(), event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(), eventBus);
+        HistoryField f = new HistoryField(event.getName(), event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(),event.getTimeStamp(), eventBus);
         historyFields.add(0, f);
         panelC.getChildren().clear();
         panelC.getChildren().addAll(historyFields);
@@ -149,7 +149,7 @@ public class DataPanelsRegister {
 
     @Subscribe
     public void addCdrUpdateWithoutName(NotFoundCdrNameInDataSourceEvent event) {
-        HistoryField f = new HistoryField(event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(), eventBus);
+        HistoryField f = new HistoryField(event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(),event.getTimeStamp(), eventBus);
         historyFields.add(0, f);
         panelC.getChildren().clear();
         panelC.getChildren().addAll(historyFields);
@@ -158,7 +158,6 @@ public class DataPanelsRegister {
     @Subscribe
     public void removeCdrAndUpdate(RemoveCdrAndUpdateEvent event) {
         HistoryField f = event.getHistoryField();
-        //Todo remove cdr also from database on server
         historyFields.remove(f);
         panelC.getChildren().clear();
         panelC.getChildren().addAll(historyFields);
