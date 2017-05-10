@@ -12,6 +12,7 @@ package com.johannes.lsctic.amiapi.netty;
 import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.messagestage.ErrorMessage;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.AddCdrAndUpdateEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.CdrCountEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.SetStatusEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.ReceivedOwnExtensionEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.UserLoginStatusEvent;
@@ -66,6 +67,9 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
                         break;
                     case 10:
                         createAndPropagateCdrField(param);
+                        break;
+                    case 11:
+                        Platform.runLater(()->bus.post(new CdrCountEvent(Integer.valueOf(param))));
                         break;
                     case 15:
                         Platform.runLater(() -> bus.post(new PluginLicenseApprovedEvent(param,0,false)));

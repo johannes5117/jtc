@@ -38,6 +38,7 @@ public class DataPanelsRegister {
     private Button buttonNext;
     private Button buttonLast;
     private int historyfieldCount = 0;
+    private int maxHistoryFieldcount = 10;
     private boolean sortByCallCount = true;
 
     private EventBus eventBus;
@@ -68,11 +69,15 @@ public class DataPanelsRegister {
         panelC.getChildren().addAll(historyFields);
 
         buttonNext.setOnMouseClicked(event -> {
-            ++historyfieldCount;
-            this.buttonLast.setDisable(false);
-            historyFields.clear();
-            this.eventBus.post(new OrderCDRsEvent(historyfieldCount * 10));
-            Logger.getLogger(getClass().getName()).info(String.valueOf(historyfieldCount));
+            if ((historyfieldCount) * 10 < maxHistoryFieldcount) {
+                this.buttonNext.setDisable(false);
+                ++historyfieldCount;
+                this.buttonLast.setDisable(false);
+                historyFields.clear();
+                this.eventBus.post(new OrderCDRsEvent(historyfieldCount * 10));
+            }else {
+                    this.buttonNext.setDisable(true);
+                }
         });
 
         buttonLast.setOnMouseClicked(event -> {
@@ -81,9 +86,8 @@ public class DataPanelsRegister {
                 this.buttonLast.setDisable(true);
             }
             historyFields.clear();
+            this.buttonNext.setDisable(false);
             this.eventBus.post(new OrderCDRsEvent(historyfieldCount * 10));
-            Logger.getLogger(getClass().getName()).info(String.valueOf(historyfieldCount));
-
         });
     }
 
@@ -94,6 +98,7 @@ public class DataPanelsRegister {
         if (event.isLoggedIn()) {
             internFields.entrySet().stream().forEach(g -> eventBus.post(new AboStatusExtensionEvent(g.getValue().getNumber())));
         }
+        eventBus.post(new AskForCdrCountEvent());
     }
 
     @Subscribe
@@ -132,6 +137,9 @@ public class DataPanelsRegister {
             String name = internField.getName();
             HistoryField f = new HistoryField(name, event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(), event.getTimeStamp(), eventBus);
             historyFields.add(0, f);
+            if(historyFields.size()>9) {
+                historyFields = historyFields.subList(0, 10);
+            }
             panelC.getChildren().clear();
             panelC.getChildren().addAll(historyFields);
         } else {
@@ -143,7 +151,9 @@ public class DataPanelsRegister {
     public void addCdrUpdateWithNameFromDataSource(FoundCdrNameInDataSourceEvent event) {
         HistoryField f = new HistoryField(event.getName(), event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(),event.getTimeStamp(), eventBus);
         historyFields.add(0, f);
-        panelC.getChildren().clear();
+        if(historyFields.size()>9) {
+            historyFields = historyFields.subList(0, 10);
+        }        panelC.getChildren().clear();
         panelC.getChildren().addAll(historyFields);
     }
 
@@ -151,7 +161,9 @@ public class DataPanelsRegister {
     public void addCdrUpdateWithoutName(NotFoundCdrNameInDataSourceEvent event) {
         HistoryField f = new HistoryField(event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(),event.getTimeStamp(), eventBus);
         historyFields.add(0, f);
-        panelC.getChildren().clear();
+        if(historyFields.size()>9) {
+            historyFields = historyFields.subList(0, 10);
+        }        panelC.getChildren().clear();
         panelC.getChildren().addAll(historyFields);
     }
 
@@ -161,6 +173,7 @@ public class DataPanelsRegister {
         historyFields.remove(f);
         panelC.getChildren().clear();
         panelC.getChildren().addAll(historyFields);
+
     }
 
     @Subscribe
@@ -224,5 +237,11 @@ public class DataPanelsRegister {
             f.setStatus(4);
         }
     }
+
+    @Subscribe
+    public void cdrAmountInDatabaseUpdate(CdrCountEvent event) {
+        maxHistoryFieldcount = event.getCurrentAmount();
+    }
+
 
 }

@@ -63,6 +63,8 @@ public class MysqlLoader implements AddressLoader {
 
     public void saved() {
         this.storage = new MysqlLoaderStorage(this.storageTemp);
+        // Update also the datasource -> without that Addressfields wouldnt update by accept
+        this.getDataSource().setAvailableFields(this.storage.getMysqlFields());
     }
 
     public void discarded() {

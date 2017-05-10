@@ -65,6 +65,13 @@ public class PluginRegister {
     }
 
     public void loadPlugin(String pluginName, String folderPath) {
+        for(AddressPlugin loadedPlugin: loadedPlugins) {
+            if(loadedPlugin.getName().equals(pluginName)) {
+                Logger.getLogger(getClass().getName()).info("Thats the case here");
+                return;
+            }
+        }
+
         if (!folderPath.equals(exploredFolder)) {
             explorePluginFolder(folderPath);
         }
@@ -195,16 +202,16 @@ public class PluginRegister {
 
     public void acceptAllPlugins() {
         for (AddressPlugin l : loadedPlugins) {
-            l.getPluginSettingsField().refresh();
             l.getLoader().saved();
+            l.getPluginSettingsField().refresh();
         }
     }
 
 
     public void discardAllPlugins() {
         for (AddressPlugin l : loadedPlugins) {
-            l.getPluginSettingsField().refresh();
             l.getLoader().discarded();
+            l.getPluginSettingsField().refresh();
         }
     }
 

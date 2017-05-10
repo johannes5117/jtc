@@ -7,6 +7,8 @@ package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;/*
 import com.johannes.lsctic.panels.gui.plugins.TransparentImageButton;
 import com.johannes.lsctic.panels.gui.plugins.PluginDataField;
 import com.johannes.lsctic.panels.gui.plugins.PluginSettingsField;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -109,6 +111,14 @@ public class MysqlSettingsField extends PluginSettingsField {
 
         TextField t2 = new TextField(b);
         t2.setPromptText("Anzeigename");
+
+        t1.textProperty().addListener((observable, oldValue, newValue) -> {
+            loader.getStorageTemp().alterMysqlFields(oldValue,t2.getText(),newValue,t2.getText());
+        });
+        t2.textProperty().addListener((observable, oldValue, newValue) -> {
+            loader.getStorageTemp().alterMysqlFields(t1.getText(),oldValue,t1.getText(),newValue);
+        });
+
         TransparentImageButton but;
         if(add) {
              but = new TransparentImageButton("/pics/add.png");
@@ -151,9 +161,9 @@ public class MysqlSettingsField extends PluginSettingsField {
         }
 
         String initialResource = "/pics/right-arrow.png";
-        if(num == loader.getStorage().getMobile()) {
+        if(num == loader.getStorageTemp().getMobile()) {
             initialResource = "/pics/smartphone-call.png";
-        } else if(num == loader.getStorage().getTelephone()) {
+        } else if(num == loader.getStorageTemp().getTelephone()) {
             initialResource = "/pics/telephone-of-old-design.png";
         }
 

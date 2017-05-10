@@ -89,6 +89,8 @@ public final class OptionsStorage {
     public void loadApprovedPlugin(PluginLicenseApprovedEvent event) {
         this.pluginRegister.loadPlugin(event.getPluginname(), pluginFolder);
         this.pluginRegister.activateLicensedPlugins(sqlLiteConnection,event.getPluginname());
+        panelD.getChildren().clear();
+        addStandardFields();
         panelD.getChildren().addAll(this.getPluginRegister().getAllPluginSettingsFields());
         updateAddressFields();
     }
@@ -121,12 +123,19 @@ public final class OptionsStorage {
         refreshProgram();
     }
 
+    /**
+     * Refreshs all the settings fields
+     */
     private void refreshProgram() {
         if(asteriskSettingsField.hasChanged() || asteriskSettingsField.passwordChanged()) {
             String[] options = asteriskSettingsField.getOptions();
             bus.post(new StartConnectionEvent(options[0], Integer.parseInt(options[1]), options[2], options[3], false,false));
         } else if(dataSourceSettingsField.hasChanged()) {
             Logger.getLogger(getClass().getName()).info("Has changed was triggered");
+            // Check plugin path for plugins
+            this.pluginRegister.explorePluginFolder(this.pluginFolder);
+            this.dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(), this.activatedDataSources, new ArrayList<String>());
+            this.dataSourceSettingsField.refresh();
             //starts the license check procedure
             setUpPlugins();
             writeActivatedDataSourcesToDatabase();
@@ -265,11 +274,6 @@ public final class OptionsStorage {
         }
         programSettingsField.setCheckBoxes(options);
     }
-
-
-
-
-
 
     public void readDatabaseForSources(Connection con) throws SQLException {
         int i = 0;

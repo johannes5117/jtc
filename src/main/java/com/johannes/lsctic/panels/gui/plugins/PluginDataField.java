@@ -30,6 +30,14 @@ public class PluginDataField {
         return fieldvalue;
     }
 
+    public void setFieldname(String fieldname) {
+        this.fieldname = fieldname;
+    }
+
+    public void setFieldvalue(String fieldvalue) {
+        this.fieldvalue = fieldvalue;
+    }
+
     public boolean isTelephone() {
         return telephone;
     }

@@ -10,6 +10,7 @@ import com.google.common.eventbus.Subscribe;
 import com.johannes.lsctic.messagestage.ErrorMessage;
 import com.johannes.lsctic.messagestage.SuccessMessage;
 import com.johannes.lsctic.panels.gui.fields.HistoryField;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.AskForCdrCountEvent;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.RemoveCdrAndUpdateEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
@@ -27,6 +28,7 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import javafx.application.Platform;
 
 import java.io.IOException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -95,6 +97,11 @@ public class ServerConnectionHandler {
     }
 
     @Subscribe
+    public void askForCdrCount(AskForCdrCountEvent event) {
+        this.write("007 \r\n");
+    }
+
+    @Subscribe
     public void removeCdrAndUpdate(RemoveCdrAndUpdateEvent event) {
         HistoryField f = event.getHistoryField();
         String source = ownExtension;
@@ -129,6 +136,8 @@ public class ServerConnectionHandler {
 
     @Subscribe
     public void startConnection(StartConnectionEvent event) {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.execute(()->{
         if (ch != null && ch.isOpen()) {
             this.ch.disconnect();
             this.ch.close();
@@ -154,7 +163,7 @@ public class ServerConnectionHandler {
         } catch (InterruptedException | IOException | IllegalArgumentException ex) {
             Logger.getLogger(ServerConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
             if(!event.isSilentRetry()) {
-                new ErrorMessage("Could not establish connection to server. Please edit connection to server under options.");
+                Platform.runLater(()->new ErrorMessage("Could not establish connection to server. Please edit connection to server under options."));
                 firstStart = false;
             }
         }
@@ -167,6 +176,7 @@ public class ServerConnectionHandler {
                 ch.writeAndFlush("ndb" + event.getId() + ";" + event.getPw() + "\r\n");
             }
         }
+        });
     }
 
     @Subscribe

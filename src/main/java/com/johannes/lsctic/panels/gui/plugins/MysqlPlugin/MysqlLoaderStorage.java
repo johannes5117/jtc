@@ -98,6 +98,15 @@ public class MysqlLoaderStorage {
         return 0;
     }
 
+    public void alterMysqlFields(String text, String text1, String textNex, String text1New) {
+        mysqlFields.forEach((field)->{
+            if(field.getFieldname().equals(text) && field.getFieldvalue().equals(text1)) {
+                field.setFieldname(textNex);
+                field.setFieldvalue(text1New);
+            }
+        });
+    }
+
     public boolean addToMysqlFields(String text, String text1) {
         for (PluginDataField entry : mysqlFields) {
             if ((entry.getFieldname().equals(text) || entry.getFieldvalue().equals(text1)) ||
