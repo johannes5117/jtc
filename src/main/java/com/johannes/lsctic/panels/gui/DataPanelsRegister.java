@@ -142,18 +142,22 @@ public class DataPanelsRegister {
 
     @Subscribe
     public void addCdrAndUpdate(AddCdrAndUpdateEvent event) {
-        if (internFields.containsKey(event.getWho())) {
-            InternField internField = internFields.get(event.getWho());
-            String name = internField.getName();
-            HistoryField f = new HistoryField(name, event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(), event.getTimeStamp(), eventBus);
-            historyFields.add(0, f);
-            if(historyFields.size()>=hFieldPerSite) {
-                historyFields = historyFields.subList(0, hFieldPerSite);
+        if(event.isOrdered() || historyfieldCount == 0) {
+            if (internFields.containsKey(event.getWho())) {
+                InternField internField = internFields.get(event.getWho());
+                String name = internField.getName();
+                HistoryField f = new HistoryField(name, event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(), event.getTimeStamp(), eventBus);
+                historyFields.add(0, f);
+                if (historyFields.size() >= hFieldPerSite) {
+                    historyFields = historyFields.subList(0, hFieldPerSite);
+                }
+                panelC.getChildren().clear();
+                panelC.getChildren().addAll(historyFields);
+            } else {
+                eventBus.post(new SearchDataSourcesForCdrEvent(event));
             }
-            panelC.getChildren().clear();
-            panelC.getChildren().addAll(historyFields);
         } else {
-            eventBus.post(new SearchDataSourcesForCdrEvent(event));
+            Logger.getLogger(getClass().getName()).info("History abgelehnt, weil gerad am durchsuchen");
         }
     }
 

@@ -130,7 +130,7 @@ public class ServerConnectionHandler {
     @Subscribe
     public void call(CallEvent event) {
         Logger.getLogger(getClass().getName()).info("Versucht: " + event.getPhoneNumber() + " anzurufen");
-        this.write("003" + ownExtension+":"+event.getPhoneNumber() + "\r\n");
+        this.write("003" + ownExtension+";"+event.getPhoneNumber() + "\r\n");
     }
 
     @Subscribe

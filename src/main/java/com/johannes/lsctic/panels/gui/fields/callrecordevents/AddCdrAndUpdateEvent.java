@@ -9,12 +9,14 @@ public class AddCdrAndUpdateEvent {
     private final String howLong;
     private final boolean outgoing;
     private final long timeStamp;
-    public AddCdrAndUpdateEvent(String who, String when, String howLong, boolean outgoing, long timeStamp) {
+    private final boolean ordered;
+    public AddCdrAndUpdateEvent(String who, String when, String howLong, boolean outgoing, long timeStamp, boolean ordered) {
         this.who = who;
         this.when = when;
         this.howLong = howLong;
         this.outgoing = outgoing;
         this.timeStamp = timeStamp;
+        this.ordered = ordered;
     }
 
     public String getWho() {
@@ -35,5 +37,9 @@ public class AddCdrAndUpdateEvent {
 
     public long getTimeStamp() {
         return timeStamp;
+    }
+
+    public boolean isOrdered() {
+        return ordered;
     }
 }
