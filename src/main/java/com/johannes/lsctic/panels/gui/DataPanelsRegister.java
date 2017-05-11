@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Created by johannes on 06.04.2017.
@@ -142,11 +143,11 @@ public class DataPanelsRegister {
 
     @Subscribe
     public void addCdrAndUpdate(AddCdrAndUpdateEvent event) {
-        if(event.isOrdered() || historyfieldCount == 0) {
+        if((event.isOrdered() || historyfieldCount == 0) && searchPaneCValue.equals(event.getSearchText())) {
             if (internFields.containsKey(event.getWho())) {
                 InternField internField = internFields.get(event.getWho());
                 String name = internField.getName();
-                HistoryField f = new HistoryField(name, event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(), event.getTimeStamp(), eventBus);
+                HistoryField f = new HistoryField(name, event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(), event.getTimeStamp(),event.getSearchText(), eventBus);
                 historyFields.add(0, f);
                 if (historyFields.size() >= hFieldPerSite) {
                     historyFields = historyFields.subList(0, hFieldPerSite);
@@ -163,7 +164,7 @@ public class DataPanelsRegister {
 
     @Subscribe
     public void addCdrUpdateWithNameFromDataSource(FoundCdrNameInDataSourceEvent event) {
-        HistoryField f = new HistoryField(event.getName(), event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(),event.getTimeStamp(), eventBus);
+        HistoryField f = new HistoryField(event.getName(), event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(),event.getTimeStamp(), "",eventBus);
         historyFields.add(0, f);
         if(historyFields.size()>=hFieldPerSite) {
             historyFields = historyFields.subList(0, hFieldPerSite);
@@ -173,7 +174,7 @@ public class DataPanelsRegister {
 
     @Subscribe
     public void addCdrUpdateWithoutName(NotFoundCdrNameInDataSourceEvent event) {
-        HistoryField f = new HistoryField(event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(),event.getTimeStamp(), eventBus);
+        HistoryField f = new HistoryField(event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(),event.getTimeStamp(),"", eventBus);
         historyFields.add(0, f);
         if(historyFields.size()>=hFieldPerSite) {
             historyFields = historyFields.subList(0, hFieldPerSite);
@@ -264,6 +265,24 @@ public class DataPanelsRegister {
         } else {
             this.buttonNext.setDisable(false);
         }
+    }
+
+    public int getAmountHistoryFields(){
+        return  hFieldPerSite;
+    }
+
+    @Subscribe
+    public void setHistorySearchString(SearchCdrInDatabaseEvent event) {
+        searchPaneCValue = event.getNumber();
+        historyFields.clear();
+
+    }
+
+    @Subscribe
+    public void noCdrFoundForSearch(CdrNotFoundOnServerEvent event) {
+        searchPaneCValue = event.getSearched();
+        historyFields.clear();
+        panelC.getChildren().clear();
     }
 
 

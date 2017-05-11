@@ -11,7 +11,9 @@ import com.johannes.lsctic.messagestage.ErrorMessage;
 import com.johannes.lsctic.messagestage.SuccessMessage;
 import com.johannes.lsctic.panels.gui.fields.HistoryField;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.AskForCdrCountEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.OrderCDRsEvent;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.RemoveCdrAndUpdateGlobalEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchCdrInDatabaseEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.*;
@@ -49,13 +51,10 @@ public class ServerConnectionHandler {
     private String actHash;
     private Channel ch;
     private boolean loggedIn;
-    // without this var the user would get the loop with retries even if has never connected to the server properly
-    private boolean serverDataChanged;
 
     public ServerConnectionHandler(EventBus bus) {
         this.bus = bus;
         this.loggedIn = false;
-        this.serverDataChanged = true;
         bus.register(this);
     }
     @Subscribe
@@ -115,6 +114,11 @@ public class ServerConnectionHandler {
     @Subscribe
     public void orderCdrsHistory(OrderCDRsEvent event) {
         this.write("005"+event.getStart()+";"+event.getAmount()+"\r\n");
+    }
+
+    @Subscribe
+    public void searchCdr(SearchCdrInDatabaseEvent event) {
+        this.write("008"+event.getNumber()+";"+event.getAmount()+"\r\n");
     }
 
     @Subscribe

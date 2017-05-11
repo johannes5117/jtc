@@ -10,13 +10,21 @@ public class AddCdrAndUpdateEvent {
     private final boolean outgoing;
     private final long timeStamp;
     private final boolean ordered;
-    public AddCdrAndUpdateEvent(String who, String when, String howLong, boolean outgoing, long timeStamp, boolean ordered) {
+    private final String searchText;
+    private final boolean searched;
+    public AddCdrAndUpdateEvent(String who, String when, String howLong, boolean outgoing, long timeStamp, boolean ordered, String searched) {
         this.who = who;
         this.when = when;
         this.howLong = howLong;
         this.outgoing = outgoing;
         this.timeStamp = timeStamp;
         this.ordered = ordered;
+        this.searchText = searched;
+        if(searched.length()>0) {
+            this.searched = true;
+        } else {
+            this.searched = false;
+        }
     }
 
     public String getWho() {
@@ -41,5 +49,13 @@ public class AddCdrAndUpdateEvent {
 
     public boolean isOrdered() {
         return ordered;
+    }
+
+    public String getSearchText() {
+        return searchText;
+    }
+
+    public boolean isSearched() {
+        return searched;
     }
 }

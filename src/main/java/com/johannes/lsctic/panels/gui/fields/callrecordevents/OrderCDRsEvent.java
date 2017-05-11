@@ -1,4 +1,4 @@
-package com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents;
+package com.johannes.lsctic.panels.gui.fields.callrecordevents;
 
 /**
  * Created by johannes on 28.04.17.

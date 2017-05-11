@@ -13,6 +13,7 @@ import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.messagestage.ErrorMessage;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.AddCdrAndUpdateEvent;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.CdrCountEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.CdrNotFoundOnServerEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.SetStatusEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.ReceivedOwnExtensionEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.UserLoginStatusEvent;
@@ -73,7 +74,7 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
                         Platform.runLater(()->bus.post(new CdrCountEvent(Integer.valueOf(param))));
                         break;
                     case 12:
-                        Platform.runLater(()->{});
+                        Platform.runLater(()->bus.post(new CdrNotFoundOnServerEvent(param)));
                         break;
                     case 15:
                         Platform.runLater(() -> bus.post(new PluginLicenseApprovedEvent(param,0,false)));
@@ -127,11 +128,16 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
         Long duration = Long.parseLong(d[3]);
         String id = d[4];
         boolean ordered = Boolean.valueOf(d[5]);
+        String searched = "";
+        if(d.length>6) {
+            searched = d[6];
+        }
+        String finalSearched = searched;
         Platform.runLater(() -> {
             if (source.equals(ownExtension)) {
-                bus.post(new AddCdrAndUpdateEvent(destination, date, duration.toString(), true, timeStamp,ordered));
+                bus.post(new AddCdrAndUpdateEvent(destination, date, duration.toString(), true, timeStamp,ordered, finalSearched));
             } else {
-                bus.post(new AddCdrAndUpdateEvent(source, date, duration.toString(), false, timeStamp,ordered));
+                bus.post(new AddCdrAndUpdateEvent(source, date, duration.toString(), false, timeStamp,ordered, finalSearched));
             }
         });
     }
