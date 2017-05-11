@@ -11,7 +11,7 @@ import com.johannes.lsctic.messagestage.ErrorMessage;
 import com.johannes.lsctic.messagestage.SuccessMessage;
 import com.johannes.lsctic.panels.gui.fields.HistoryField;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.AskForCdrCountEvent;
-import com.johannes.lsctic.panels.gui.fields.callrecordevents.RemoveCdrAndUpdateEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.RemoveCdrAndUpdateGlobalEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.*;
@@ -28,7 +28,6 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import javafx.application.Platform;
 
 import java.io.IOException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -102,7 +101,7 @@ public class ServerConnectionHandler {
     }
 
     @Subscribe
-    public void removeCdrAndUpdate(RemoveCdrAndUpdateEvent event) {
+    public void removeCdrAndUpdate(RemoveCdrAndUpdateGlobalEvent event) {
         HistoryField f = event.getHistoryField();
         String source = ownExtension;
         String destination = f.getWho();
@@ -110,7 +109,7 @@ public class ServerConnectionHandler {
             source = f.getWho();
             destination = ownExtension;
         }
-        this.write("006"+String.valueOf(f.getTimeStamp())+";"+source+";"+destination+"\r\n");
+        this.write("006"+String.valueOf(f.getTimeStamp())+";"+source+";"+destination+";"+event.getHistoryFieldCount()+";"+event.getAmount()+"\r\n");
     }
 
     @Subscribe
@@ -136,8 +135,6 @@ public class ServerConnectionHandler {
 
     @Subscribe
     public void startConnection(StartConnectionEvent event) {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.execute(()->{
         if (ch != null && ch.isOpen()) {
             this.ch.disconnect();
             this.ch.close();
@@ -176,7 +173,7 @@ public class ServerConnectionHandler {
                 ch.writeAndFlush("ndb" + event.getId() + ";" + event.getPw() + "\r\n");
             }
         }
-        });
+
     }
 
     @Subscribe

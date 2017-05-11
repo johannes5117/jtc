@@ -5,10 +5,11 @@ package com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents;
  */
 public class OrderCDRsEvent {
     private int start;
-    private int amount = 10;
+    private int amount;
 
-    public OrderCDRsEvent(int start) {
+    public OrderCDRsEvent(int start, int amount) {
         this.start = start;
+        this.amount = amount;
     }
 
     public int getStart() {

@@ -14,10 +14,8 @@ import com.johannes.lsctic.panels.gui.fields.NewInternField;
 import com.johannes.lsctic.panels.gui.fields.internevents.RemoveInternAndUpdateEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.*;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.*;
-import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 import java.util.*;
 import java.util.List;
@@ -37,9 +35,13 @@ public class DataPanelsRegister {
     private VBox panelC;
     private Button buttonNext;
     private Button buttonLast;
+    private int hFieldPerSite = 10;
     private int historyfieldCount = 0;
     private int maxHistoryFieldcount = 10;
     private boolean sortByCallCount = true;
+    // Safes the last query for refreshs on the list
+    private String searchPaneAValue = "";
+    private String searchPaneCValue = "";
 
     private EventBus eventBus;
 
@@ -69,25 +71,25 @@ public class DataPanelsRegister {
         panelC.getChildren().addAll(historyFields);
 
         buttonNext.setOnMouseClicked(event -> {
-            if ((historyfieldCount) * 10 < maxHistoryFieldcount) {
-                this.buttonNext.setDisable(false);
                 ++historyfieldCount;
                 this.buttonLast.setDisable(false);
                 historyFields.clear();
-                this.eventBus.post(new OrderCDRsEvent(historyfieldCount * 10));
-            }else {
+                this.eventBus.post(new OrderCDRsEvent(historyfieldCount * hFieldPerSite,hFieldPerSite));
+                // if for the next are not enough fields -> Disable button
+                if ((historyfieldCount+1) * hFieldPerSite > maxHistoryFieldcount) {
                     this.buttonNext.setDisable(true);
                 }
         });
 
         buttonLast.setOnMouseClicked(event -> {
             --historyfieldCount;
+            historyFields.clear();
+            this.buttonNext.setDisable(false);
+            this.eventBus.post(new OrderCDRsEvent(historyfieldCount * hFieldPerSite,hFieldPerSite));
+            // if user is on page 0 (start page, newest) -> Disable button
             if (historyfieldCount == 0) {
                 this.buttonLast.setDisable(true);
             }
-            historyFields.clear();
-            this.buttonNext.setDisable(false);
-            this.eventBus.post(new OrderCDRsEvent(historyfieldCount * 10));
         });
     }
 
@@ -99,6 +101,7 @@ public class DataPanelsRegister {
             internFields.entrySet().stream().forEach(g -> eventBus.post(new AboStatusExtensionEvent(g.getValue().getNumber())));
         }
         eventBus.post(new AskForCdrCountEvent());
+        eventBus.post(new OrderCDRsEvent(historyfieldCount*hFieldPerSite,hFieldPerSite));
     }
 
     @Subscribe
@@ -117,16 +120,23 @@ public class DataPanelsRegister {
             internNumbers.put(p.getPhoneNumber(), p);
             internFields.put(p.getPhoneNumber(), new InternField(p.getName(), p.getCount(), p.getPhoneNumber(), eventBus));
             eventBus.post(new AboStatusExtensionEvent(p.getPhoneNumber()));
-            updateView(new ArrayList<>(internFields.values()));
+            updateView(generateReducedSetFromList(searchPaneAValue,new ArrayList<>(internFields.values())));
         } else {
             Logger.getLogger(getClass().getName()).log(Level.WARNING, "There already exists a user with that phonenumber.");
             new ErrorMessage("There already exists a user with the same phone number");
         }
     }
 
-    public List<InternField> generateReducedSet(String val) {
+    public List<InternField> generateReducedInternSet(String val) {
+        this.searchPaneAValue = val;
         ArrayList<InternField> out = new ArrayList<>();
         internFields.values().stream().filter(f -> f.getName().toLowerCase().contains(val.toLowerCase())).forEachOrdered(f -> out.add(f));
+        return out;
+    }
+
+    public List<InternField> generateReducedSetFromList(String val, ArrayList<InternField> internFieldsLocal) {
+        ArrayList<InternField> out = new ArrayList<>();
+        internFieldsLocal.stream().filter(f -> f.getName().toLowerCase().contains(val.toLowerCase())).forEachOrdered(f -> out.add(f));
         return out;
     }
 
@@ -137,8 +147,8 @@ public class DataPanelsRegister {
             String name = internField.getName();
             HistoryField f = new HistoryField(name, event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(), event.getTimeStamp(), eventBus);
             historyFields.add(0, f);
-            if(historyFields.size()>9) {
-                historyFields = historyFields.subList(0, 10);
+            if(historyFields.size()>=hFieldPerSite) {
+                historyFields = historyFields.subList(0, hFieldPerSite);
             }
             panelC.getChildren().clear();
             panelC.getChildren().addAll(historyFields);
@@ -151,8 +161,8 @@ public class DataPanelsRegister {
     public void addCdrUpdateWithNameFromDataSource(FoundCdrNameInDataSourceEvent event) {
         HistoryField f = new HistoryField(event.getName(), event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(),event.getTimeStamp(), eventBus);
         historyFields.add(0, f);
-        if(historyFields.size()>9) {
-            historyFields = historyFields.subList(0, 10);
+        if(historyFields.size()>=hFieldPerSite) {
+            historyFields = historyFields.subList(0, hFieldPerSite);
         }        panelC.getChildren().clear();
         panelC.getChildren().addAll(historyFields);
     }
@@ -161,19 +171,22 @@ public class DataPanelsRegister {
     public void addCdrUpdateWithoutName(NotFoundCdrNameInDataSourceEvent event) {
         HistoryField f = new HistoryField(event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(),event.getTimeStamp(), eventBus);
         historyFields.add(0, f);
-        if(historyFields.size()>9) {
-            historyFields = historyFields.subList(0, 10);
+        if(historyFields.size()>=hFieldPerSite) {
+            historyFields = historyFields.subList(0, hFieldPerSite);
         }        panelC.getChildren().clear();
         panelC.getChildren().addAll(historyFields);
     }
 
     @Subscribe
-    public void removeCdrAndUpdate(RemoveCdrAndUpdateEvent event) {
+    public void removeCdrAndUpdate(RemoveCdrAndUpdateLocalEvent event) {
         HistoryField f = event.getHistoryField();
         historyFields.remove(f);
         panelC.getChildren().clear();
         panelC.getChildren().addAll(historyFields);
 
+        // Fetch current side (to get newest chagne from database) and clear historyfields
+        eventBus.post(new RemoveCdrAndUpdateGlobalEvent(f, historyfieldCount*hFieldPerSite,hFieldPerSite));
+        historyFields.clear();
     }
 
     @Subscribe
@@ -187,7 +200,7 @@ public class DataPanelsRegister {
         internFields.remove(event.getNumber());
         internNumbers.remove(event.getNumber());
         eventBus.post(new DeAboStatusExtensionEvent(event.getNumber()));
-        updateView(new ArrayList<>(internFields.values()));
+        updateView(generateReducedSetFromList(searchPaneAValue,new ArrayList<>(internFields.values())));
     }
 
     @Subscribe
@@ -197,7 +210,7 @@ public class DataPanelsRegister {
                     String.valueOf(Integer.valueOf(sqlLiteConnection.query("Select callcount from internfields where number = '" + event.getPhoneNumber() + "'")) + 1));
 
             internFields.get(event.getPhoneNumber()).incCount();
-            updateView(new ArrayList<>(internFields.values()));
+            updateView(generateReducedSetFromList(searchPaneAValue,new ArrayList<>(internFields.values())));
         }
     }
 
@@ -228,7 +241,7 @@ public class DataPanelsRegister {
     @Subscribe
     public void viewOptionsChanged(ViewOptionsChangedEvent event) {
         this.sortByCallCount = event.isSortByCallCount();
-        updateView(new ArrayList<>(internFields.values()));
+        updateView(generateReducedSetFromList(searchPaneAValue,new ArrayList<>(internFields.values())));
     }
 
     @Subscribe
@@ -240,7 +253,13 @@ public class DataPanelsRegister {
 
     @Subscribe
     public void cdrAmountInDatabaseUpdate(CdrCountEvent event) {
+        Logger.getLogger(getClass().getName()).info("Got the info: "+event.getCurrentAmount());
         maxHistoryFieldcount = event.getCurrentAmount();
+        if ((historyfieldCount+1) * hFieldPerSite >= maxHistoryFieldcount) {
+            this.buttonNext.setDisable(true);
+        } else {
+            this.buttonNext.setDisable(false);
+        }
     }
 
 

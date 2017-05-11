@@ -7,11 +7,11 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="AnchorPane"  prefHeight="380.0" style="-fx-background-color: rgba(0, 0, 0, 0.0);" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.johannes.lsctic.FXMLController">
+<AnchorPane id="AnchorPane" prefHeight="380.0" style="-fx-background-color: rgba(0, 0, 0, 0.0);" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.johannes.lsctic.FXMLController">
     <children>
       <TabPane fx:id="tabPane" focusTraversable="false" prefHeight="380.0" side="LEFT" style="-fx-background-color: rgba(0, 0, 0, 0.0);" tabClosingPolicy="UNAVAILABLE">
         <tabs>
-            <Tab fx:id="intern" text="Interns">
+            <Tab fx:id="intern" text="Quickdial">
               <content>
                 <AnchorPane prefHeight="380.0">
                      <children>
@@ -30,8 +30,8 @@
                                                 <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
                                              </padding>
                                           </VBox>
-                                          <ToggleButton fx:id="dndToggle" mnemonicParsing="false" text="DND" />
-                                          <ToggleButton fx:id="redirectToggle" mnemonicParsing="false" text="Redirect" />
+                                          <ToggleButton fx:id="dndToggle" focusTraversable="false" mnemonicParsing="false" text="DND" />
+                                          <ToggleButton fx:id="redirectToggle" focusTraversable="false" mnemonicParsing="false" text="Redirect" />
                                        </children>
                                        <padding>
                                           <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

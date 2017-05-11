@@ -2,10 +2,13 @@ package com.johannes.lsctic.panels.gui.fields.callrecordevents;
 
 import com.johannes.lsctic.panels.gui.fields.HistoryField;
 
-public class RemoveCdrAndUpdateEvent {
+
+// Used to trigger DataPanelsRegister cdr remove
+// -> DataPanelsRegister will then send delete order to server and fetch current cdr fields
+public class RemoveCdrAndUpdateLocalEvent {
    private HistoryField historyField;
 
-   public RemoveCdrAndUpdateEvent(HistoryField historyField) {
+   public RemoveCdrAndUpdateLocalEvent(HistoryField historyField) {
        this.historyField = historyField;
    }
 

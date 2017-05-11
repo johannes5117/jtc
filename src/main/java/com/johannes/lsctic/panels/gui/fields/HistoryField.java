@@ -6,10 +6,8 @@
 package com.johannes.lsctic.panels.gui.fields;
 
 import com.google.common.eventbus.EventBus;
-import com.johannes.lsctic.panels.gui.fields.callrecordevents.RemoveCdrAndUpdateEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.RemoveCdrAndUpdateLocalEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.CallEvent;
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -138,7 +136,7 @@ public class HistoryField extends VBox {
         contextMenu.getItems().addAll(del, call);
 
         del.setOnAction(event -> {
-            this.eventBus.post(new RemoveCdrAndUpdateEvent(HistoryField.this));
+            this.eventBus.post(new RemoveCdrAndUpdateLocalEvent(HistoryField.this));
             contextMenu.hide();
         });
         call.setOnAction(event -> {

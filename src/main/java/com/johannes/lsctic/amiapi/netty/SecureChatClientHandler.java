@@ -71,6 +71,9 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
                     case 11:
                         Platform.runLater(()->bus.post(new CdrCountEvent(Integer.valueOf(param))));
                         break;
+                    case 12:
+                        Platform.runLater(()->{});
+                        break;
                     case 15:
                         Platform.runLater(() -> bus.post(new PluginLicenseApprovedEvent(param,0,false)));
                         break;

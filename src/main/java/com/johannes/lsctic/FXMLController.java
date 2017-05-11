@@ -2,7 +2,6 @@ package com.johannes.lsctic;
 
 import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.amiapi.netty.ServerConnectionHandler;
-import com.johannes.lsctic.messagestage.PasswordChange;
 import com.johannes.lsctic.panels.gui.DataPanelsRegister;
 import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.UpdateAddressFieldsEvent;
@@ -22,6 +21,8 @@ import javafx.stage.Stage;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class FXMLController implements Initializable {
@@ -42,6 +43,8 @@ public class FXMLController implements Initializable {
     private TextField paneATextIn;
     @FXML
     private TextField paneBTextIn;
+    @FXML
+    private TextField paneCTextIn;
     @FXML
     private TabPane tabPane;
     @FXML
@@ -89,12 +92,16 @@ public class FXMLController implements Initializable {
         // creates optionstorage which loads data from sqlite and triggers plugin loading
         OptionsStorage storage = new OptionsStorage(optionAccept, optionReject, panelD, eventBus, sqlLiteConnection);
 
-        new ServerConnectionHandler(eventBus);
-        eventBus.post(new StartConnectionEvent(storage.getAmiAddress(), storage.getAmiServerPort(), storage.getAmiLogIn(), storage.getAmiPasswordHash(), true,false));
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.execute(()->{
+            new ServerConnectionHandler(eventBus);
+            eventBus.post(new StartConnectionEvent(storage.getAmiAddress(), storage.getAmiServerPort(), storage.getAmiLogIn(), storage.getAmiPasswordHash(), true,false));
+        });
 
         //QuickCommandBox -> For DND, Server status, Redirect
         new QuickCommandBox(eventBus,dndToggle,redirectToggle,serverStatusText);
 
+        //Build datapanelregister
         VBox[] panels = {panelA, panelB, panelC, panelD};
         Button[] buttons = {btnlast, btnnext};
         dataPanelsRegister = new DataPanelsRegister(eventBus, sqlLiteConnection, panels, buttons);
@@ -133,13 +140,19 @@ public class FXMLController implements Initializable {
             } else {
                 customTooltip.hide();
             }
-            dataPanelsRegister.updateView(dataPanelsRegister.generateReducedSet(newValue));
+            dataPanelsRegister.updateView(dataPanelsRegister.generateReducedInternSet(newValue));
         });
 
         //listener to search in the Address sources
         paneBTextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+            // Todo might be better done async via Eventbus
             List<AddressBookEntry> ld1 = storage.getPluginRegister().getResultFromEveryPlugin(newValue, 10);
             dataPanelsRegister.updateAddressFields(new UpdateAddressFieldsEvent(ld1));
+        });
+
+        // Listener to search history data on the server
+        paneCTextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+
         });
     }
 }
