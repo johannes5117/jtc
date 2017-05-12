@@ -5,10 +5,15 @@
  */
 package com.johannes.lsctic.panels.gui.plugins;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import com.johannes.lsctic.SqlLiteConnection;
 import com.johannes.lsctic.messagestage.ErrorMessage;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.DataSourceNameResolvingEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchCdrInDatabaseEvent;
 import javafx.application.Platform;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -19,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,12 +37,14 @@ public class PluginRegister {
     private ArrayList<AddressPlugin> loadedPlugins;
     private String exploredFolder;
     private ArrayList<String> approvedPlugins;
+    private EventBus eventBus;
 
 
-    public PluginRegister() {
+    public PluginRegister(EventBus eventBus) {
         loadedPlugins = new ArrayList<>();
         pluginsFound = new ArrayList<>();
         approvedPlugins = new ArrayList<>();
+        this.eventBus = eventBus;
     }
 
     public static void addNewLoader(String text) {
@@ -198,6 +206,25 @@ public class PluginRegister {
         //TODO: Implement Function on Data
         return "";
     }
+
+
+
+
+    //Resolving Input on the historyfield search -> mapping entered name to number in datasource
+
+    public void getPossibleNumbersToName(String name, AtomicInteger left) {
+        ArrayList<String> foundNumbers = new ArrayList<>();
+
+
+
+        //TODO: Implement Function on Data
+    }
+    
+
+
+
+
+
 
 
     public void acceptAllPlugins() {

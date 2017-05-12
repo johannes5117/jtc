@@ -159,7 +159,7 @@ public class FXMLController implements Initializable {
                 this.eventBus.post(new SearchCdrInDatabaseEvent(newValue, dataPanelsRegister.getAmountHistoryFields()));
             } else {
                 //Resolve number from name and search this in database
-                //
+                
             }
         });
     }

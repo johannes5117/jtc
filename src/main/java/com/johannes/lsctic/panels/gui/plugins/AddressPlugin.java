@@ -1,5 +1,7 @@
 package com.johannes.lsctic.panels.gui.plugins;
 
+import com.google.common.eventbus.EventBus;
+
 import java.util.ArrayList;
 
 /**

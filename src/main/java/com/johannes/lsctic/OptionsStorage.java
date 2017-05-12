@@ -2,9 +2,7 @@ package com.johannes.lsctic;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import com.johannes.lsctic.panels.gui.fields.callrecordevents.FoundCdrNameInDataSourceEvent;
-import com.johannes.lsctic.panels.gui.fields.callrecordevents.NotFoundCdrNameInDataSourceEvent;
-import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchDataSourcesForCdrEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.*;
 import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.UpdateAddressFieldsEvent;
@@ -52,7 +50,7 @@ public final class OptionsStorage {
 
     public OptionsStorage(Button accept, Button reject, VBox panelD, EventBus bus, SqlLiteConnection sqlLiteConnection) {
         this.asteriskSettingsField = new AsteriskSettingsField(bus);
-        this.pluginRegister = new PluginRegister();
+        this.pluginRegister = new PluginRegister(bus);
         this.programSettingsField = new ProgramSettingsField();
 
         this.dataSourceSettingsField = new DataSourceSettingsField();
