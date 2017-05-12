@@ -18,6 +18,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 /**
@@ -101,10 +102,11 @@ public class HistoryField extends VBox {
             b.getStyleClass().clear();
             b.getStyleClass().add("history-in");
         }
+        b.setMinWidth(Region.USE_PREF_SIZE);
         inner.getChildren().add(a);
-        this.getChildren().add(inner);
         inner.getChildren().add(innerinner);
         inner.getChildren().add(b);
+        this.getChildren().add(inner);
 
         this.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.ENTER) {

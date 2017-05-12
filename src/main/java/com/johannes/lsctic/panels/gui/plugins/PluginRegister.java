@@ -9,14 +9,11 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.johannes.lsctic.SqlLiteConnection;
 import com.johannes.lsctic.messagestage.ErrorMessage;
-import com.johannes.lsctic.panels.gui.fields.callrecordevents.DataSourceNameResolvingEvent;
-import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchCdrInDatabaseEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.*;
 import javafx.application.Platform;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
@@ -24,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,6 +43,7 @@ public class PluginRegister {
         pluginsFound = new ArrayList<>();
         approvedPlugins = new ArrayList<>();
         this.eventBus = eventBus;
+        this.eventBus.register(this);
     }
 
     public static void addNewLoader(String text) {
@@ -91,6 +90,7 @@ public class PluginRegister {
                 try {
                     AddressPlugin plugin = getInstantiatedClass(pluginName, folderPath);
                     loadedPlugins.add(plugin);
+                    plugin.getLoader().setEventBus(eventBus);
                     if(!approvedPlugins.contains(pluginName)) {
                         approvedPlugins.add(pluginName);
                     }
@@ -202,22 +202,26 @@ public class PluginRegister {
     }
 
 
-    public String getNameToNumber(String number) {
-        //TODO: Implement Function on Data
-        return "";
+    //If a CDR comes in, it comes without a name -> try to resolve the name and write it into the local cache
+    @Subscribe
+    public void searchNameToNumber(SearchDataSourcesForCdrEvent event) {
+        AtomicInteger searchFinished  = new AtomicInteger(loadedPlugins.size());
+        AtomicBoolean found  = new AtomicBoolean(false);
+        for (AddressPlugin plugin : loadedPlugins) {
+            Logger.getLogger(getClass().getName()).info("invoking Plugin search");
+            plugin.resolveNameForNumber(event, searchFinished, found);
+        }
     }
 
-
-
-
     //Resolving Input on the historyfield search -> mapping entered name to number in datasource
+    @Subscribe
+    public void searchPossibleNumbersToName(ResolveNumberFromNameEvent event) {
+        Logger.getLogger(getClass().getName()).info("Event invoked ");
 
-    public void getPossibleNumbersToName(String name, AtomicInteger left) {
-        ArrayList<String> foundNumbers = new ArrayList<>();
-
-
-
-        //TODO: Implement Function on Data
+        for (AddressPlugin plugin : loadedPlugins) {
+            Logger.getLogger(getClass().getName()).info("Inside Loop");
+            plugin.searchPossibleNumbers(event.getName(), event.getLeft(), event.getTimestamp());
+        }
     }
     
 

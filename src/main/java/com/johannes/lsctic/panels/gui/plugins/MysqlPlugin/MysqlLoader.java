@@ -5,12 +5,18 @@ package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;/*
  */
 
 import com.google.common.eventbus.EventBus;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.FoundCdrNameInDataSourceEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.NotFoundCdrNameInDataSourceEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchCdrInDatabaseEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchDataSourcesForCdrEvent;
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import com.johannes.lsctic.panels.gui.plugins.AddressLoader;
 import com.johannes.lsctic.panels.gui.plugins.DataSource;
 import com.johannes.lsctic.panels.gui.plugins.PluginDataField;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 
@@ -43,7 +49,7 @@ public class MysqlLoader implements AddressLoader {
         infos.add("Johannes");
         infos.add("Engler");
         infos.add("Bad Krozingen");
-        infos.add("O76641234");
+        infos.add("076641234");
         infos.add("0123123");
         en.add(new AddressBookEntry(infos, "Johannes Minister Prinz und König von Swasiland", source));
 
@@ -62,6 +68,54 @@ public class MysqlLoader implements AddressLoader {
             }
         }
         return found;
+    }
+
+    // given a name we want to return the number for the database query
+    public void numberQuery(String name, AtomicInteger left,long searchTimestamp) {
+        // Experimental implementation -> will in that fashion not work on actual data
+        en.stream()
+                .filter(addressBookEntry ->
+                addressBookEntry.getSource().getMobile()>-1 || addressBookEntry.getSource().getTelephone()>-1)
+                .filter(addressBookEntry -> addressBookEntry.getName().toLowerCase().contains(name.toLowerCase()))
+                .forEach(addressBookEntry -> {
+                    if(addressBookEntry.getSource().getTelephone()>-1 && left.decrementAndGet()>0){
+                            this.eventBus.post(new SearchCdrInDatabaseEvent(
+                                    addressBookEntry.get(addressBookEntry.getSource().getTelephone()), 10,searchTimestamp));
+
+                    }
+                    if(addressBookEntry.getSource().getMobile()>-1 && left.decrementAndGet()>0){
+                        this.eventBus.post(new SearchCdrInDatabaseEvent(
+                                addressBookEntry.get(addressBookEntry.getSource().getMobile()), 10,searchTimestamp));
+
+                    }
+
+                });
+    }
+
+    public void resolveNameForNumber(SearchDataSourcesForCdrEvent event, AtomicInteger terminated, AtomicBoolean found) {
+        int mobile = en.get(0).getSource().getMobile();
+        int telephone = en.get(0).getSource().getTelephone();
+        for(AddressBookEntry entry : en) {
+
+            if(entry.get(mobile).equals(event.getWho())) {
+                found.set(true);
+                Logger.getLogger(getClass().getName()).info("Found: "+entry.getName());
+                eventBus.post(new FoundCdrNameInDataSourceEvent(event, entry.getName()));
+                break;
+            } else if( entry.get(telephone).equals(event.getWho())) {
+                found.set(true);
+                Logger.getLogger(getClass().getName()).info("Found: "+entry.getName());
+                eventBus.post(new FoundCdrNameInDataSourceEvent(event, entry.getName()));
+                break;
+            }
+
+        }
+
+
+        if(!found.get()) {
+            eventBus.post(new NotFoundCdrNameInDataSourceEvent(event));
+        }
+        terminated.decrementAndGet();
     }
 
     public void saved() {

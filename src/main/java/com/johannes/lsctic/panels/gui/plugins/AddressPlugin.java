@@ -1,8 +1,11 @@
 package com.johannes.lsctic.panels.gui.plugins;
 
 import com.google.common.eventbus.EventBus;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchDataSourcesForCdrEvent;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by johannes on 22.03.2017.
@@ -24,6 +27,10 @@ public interface AddressPlugin {
     String getAuthorContact();
 
     ArrayList<AddressBookEntry> getResults(String query, int number);
+
+    void searchPossibleNumbers(String name, AtomicInteger left, long searchTimestamp);
+
+    void resolveNameForNumber(SearchDataSourcesForCdrEvent event, AtomicInteger terminated, AtomicBoolean found);
 
     ArrayList<PluginDataField> getDataFields();
 

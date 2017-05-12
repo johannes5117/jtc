@@ -21,13 +21,14 @@ import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Created by johannes on 06.04.2017.
  */
 public class DataPanelsRegister {
+    //Key = phonenumber/extension of the intern
     private HashMap<String, InternField> internFields;
+    //Key = phonenumber/extension of the intern
     private Map<String, PhoneNumber> internNumbers;
     private List<HistoryField> historyFields;
     private SqlLiteConnection sqlLiteConnection;
@@ -42,7 +43,12 @@ public class DataPanelsRegister {
     private boolean sortByCallCount = true;
     // Safes the last query for refreshs on the list
     private String searchPaneAValue = "";
-    private String searchPaneCValue = "";
+
+    private long searchPaneCTimestamp;
+    private boolean searchPaneCBlock = false;
+    private String searchPaneCString = "";
+    // Used to cache name <-> number reference (cdr packets usw)
+    private HashMap<String, String> resolveCache;
 
     private EventBus eventBus;
 
@@ -92,6 +98,8 @@ public class DataPanelsRegister {
                 this.buttonLast.setDisable(true);
             }
         });
+
+        resolveCache = new HashMap<>();
     }
 
     @Subscribe
@@ -143,22 +151,28 @@ public class DataPanelsRegister {
 
     @Subscribe
     public void addCdrAndUpdate(AddCdrAndUpdateEvent event) {
-        if((event.isOrdered() || historyfieldCount == 0) && searchPaneCValue.equals(event.getSearchText())) {
+        //if we're currently in search mode and not on site 1 accept cdr packets which aren't ordered
+        if((!event.isOrdered() && !searchPaneCBlock && historyfieldCount==0)
+                || (event.isOrdered() && !searchPaneCBlock)
+                || (event.isOrdered() && searchPaneCTimestamp<=event.getSearchInvokedTimestamp())) {
+            searchPaneCTimestamp = event.getSearchInvokedTimestamp();
             if (internFields.containsKey(event.getWho())) {
                 InternField internField = internFields.get(event.getWho());
                 String name = internField.getName();
                 HistoryField f = new HistoryField(name, event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(), event.getTimeStamp(),event.getSearchText(), eventBus);
                 historyFields.add(0, f);
-                if (historyFields.size() >= hFieldPerSite) {
-                    historyFields = historyFields.subList(0, hFieldPerSite);
-                }
-                panelC.getChildren().clear();
-                panelC.getChildren().addAll(historyFields);
-            } else {
+            } else if(resolveCache.containsKey(event.getWho())){
+                HistoryField f = new HistoryField(resolveCache.get(event.getWho()), event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(),event.getTimeStamp(), "",eventBus);
+                historyFields.add(0, f);
+            }else{
                 eventBus.post(new SearchDataSourcesForCdrEvent(event));
+                return;
             }
-        } else {
-            Logger.getLogger(getClass().getName()).info("History abgelehnt, weil gerad am durchsuchen");
+            if (historyFields.size() >= hFieldPerSite) {
+                historyFields = historyFields.subList(0, hFieldPerSite);
+            }
+            panelC.getChildren().clear();
+            panelC.getChildren().addAll(historyFields);
         }
     }
 
@@ -168,8 +182,10 @@ public class DataPanelsRegister {
         historyFields.add(0, f);
         if(historyFields.size()>=hFieldPerSite) {
             historyFields = historyFields.subList(0, hFieldPerSite);
-        }        panelC.getChildren().clear();
+        }
+        panelC.getChildren().clear();
         panelC.getChildren().addAll(historyFields);
+        resolveCache.put(event.getWho(),event.getName());
     }
 
     @Subscribe
@@ -185,13 +201,11 @@ public class DataPanelsRegister {
     @Subscribe
     public void removeCdrAndUpdate(RemoveCdrAndUpdateLocalEvent event) {
         HistoryField f = event.getHistoryField();
-        historyFields.remove(f);
-        panelC.getChildren().clear();
-        panelC.getChildren().addAll(historyFields);
-
         // Fetch current side (to get newest chagne from database) and clear historyfields
         eventBus.post(new RemoveCdrAndUpdateGlobalEvent(f, historyfieldCount*hFieldPerSite,hFieldPerSite));
+        searchPaneC(searchPaneCString, true);
         historyFields.clear();
+        panelC.getChildren().clear();
     }
 
     @Subscribe
@@ -271,19 +285,47 @@ public class DataPanelsRegister {
         return  hFieldPerSite;
     }
 
-    @Subscribe
-    public void setHistorySearchString(SearchCdrInDatabaseEvent event) {
-        searchPaneCValue = event.getNumber();
-        historyFields.clear();
 
+    @Subscribe
+    public void setHistorySearchNumberNotFoundFeedback(CdrNotFoundOnServerEvent event) {
+        if(event.getTimestamp()>searchPaneCTimestamp) {
+            historyFields.clear();
+            searchPaneCTimestamp = event.getTimestamp();
+        }
     }
 
-    @Subscribe
-    public void noCdrFoundForSearch(CdrNotFoundOnServerEvent event) {
-        searchPaneCValue = event.getSearched();
+    public void searchPaneC(String newValue, boolean deleteRefresh) {
+        if (newValue.matches("^[0-9]*$") && newValue.length() > 0) {
+            //Search for Number in database on host
+            this.eventBus.post(new SearchCdrInDatabaseEvent(newValue, getAmountHistoryFields()));
+            searchPaneCBlock = true;
+            buttonLast.setDisable(true);
+            buttonNext.setDisable(true);
+        } else if (newValue.length()==0 && !deleteRefresh){
+            historyfieldCount = 0;
+            this.buttonLast.setDisable(true);
+            searchPaneCBlock = false;
+            this.eventBus.post(new OrderCDRsEvent(historyfieldCount * hFieldPerSite,hFieldPerSite));
+        }else {
+            //Resolve number from name and search this in database
+            if(newValue.length()>0) {
+                ResolveNumberFromNameEvent event = new ResolveNumberFromNameEvent(10, newValue);
+                this.eventBus.post(event);
+                Optional<InternField> found = internFields.values().stream().filter(internField -> internField.getName().toLowerCase().contains(event.getName().toLowerCase())).findFirst();
+                if(found.isPresent()) {
+                    this.eventBus.post(new SearchCdrInDatabaseEvent(found.get().getNumber(), getAmountHistoryFields(),event.getTimestamp()));
+                }
+                searchPaneCBlock = true;
+                buttonLast.setDisable(true);
+                buttonNext.setDisable(true);
+            }
+        }
+        searchPaneCString = newValue;
         historyFields.clear();
         panelC.getChildren().clear();
     }
+
+
 
 
 }

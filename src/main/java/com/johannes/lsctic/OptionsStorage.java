@@ -295,16 +295,6 @@ public final class OptionsStorage {
     }
 
     @Subscribe
-    public void searchNameForCdr(SearchDataSourcesForCdrEvent event) {
-        String name = getPluginRegister().getNameToNumber(event.getWho());
-        if(name.equals("")) {
-            bus.post(new NotFoundCdrNameInDataSourceEvent(event));
-        } else {
-            bus.post(new FoundCdrNameInDataSourceEvent(event, name));
-        }
-    }
-
-    @Subscribe
     public void closeApplication(CloseApplicationSafelyEvent event) {
         bus.unregister(this);
     }
