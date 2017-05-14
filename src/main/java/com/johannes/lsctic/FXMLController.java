@@ -13,6 +13,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point2D;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -66,6 +67,8 @@ public class FXMLController implements Initializable {
     private Stage stage;
     private EventBus eventBus;
 
+    private Scene scene;
+
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -83,6 +86,10 @@ public class FXMLController implements Initializable {
             }
 
         });*/
+    }
+
+    public void setScene(Scene scene) {
+        this.scene = scene;
     }
 
     public void startApp(EventBus eventBus) {
