@@ -5,6 +5,7 @@
  */
 package com.johannes.lsctic.panels.gui.plugins.TextfilePlugin;
 
+import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import com.johannes.lsctic.panels.gui.plugins.AddressLoader;
 import com.johannes.lsctic.panels.gui.plugins.DataSource;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
  */
 public class TextFileLoader implements AddressLoader {
 
+    private EventBus eventBus;
     private DataSource source;
 
     public TextFileLoader(DataSource source) {
@@ -41,6 +43,11 @@ public class TextFileLoader implements AddressLoader {
     @Override
     public DataSource getDataSource() {
         return source;
+    }
+
+    @Override
+    public void setEventBus(EventBus eventBus) {
+        this.eventBus =eventBus;
     }
 
 }

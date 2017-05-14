@@ -5,13 +5,15 @@
  */
 package com.johannes.lsctic.panels.gui.plugins;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import com.johannes.lsctic.SqlLiteConnection;
 import com.johannes.lsctic.messagestage.ErrorMessage;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.*;
 import javafx.application.Platform;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
@@ -19,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,12 +35,15 @@ public class PluginRegister {
     private ArrayList<AddressPlugin> loadedPlugins;
     private String exploredFolder;
     private ArrayList<String> approvedPlugins;
+    private EventBus eventBus;
 
 
-    public PluginRegister() {
+    public PluginRegister(EventBus eventBus) {
         loadedPlugins = new ArrayList<>();
         pluginsFound = new ArrayList<>();
         approvedPlugins = new ArrayList<>();
+        this.eventBus = eventBus;
+        this.eventBus.register(this);
     }
 
     public static void addNewLoader(String text) {
@@ -83,6 +90,7 @@ public class PluginRegister {
                 try {
                     AddressPlugin plugin = getInstantiatedClass(pluginName, folderPath);
                     loadedPlugins.add(plugin);
+                    plugin.getLoader().setEventBus(eventBus);
                     if(!approvedPlugins.contains(pluginName)) {
                         approvedPlugins.add(pluginName);
                     }
@@ -194,10 +202,33 @@ public class PluginRegister {
     }
 
 
-    public String getNameToNumber(String number) {
-        //TODO: Implement Function on Data
-        return "";
+    //If a CDR comes in, it comes without a name -> try to resolve the name and write it into the local cache
+    @Subscribe
+    public void searchNameToNumber(SearchDataSourcesForCdrEvent event) {
+        AtomicInteger searchFinished  = new AtomicInteger(loadedPlugins.size());
+        AtomicBoolean found  = new AtomicBoolean(false);
+        for (AddressPlugin plugin : loadedPlugins) {
+            Logger.getLogger(getClass().getName()).info("invoking Plugin search");
+            plugin.resolveNameForNumber(event, searchFinished, found);
+        }
     }
+
+    //Resolving Input on the historyfield search -> mapping entered name to number in datasource
+    @Subscribe
+    public void searchPossibleNumbersToName(ResolveNumberFromNameEvent event) {
+        Logger.getLogger(getClass().getName()).info("Event invoked ");
+
+        for (AddressPlugin plugin : loadedPlugins) {
+            Logger.getLogger(getClass().getName()).info("Inside Loop");
+            plugin.searchPossibleNumbers(event.getName(), event.getLeft(), event.getTimestamp());
+        }
+    }
+    
+
+
+
+
+
 
 
     public void acceptAllPlugins() {

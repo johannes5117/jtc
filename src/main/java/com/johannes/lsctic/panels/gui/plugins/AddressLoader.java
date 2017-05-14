@@ -5,6 +5,8 @@
  */
 package com.johannes.lsctic.panels.gui.plugins;
 
+import com.google.common.eventbus.EventBus;
+
 import java.util.List;
 
 /**
@@ -20,6 +22,7 @@ public interface AddressLoader {
     void discarded();
     //get the DataSource
     DataSource getDataSource();
-
+    //Sets the eventbus for asynch back propagation of results
+    void setEventBus(EventBus eventBus);
 
 }

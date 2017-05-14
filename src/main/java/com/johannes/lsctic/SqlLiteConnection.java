@@ -34,7 +34,7 @@ public class SqlLiteConnection {
     public SqlLiteConnection(String database) {
         this.database = database;
         String[] createLines2 = {"create table settings (id integer, setting string, description string)",
-            "create table internfields (id integer  Primary Key AUTOINCREMENT, number string, name string, callcount integer, position integer)"};
+            "create table internfields (id integer  Primary Key AUTOINCREMENT, number varchar, name varchar, callcount integer, position integer)"};
         createDatabase(database, createLines2);
     }
 
@@ -199,7 +199,7 @@ public class SqlLiteConnection {
     public void updateOneAttribute(String table, String whereAttribut, String whereValue, String updateAttribut, String updateValue) {
         try(Connection connection = DriverManager.getConnection(JDBC + database); Statement statement = connection.createStatement()) {
             statement.setQueryTimeout(10);
-            statement.executeUpdate("UPDATE " + table + " SET " + updateAttribut + " = " + updateValue + " WHERE " + whereAttribut + " = " + whereValue);
+            statement.executeUpdate("UPDATE " + table + " SET " + updateAttribut + " = " + updateValue + " WHERE " + whereAttribut + " = '" + whereValue+"'");
         } catch (SQLException ex) {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
             new ErrorMessage("There was a database error with the query");

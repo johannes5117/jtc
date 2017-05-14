@@ -42,8 +42,6 @@ public class AddressField extends VBox {
     private int mobile = -1;
     private int telephone = -1;
 
-    //Todo: Implement count function
-
     public AddressField(int count, AddressBookEntry addressBookEntry, EventBus eventBus) {
         this.name = addressBookEntry.getName();
         this.tag = addressBookEntry.getSource().getTag();
@@ -59,15 +57,14 @@ public class AddressField extends VBox {
         this.getStyleClass().clear();
         this.getStyleClass().add("address-box");
 
-        int z=0;
         for (PluginDataField s : source.getAvailableFields()) {
             fieldNames.add(s.getFieldvalue());
-            if(s.isMobile()) {
-                mobile = z;
-            } else if(s.isTelephone()) {
-                telephone = z;
-            }
-            ++z;
+        }
+        if(source.getMobile()>-1) {
+            mobile = source.getMobile();
+        }
+        if(source.getTelephone()>-1) {
+            telephone = source.getTelephone();
         }
 
         HBox inner = new HBox();
@@ -95,7 +92,7 @@ public class AddressField extends VBox {
         this.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.ENTER) {
                 this.eventBus.post(new CallEvent(this.getName(),false));
-                event.consume(); // do nothing
+                event.consume();
             }
         });
 
@@ -111,7 +108,6 @@ public class AddressField extends VBox {
 
         }
         if (mobile>-1) {
-
             TransparentImageButton v = new TransparentImageButton("/pics/smartphone-call.png");
             inner.getChildren().add(v);
             v.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
@@ -129,16 +125,11 @@ public class AddressField extends VBox {
         inner.getChildren().add(tagLabel);
 
         vUpDown = new TransparentImageButton("/pics/down-arrow.png");
-
-
         inner.getChildren().add(vUpDown);
-
         vUpDown.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             handleCollapseExpand();
             event.consume();
         });
-
-
     }
 
     private void handleCollapseExpand() {

@@ -74,7 +74,7 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
                         Platform.runLater(()->bus.post(new CdrCountEvent(Integer.valueOf(param))));
                         break;
                     case 12:
-                        Platform.runLater(()->bus.post(new CdrNotFoundOnServerEvent(param)));
+                        Platform.runLater(()->bus.post(new CdrNotFoundOnServerEvent(Long.valueOf(param))));
                         break;
                     case 15:
                         Platform.runLater(() -> bus.post(new PluginLicenseApprovedEvent(param,0,false)));
@@ -129,15 +129,18 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
         String id = d[4];
         boolean ordered = Boolean.valueOf(d[5]);
         String searched = "";
-        if(d.length>6) {
+        long timestampSearch = 0;
+        if(ordered && d.length>6) {
             searched = d[6];
+            timestampSearch = Long.valueOf(d[7]);
         }
         String finalSearched = searched;
+        long finalTimestampSearch = timestampSearch;
         Platform.runLater(() -> {
             if (source.equals(ownExtension)) {
-                bus.post(new AddCdrAndUpdateEvent(destination, date, duration.toString(), true, timeStamp,ordered, finalSearched));
+                bus.post(new AddCdrAndUpdateEvent(destination, date, duration.toString(), true, timeStamp,ordered, finalSearched, finalTimestampSearch));
             } else {
-                bus.post(new AddCdrAndUpdateEvent(source, date, duration.toString(), false, timeStamp,ordered, finalSearched));
+                bus.post(new AddCdrAndUpdateEvent(source, date, duration.toString(), false, timeStamp,ordered, finalSearched, finalTimestampSearch));
             }
         });
     }

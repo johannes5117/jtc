@@ -5,6 +5,7 @@
  */
 package com.johannes.lsctic.panels.gui.plugins.LdapPlugin;
 
+import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import com.johannes.lsctic.panels.gui.plugins.AddressLoader;
 import com.johannes.lsctic.panels.gui.plugins.DataSource;
@@ -13,6 +14,7 @@ import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
+import java.awt.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -27,7 +29,7 @@ import java.util.logging.Logger;
 public class LdapLoader implements AddressLoader {
     private static final String SETTING = "setting";
 
-    
+    private EventBus eventBus;
     private String ldapAddress;       //LDAP Server Address
     private int ldapServerPort;      //LDAP Server Port
     private String ldapSearchBase;   //LDAP Suchbasis
@@ -152,6 +154,11 @@ public class LdapLoader implements AddressLoader {
     @Override
     public DataSource getDataSource() {
         return source;
+    }
+
+    @Override
+    public void setEventBus(EventBus eventBus) {
+        this.eventBus = eventBus;
     }
 
     public void writeSettings(Connection con, Statement statement){

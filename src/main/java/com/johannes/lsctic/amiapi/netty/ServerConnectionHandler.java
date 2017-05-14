@@ -118,7 +118,8 @@ public class ServerConnectionHandler {
 
     @Subscribe
     public void searchCdr(SearchCdrInDatabaseEvent event) {
-        this.write("008"+event.getNumber()+";"+event.getAmount()+"\r\n");
+        Logger.getLogger(getClass().getName()).info("Searching: "+event.getNumber());
+        this.write("008"+event.getNumber()+";"+event.getAmount()+";"+String.valueOf(event.getTimestamp())+";"+event.isStrict()+"\r\n");
     }
 
     @Subscribe

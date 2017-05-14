@@ -1,5 +1,8 @@
 package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;
 
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.FoundCdrNameInDataSourceEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.NotFoundCdrNameInDataSourceEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchDataSourcesForCdrEvent;
 import com.johannes.lsctic.panels.gui.plugins.*;
 
 import java.io.File;
@@ -7,6 +10,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 /**
@@ -66,6 +71,16 @@ public class MysqlPlugin implements AddressPlugin {
     @Override
     public ArrayList<AddressBookEntry> getResults(String query, int number) {
         return loader.getResults(query, number);
+    }
+
+    @Override
+    public void searchPossibleNumbers(String name, AtomicInteger left, long searchTimestamp) {
+        loader.numberQuery(name, left, searchTimestamp);
+    }
+
+    @Override
+    public void resolveNameForNumber(SearchDataSourcesForCdrEvent event, AtomicInteger terminated, AtomicBoolean found) {
+        loader.resolveNameForNumber(event, terminated, found);
     }
 
     @Override

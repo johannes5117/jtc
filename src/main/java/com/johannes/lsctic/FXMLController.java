@@ -3,6 +3,7 @@ package com.johannes.lsctic;
 import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.amiapi.netty.ServerConnectionHandler;
 import com.johannes.lsctic.panels.gui.DataPanelsRegister;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.ResolveNumberFromNameEvent;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchCdrInDatabaseEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.UpdateAddressFieldsEvent;
@@ -12,6 +13,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point2D;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -24,7 +26,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Logger;
 
 
 public class FXMLController implements Initializable {
@@ -66,6 +67,8 @@ public class FXMLController implements Initializable {
     private Stage stage;
     private EventBus eventBus;
 
+    private Scene scene;
+
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -83,6 +86,10 @@ public class FXMLController implements Initializable {
             }
 
         });*/
+    }
+
+    public void setScene(Scene scene) {
+        this.scene = scene;
     }
 
     public void startApp(EventBus eventBus) {
@@ -154,13 +161,7 @@ public class FXMLController implements Initializable {
 
         // Listener to search history data on the server
         paneCTextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-            if (newValue.matches("^[0-9]*$") && newValue.length() > 0) {
-                //Search for Number in database on host
-                this.eventBus.post(new SearchCdrInDatabaseEvent(newValue, dataPanelsRegister.getAmountHistoryFields()));
-            } else {
-                //Resolve number from name and search this in database
-                //
-            }
+            dataPanelsRegister.searchPaneC(newValue,false);
         });
     }
 }

@@ -1,5 +1,7 @@
 package com.johannes.lsctic.panels.gui.fields.callrecordevents;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Created by johannes on 15.04.2017.
  */
@@ -25,4 +27,7 @@ public class SearchDataSourcesForCdrEvent {
     }
 
     public long getTimeStamp() {return  event.getTimeStamp();}
+
+    public long getSearchInvokedTimestamp() {return  event.getSearchInvokedTimestamp();}
+
 }

@@ -44,24 +44,14 @@ public class PhoneNumber {
         this.intern = intern;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
     public void setName(String name) {
         this.name = name;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
-    }
-    public void plusCount() {
-        this.count++;
     }
 
     public int getPosition() {
         return position;
     }
+
     public void setPosition(int position) {
         this.position = position;
     }

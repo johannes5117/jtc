@@ -4,13 +4,13 @@ package com.johannes.lsctic.panels.gui.fields.callrecordevents;
  * Created by johannesengler on 12.05.17.
  */
 public class CdrNotFoundOnServerEvent {
-    private final String searched;
+    private final long timestamp;
 
-    public CdrNotFoundOnServerEvent(String searched) {
-        this.searched = searched;
+    public CdrNotFoundOnServerEvent(long timestamp) {
+        this.timestamp = timestamp;
     }
 
-    public String getSearched() {
-        return searched;
+    public long getTimestamp() {
+        return timestamp;
     }
 }

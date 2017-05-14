@@ -5,6 +5,7 @@ package com.johannes.lsctic.panels.gui.plugins.SqlitePlugin;
  * and open the template in the editor.
  */
 
+import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import com.johannes.lsctic.panels.gui.plugins.AddressLoader;
 import com.johannes.lsctic.panels.gui.plugins.DataSource;
@@ -24,6 +25,7 @@ public class SqliteLoader implements AddressLoader {
     private MysqlLoaderStorage storageTemp;
     private MysqlLoaderStorage storage;
     private DataSource source;
+    private EventBus eventBus;
 
     public SqliteLoader(DataSource source) {
         this.source = source;
@@ -79,6 +81,11 @@ public class SqliteLoader implements AddressLoader {
 
     public DataSource getDataSource() {
         return source;
+    }
+
+    @Override
+    public void setEventBus(EventBus eventBus) {
+        this.eventBus = eventBus;
     }
 
 

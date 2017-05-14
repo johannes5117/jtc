@@ -57,9 +57,10 @@ public class MainApp extends Application implements NativeKeyListener {
         stage.show();
         stage.setX(primaryScreenBounds.getWidth() - scene.getWidth());
         stage.setY(primaryScreenBounds.getHeight() - scene.getHeight());
+
         this.stage = stage;
 
-        if (false) {
+        if (true) {
             // Get the logger for "org.jnativehook" and set the level to warning.
             Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
             logger.setLevel(Level.OFF);
