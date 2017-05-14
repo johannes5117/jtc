@@ -54,13 +54,13 @@ public class InternFieldDragAndDropDummy extends HBox {
         this.setFocusTraversable(true);
         this.setWidth(width);
 
-        Label a = new Label(name);
-        a.setPrefWidth(width);
-        a.getStyleClass().clear();
-        a.getStyleClass().add("fields-label-notfound");
-        a.setTextAlignment(TextAlignment.CENTER);
-        a.setAlignment(Pos.CENTER);
+        Label label = new Label(name);
+        label.setPrefWidth(width);
+        label.getStyleClass().clear();
+        label.getStyleClass().add("fields-label-notfound");
+        label.setTextAlignment(TextAlignment.CENTER);
+        label.setAlignment(Pos.CENTER);
         this.setAlignment(Pos.CENTER);
-        this.getChildren().add(a);
+        this.getChildren().add(label);
     }
 }

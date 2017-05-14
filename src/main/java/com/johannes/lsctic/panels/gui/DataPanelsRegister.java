@@ -72,9 +72,8 @@ public class DataPanelsRegister {
         panelC.setSpacing(1);
 
         internFields = new HashMap();
-        AtomicInteger i = new AtomicInteger(0);
         internNumbers.entrySet().stream().forEach(g
-                -> internFields.put(g.getKey(), new InternField(g.getValue().getName(), g.getValue().getCount(), i.getAndIncrement(), g.getKey(), eventBus)));
+                -> internFields.put(g.getKey(), new InternField(g.getValue().getName(), g.getValue().getCount(),g.getValue().getPosition(), g.getKey(), eventBus,sortByCallCount)));
 
         updateView(new ArrayList<>(internFields.values()));
         historyFields = new ArrayList<>();
@@ -127,10 +126,19 @@ public class DataPanelsRegister {
             }
         }
         if (!internFields.containsKey(p.getPhoneNumber())) {
+            //Get last position and increment for new internfield (if available)
+            int maxPosInternfield = -1;
+            if(internFields.size()>0) {
+                 maxPosInternfield = Collections.max(internFields.values(), Comparator.comparing(InternField::getPosition)).getPosition();
+            }
+            p.setPosition(maxPosInternfield+1);
+
+            //Write new intern into database and add field to UI
+            Logger.getLogger(getClass().getName()).info(p.getPhoneNumber());
             sqlLiteConnection.queryNoReturn("Insert into internfields (id, number,name,callcount,position) " +
                     "values (((Select max(id) from internfields)+1),'" + p.getPhoneNumber() + "','" + p.getName() + "'," + p.getCount() + "," + p.getPosition() + ")");
             internNumbers.put(p.getPhoneNumber(), p);
-            internFields.put(p.getPhoneNumber(), new InternField(p.getName(), p.getCount(), internFields.size(), p.getPhoneNumber(), eventBus));
+            internFields.put(p.getPhoneNumber(), new InternField(p.getName(), p.getCount(), internFields.size(), p.getPhoneNumber(), eventBus,sortByCallCount));
             eventBus.post(new AboStatusExtensionEvent(p.getPhoneNumber()));
             updateView(generateReducedSetFromList(searchPaneAValue, new ArrayList<>(internFields.values())));
         } else {
@@ -239,9 +247,13 @@ public class DataPanelsRegister {
 
     public void updateView(List<InternField> i) {
         if (sortByCallCount) {
-            Collections.sort(i, Comparator.comparingInt(InternField::getPosition));
+            //Sort by comparing the callcount
+            Collections.sort(i, Comparator.comparingInt(InternField::getCount));
+            //Callcount -> Higher is better
+            Collections.reverse(i);
         } else {
-            // Maybe other sorting option
+            //use the saved positions
+            Collections.sort(i, Comparator.comparingInt(InternField::getPosition));
         }
         panelA.getChildren().clear();
         panelA.getChildren().addAll(i);
@@ -264,6 +276,14 @@ public class DataPanelsRegister {
     @Subscribe
     public void viewOptionsChanged(ViewOptionsChangedEvent event) {
         this.sortByCallCount = event.isSortByCallCount();
+        internFields.values().stream().forEach(internField -> {
+            if (sortByCallCount) {
+                internField.disableDragAndDrop();
+            } else {
+                internField.enableDragAndDrop();
+            }
+            internFields.put(internField.getNumber(), internField);
+        });
         updateView(generateReducedSetFromList(searchPaneAValue, new ArrayList<>(internFields.values())));
     }
 
@@ -333,41 +353,37 @@ public class DataPanelsRegister {
     @Subscribe
     public void reorderDragDropInternfields(ReorderDroppedEvent event) {
         Optional<InternField> drag = internFields.values().stream().filter(node -> node.isWasDragged()).findFirst();
-        internFields.values().stream().filter(node -> node.isWasDragged()).forEach(node -> {
-            node.setWasDragged(false);
-            Logger.getLogger(getClass().getName()).info("he thinks he was dragged " + node.getName());
-        });
         if (drag.isPresent()) {
             String number = drag.get().getNumber();
             int start = event.getResolvedPosition();
             int replace = start;
             int end = drag.get().getPosition();
             int dz = 1;
-            if(end == start || (start-1) == end) {
-                Logger.getLogger(getClass().getName()).info("not a valid op");
+            if (end == start || (start - 1) == end) {
                 InternField dragged = drag.get();
                 dragged.hidePopup();
                 internFields.put(dragged.getNumber(), dragged);
                 return;
-            } else if(end<start) {
+            } else if (end < start) {
                 int c = start;
                 start = end;
-                replace = replace -1;
-                end = c-1;
+                replace = replace - 1;
+                end = c - 1;
                 dz = -1;
             }
-            Logger.getLogger(getClass().getName()).info("Start: "+start+" Ende: "+end);
             for (InternField internField : internFields.values()) {
                 if (internField.getPosition() <= end && internField.getPosition() >= start) {
                     internField.setPosition(internField.getPosition() + dz);
                     internFields.put(internField.getNumber(), internField);
+                    sqlLiteConnection.updateOneAttribute("internfields", "number", internField.getNumber(), "position", String.valueOf(internField.getPosition()));
                 }
             }
             InternField dragged = drag.get();
             dragged.setPosition(replace);
             dragged.hidePopup();
+            dragged.setWasDragged(false);
             internFields.put(dragged.getNumber(), dragged);
-
+            sqlLiteConnection.updateOneAttribute("internfields", "number", dragged.getNumber(), "position", String.valueOf(dragged.getPosition()));
             updateView(new ArrayList<>(internFields.values()));
         }
     }
