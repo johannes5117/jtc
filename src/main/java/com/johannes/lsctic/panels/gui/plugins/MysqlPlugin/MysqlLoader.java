@@ -110,8 +110,6 @@ public class MysqlLoader implements AddressLoader {
             }
 
         }
-
-
         if(!found.get()) {
             eventBus.post(new NotFoundCdrNameInDataSourceEvent(event));
         }

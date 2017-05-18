@@ -10,6 +10,7 @@ import com.google.common.eventbus.Subscribe;
 import com.johannes.lsctic.SqlLiteConnection;
 import com.johannes.lsctic.messagestage.ErrorMessage;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.*;
+import com.johannes.lsctic.panels.gui.fields.otherevents.PluginLoadedEvent;
 import javafx.application.Platform;
 
 import java.io.File;
@@ -91,6 +92,7 @@ public class PluginRegister {
                     AddressPlugin plugin = getInstantiatedClass(pluginName, folderPath);
                     loadedPlugins.add(plugin);
                     plugin.getLoader().setEventBus(eventBus);
+                    this.eventBus.post(new PluginLoadedEvent(plugin.getName()));
                     if(!approvedPlugins.contains(pluginName)) {
                         approvedPlugins.add(pluginName);
                     }
@@ -205,11 +207,15 @@ public class PluginRegister {
     //If a CDR comes in, it comes without a name -> try to resolve the name and write it into the local cache
     @Subscribe
     public void searchNameToNumber(SearchDataSourcesForCdrEvent event) {
-        AtomicInteger searchFinished  = new AtomicInteger(loadedPlugins.size());
-        AtomicBoolean found  = new AtomicBoolean(false);
-        for (AddressPlugin plugin : loadedPlugins) {
-            Logger.getLogger(getClass().getName()).info("invoking Plugin search");
-            plugin.resolveNameForNumber(event, searchFinished, found);
+        if(loadedPlugins.size()>0) {
+            AtomicInteger searchFinished = new AtomicInteger(loadedPlugins.size());
+            AtomicBoolean found = new AtomicBoolean(false);
+            for (AddressPlugin plugin : loadedPlugins) {
+                Logger.getLogger(getClass().getName()).info("invoking Plugin search");
+                plugin.resolveNameForNumber(event, searchFinished, found);
+            }
+        } else {
+            eventBus.post(new NotFoundCdrNameInDataSourceEvent(event));
         }
     }
 

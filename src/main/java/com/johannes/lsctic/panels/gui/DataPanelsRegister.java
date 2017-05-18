@@ -17,6 +17,7 @@ import com.johannes.lsctic.panels.gui.fields.otherevents.*;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.*;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
+import sun.plugin2.main.server.Plugin;
 
 import java.util.*;
 import java.util.List;
@@ -386,6 +387,11 @@ public class DataPanelsRegister {
             sqlLiteConnection.updateOneAttribute("internfields", "number", dragged.getNumber(), "position", String.valueOf(dragged.getPosition()));
             updateView(new ArrayList<>(internFields.values()));
         }
+    }
+
+    @Subscribe
+    public void pluginLoaded(PluginLoadedEvent event) {
+        this.eventBus.post(new OrderCDRsEvent(historyfieldCount * hFieldPerSite, hFieldPerSite));
     }
 
 
