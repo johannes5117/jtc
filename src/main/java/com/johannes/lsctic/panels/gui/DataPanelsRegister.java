@@ -17,8 +17,6 @@ import com.johannes.lsctic.panels.gui.fields.otherevents.*;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.*;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
-import sun.plugin2.main.server.Plugin;
-
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;

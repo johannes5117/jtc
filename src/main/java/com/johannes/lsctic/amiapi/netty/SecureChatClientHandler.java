@@ -18,7 +18,6 @@ import com.johannes.lsctic.panels.gui.fields.otherevents.SetStatusEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.ReceivedOwnExtensionEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.UserLoginStatusEvent;
 import com.johannes.lsctic.panels.gui.plugins.pluginevents.PluginLicenseApprovedEvent;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import javafx.application.Platform;
