@@ -13,9 +13,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mainClass>com.johannes.lsctic.MainApp</mainClass>
-        <sonar.host.url>
-            http://10.8.0.1:9000
-        </sonar.host.url>
     </properties>
 
 
