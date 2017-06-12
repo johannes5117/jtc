@@ -205,7 +205,7 @@ public class SqlLiteConnection {
 
     public ArrayList<String> getOptionsForDataSource(String name) {
         String quField = name + "Setting";
-        return getMultipleStringsFromDatabase(name);
+        return getMultipleStringsFromDatabase(quField);
     }
 
     public ArrayList<String> getMultipleStringsFromDatabase(String name) {
