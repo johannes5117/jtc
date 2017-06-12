@@ -274,24 +274,7 @@ public final class OptionsStorage {
     }
 
     public void readDatabaseForSources(Connection con) throws SQLException {
-        int i = 0;
-        String quField = "datasource";
-        while (true) {
-            try(PreparedStatement statement = con.prepareStatement("select setting from settings where description = ?")) {
-                statement.setString(1, quField + i);
-                try (ResultSet fieldRS = statement.executeQuery()) {
-                    if (fieldRS.next()) {
-                        String dataSourceName = fieldRS.getString("setting");
-                        activatedDataSources.add(dataSourceName);
-                        ++i;
-                    } else {
-                        break;
-                    }
-                } catch (SQLException e) {
-                    throw e;
-                }
-            }
-        }
+        activatedDataSources.addAll(sqlLiteConnection.getMultipleStringsFromDatabase("datasource"));
     }
 
     @Subscribe

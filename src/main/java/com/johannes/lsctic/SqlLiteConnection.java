@@ -124,67 +124,14 @@ public class SqlLiteConnection {
      * @return resultset
      */
     public String query(String query) {
-        try(Connection connection = DriverManager.getConnection(JDBC + database); Statement statement = connection.createStatement()) {
+        try(Connection connection = DriverManager.getConnection(JDBC + database); Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(query)) {
             statement.setQueryTimeout(10);
-            return statement.executeQuery(query).getString(1);
+            return resultSet.getString(1);
         } catch (SQLException ex) {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
             new ErrorMessage("There was a database error with the query: \""+query+"\"");
             return null;
         }
-    }
-
-
-    /**
-     * Select specific attribut where specific attribute in database
-     *
-     * @param attribut
-     * @param table
-     * @param whereAttribut
-     * @param whereValue
-     * @return
-     */
-    public ResultSet selectWhere(String attribut, String table, String whereAttribut, String whereValue) {
-        String state = "select ? from ? where ?=?";
-        if(!(whereAttribut == null && whereValue == null)) {
-            state = "select ? from ?";
-        }
-        try(Connection connection = DriverManager.getConnection(JDBC + database); PreparedStatement statement = connection.prepareStatement(state)) {
-            if (whereAttribut == null && whereValue == null) {
-                statement.setString(1, attribut);
-                statement.setString(2, table);
-                statement.setString(3, whereAttribut);
-                statement.setString(4, whereValue);
-                statement.setQueryTimeout(10);
-                return statement.executeQuery();
-            } else {
-                statement.setString(1, attribut);
-                statement.setString(2, table);
-                statement.setQueryTimeout(10);
-                return statement.executeQuery();
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-            new ErrorMessage("There was a database error with the query");
-            return null;
-        }
-    }
-
-    /**
-     * Insert values into table value beispiel: "1, 'leo', 'test'"
-     *
-     * @param table
-     * @param value
-     */
-    public void insert(String table, String value) {
-        try(Connection connection = DriverManager.getConnection(JDBC + database); Statement statement = connection.createStatement()) {
-            statement.setQueryTimeout(10);
-            statement.executeUpdate("insert into " + table + " values(" + value + ")");
-        } catch (SQLException ex) {
-            Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        new ErrorMessage("There was a database error with the query");
-
     }
 
     /**
@@ -257,12 +204,16 @@ public class SqlLiteConnection {
 
 
     public ArrayList<String> getOptionsForDataSource(String name) {
+        String quField = name + "Setting";
+        return getMultipleStringsFromDatabase(name);
+    }
+
+    public ArrayList<String> getMultipleStringsFromDatabase(String name) {
         ArrayList<String> options = new ArrayList<>();
         int i = 0;
-        String quField = name + "Setting";
         while (true) {
             try (Connection connection = DriverManager.getConnection(JDBC + database); PreparedStatement statement = connection.prepareStatement("select setting from settings where description = ?")) {
-                statement.setString(1, quField + i);
+                statement.setString(1, name + i);
                 try (ResultSet fieldRS = statement.executeQuery()) {
                     if (fieldRS.next()) {
                         String field = fieldRS.getString("setting");
