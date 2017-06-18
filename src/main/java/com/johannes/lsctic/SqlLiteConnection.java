@@ -48,7 +48,6 @@ public class SqlLiteConnection {
                     ResultSet table = ptsm.executeQuery();
                     ArrayList<String> check = new ArrayList<>();
                     while(table.next()) {
-                        Logger.getLogger(getClass().getName()).info(table.getString("name"));
                         check.add(table.getString("name"));
                     }
                     if(!(check.contains("settings") && check.contains("internfields") || (check.contains("callhistory") && check.contains("phonebook")))){
@@ -73,9 +72,8 @@ public class SqlLiteConnection {
                 new SuccessMessage("Created new database.");
             } catch (SQLException e) {
                 new ErrorMessage("Could not create local database in folder " + f.getAbsolutePath());
-                Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, e);            }
-
-
+                Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, e);
+            }
         }
 
     }
@@ -103,7 +101,11 @@ public class SqlLiteConnection {
         }
     }
 
-
+    /**
+     * Returns the current max index in the table (since sqlite not has serial like pg)
+     * @param table
+     * @return
+     */
     private int getMaxIdValueOfTable(String table) {
         final String query = "Select max(id) from " + table;
         try (Connection con = DriverManager.getConnection(JDBC + database); Statement statement = con.createStatement();
@@ -146,13 +148,18 @@ public class SqlLiteConnection {
     public void updateOneAttribute(String table, String whereAttribut, String whereValue, String updateAttribut, String updateValue) {
         try(Connection connection = DriverManager.getConnection(JDBC + database); Statement statement = connection.createStatement()) {
             statement.setQueryTimeout(10);
-            statement.executeUpdate("UPDATE " + table + " SET " + updateAttribut + " = " + updateValue + " WHERE " + whereAttribut + " = '" + whereValue+"'");
+            statement.executeUpdate("UPDATE " + table + " SET " + updateAttribut + " = '" + updateValue + "' WHERE " + whereAttribut + " = '" + whereValue+"'");
         } catch (SQLException ex) {
             Logger.getLogger(SqlLiteConnection.class.getName()).log(Level.SEVERE, null, ex);
             new ErrorMessage("There was a database error with the query");
         }
     }
 
+    /**
+     * Returns a list with options (mappings) the user set in the plugin settings (the mapping between showed field value and internal plugin name)
+     * @param datasource
+     * @return
+     */
     public ArrayList<PluginDataField> getFieldsForDataSource(String datasource) {
         ArrayList<PluginDataField> dataSourceFields = new ArrayList<>();
         int i = 0;
@@ -203,11 +210,21 @@ public class SqlLiteConnection {
     }
 
 
+    /**
+     * Loads settings as a String for a specific plugin plugin developer knows how to handle
+     * @param name
+     * @return
+     */
     public ArrayList<String> getOptionsForDataSource(String name) {
         String quField = name + "Setting";
         return getMultipleStringsFromDatabase(quField);
     }
 
+    /**
+     * Loads multiple settings from database
+     * @param name
+     * @return
+     */
     public ArrayList<String> getMultipleStringsFromDatabase(String name) {
         ArrayList<String> options = new ArrayList<>();
         int i = 0;
@@ -233,6 +250,12 @@ public class SqlLiteConnection {
     }
 
 
+    /**
+     * Writes the plugin fields and the options to the settigs database
+     * @param name
+     * @param options
+     * @param linkFields
+     */
     public void writePluginSettingsToDatabase(String name, ArrayList<String> options, ArrayList<PluginDataField> linkFields) {
         queryNoReturn("Delete from settings where description LIKE '" + name + "Field_%%%%%%%%%%%%';");
         int i = 0;
@@ -247,6 +270,7 @@ public class SqlLiteConnection {
         }
         i = 0;
         for (String option : options) {
+            // Except in case of an update the Setting amount stays the same etc.
             buildUpdateOrInsertStatementForSetting(name + "Setting" + i, option);
             ++i;
         }
@@ -276,7 +300,7 @@ public class SqlLiteConnection {
     }
 
     /**
-     * Only a query without a return
+     * Only a query without a return (used for inserts/updates...)
      *
      * @param query
      */
