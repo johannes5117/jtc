@@ -101,7 +101,7 @@ public final class OptionsStorage {
         bus.post(new UpdateAddressFieldsEvent(ld));
     }
 
-        /**
+    /**
      * Used to store the temp. vars.
      */
     public void setTempVariables() {
@@ -201,7 +201,6 @@ public final class OptionsStorage {
      * reads the settings saved in the sqlite database
      */
     public void readSettingsFromDatabase() {
-
         try (Connection con = DriverManager.getConnection(sqlLiteConnection.getConnection()); Statement statement = con.createStatement()) {
             statement.setQueryTimeout(10);
             //Safely read in all Settings. If a setting isnt found a default value will be taken
