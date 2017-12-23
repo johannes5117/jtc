@@ -51,11 +51,13 @@ public class LdapLoader implements AddressLoader {
         String sp = "com.sun.jndi.ldap.LdapCtxFactory";
         env.put(Context.INITIAL_CONTEXT_FACTORY, sp);
 
-        ldapUrl = "ldap://" + ldapAddress + ":" + ldapServerPort + "/" + ldapSearchBase;
+        //quick fix TODO: Remove
+        //ldapUrl = "ldap://" + ldapAddress + ":" + ldapServerPort + "/" + ldapSearchBase;
+        ldapUrl = "ldap://192.168.0.249:389/ou=addressbook,dc=test,dc=de";
 
         env.put(Context.PROVIDER_URL, ldapUrl);
 
-        base = ldapBase;
+        base = "ou=addressbook,dc=test,dc=de";
     }
 /* TO delete if function can be guaranteed without this lines
     public LdapLoader(String serverIp, int port, String dc, String ou) {
