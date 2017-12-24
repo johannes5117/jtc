@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -31,11 +35,13 @@ import java.util.logging.Logger;
 public class LDAPSettingsField extends PluginSettingsField {
     private ArrayList<HBox> ldapFields;
     private LdapLoader loader;
+
     public LDAPSettingsField(LdapLoader loader) {
         super("LDAP");
         ldapFields = new ArrayList<>();
         this.loader = loader;
     }
+
     @Override
     public void expand() {
         VBox v = new VBox();
@@ -82,40 +88,39 @@ public class LDAPSettingsField extends PluginSettingsField {
             }
         });
 
-      Separator s = new Separator();
-      Label l = new Label("LDAP Felder");
-      VBox.setMargin(s, new Insets(5,0, 0, 0));
-      VBox.setMargin(l, new Insets(0, 0, 0, 5));
-      int i = 0;
-      v.getChildren().addAll(f,f2,f3,f5,s,l);
+        Separator s = new Separator();
+        Label l = new Label("LDAP Felder");
+        VBox.setMargin(s, new Insets(5,0, 0, 0));
+        VBox.setMargin(l, new Insets(0, 0, 0, 5));
+        int i = 0;
+        v.getChildren().addAll(f,f2,f3,f5,s,l);
         VBox vLdapFields = new VBox();
         vLdapFields.setSpacing(3);
-      for(String[] g: loader.getLdapFields()) {
-          ldapFields.add(makeAdditionalField(g[0], g[1],vLdapFields,"X"));
-          ++i;
-      }
+        for(String[] g: loader.getLdapFields()) {
+            ldapFields.add(makeAdditionalField(g[0], g[1],vLdapFields,"X"));
+            ++i;
+        }
 
-       // Button plus = new Button("Hizufügen");
-      //  plus.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
+        // Button plus = new Button("Hizufügen");
+        //  plus.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
 
-       //     @Override
-      //      public void handle(javafx.event.ActionEvent event) {
-     //           ldapFields.add(makeAdditionalField("", "",vLdapFields));
+        //     @Override
+        //      public void handle(javafx.event.ActionEvent event) {
+        //           ldapFields.add(makeAdditionalField("", "",vLdapFields));
         //    }
-      //  });
+        //  });
 
-      ldapFields.add(makeAdditionalField("", "",vLdapFields,"+"));
+        ldapFields.add(makeAdditionalField("", "",vLdapFields,"+"));
 
-      v.getChildren().addAll(vLdapFields);
+        v.getChildren().addAll(vLdapFields);
 
         this.getChildren().add(v);
-
-
 
 
         super.expand();
 
     }
+
     @Override
     public void collapse() {
         this.getChildren().remove(this.getChildren().size()-1);
@@ -128,46 +133,46 @@ public class LDAPSettingsField extends PluginSettingsField {
     }
 
     public HBox makeAdditionalField(String a, String b, VBox vLdapFields, String sign) {
-       HBox box = new HBox();
-       TextField t1 = new TextField(a);
-       t1.setPromptText("Feld");
-       Label l = new Label(":");
-       TextField t2 = new TextField(b);
-       t2.setPromptText("Anzeigename");
-       Button but = new Button(sign);
-       if(("+").equals(sign)) {
-           but.setStyle("-fx-font-size:13.5;");
-       }
-       but.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
-           @Override
-           public void handle(javafx.event.ActionEvent event) {
-               if(("X").equals(but.getText())) {
-               HBox b = (HBox) but.getParent();
-               TextField t1  = (TextField) b.getChildren().get(0);
-               TextField t2  = (TextField) b.getChildren().get(2);
-                loader.removeFromLdapFields(t1.getText(), t2.getText());
-               ldapFields.remove(but.getParent());
+        HBox box = new HBox();
+        TextField t1 = new TextField(a);
+        t1.setPromptText("Feld");
+        Label l = new Label(":");
+        TextField t2 = new TextField(b);
+        t2.setPromptText("Anzeigename");
+        Button but = new Button(sign);
+        if(("+").equals(sign)) {
+            but.setStyle("-fx-font-size:13.5;");
+        }
+        but.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
+            @Override
+            public void handle(javafx.event.ActionEvent event) {
+                if(("X").equals(but.getText())) {
+                    HBox b = (HBox) but.getParent();
+                    TextField t1  = (TextField) b.getChildren().get(0);
+                    TextField t2  = (TextField) b.getChildren().get(2);
+                    loader.removeFromLdapFields(t1.getText(), t2.getText());
+                    ldapFields.remove(but.getParent());
 
-               vLdapFields.getChildren().remove(but.getParent());
-               }else {
-                   boolean r = loader.addToLdapFields(t1.getText(), t2.getText());
-                   if(r) {
+                    vLdapFields.getChildren().remove(but.getParent());
+                }else {
+                    boolean r = loader.addToLdapFields(t1.getText(), t2.getText());
+                    if(r) {
                         makeAdditionalField("", "", vLdapFields,"+");
                         but.setText("X");
-                          but.setStyle("-fx-font-size:13");
-                   } else {
-                       t1.setPromptText("bereits vorhanden");
-                       t2.setPromptText("bereits vorhanden");
-                       t1.setText("");
-                       t2.setText("");
-                   }
-               }
-           }
-       });
-       box.getChildren().addAll(t1,l, t2,but);
-       vLdapFields.getChildren().add(box);
+                        but.setStyle("-fx-font-size:13");
+                    } else {
+                        t1.setPromptText("bereits vorhanden");
+                        t2.setPromptText("bereits vorhanden");
+                        t1.setText("");
+                        t2.setText("");
+                    }
+                }
+            }
+        });
+        box.getChildren().addAll(t1,l, t2,but);
+        vLdapFields.getChildren().add(box);
 
-       return box;
+        return box;
     }
 
 }

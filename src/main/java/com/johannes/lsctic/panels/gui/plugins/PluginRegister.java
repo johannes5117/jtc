@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -9,7 +13,9 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.johannes.lsctic.SqlLiteConnection;
 import com.johannes.lsctic.messagestage.ErrorMessage;
-import com.johannes.lsctic.panels.gui.fields.callrecordevents.*;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.NotFoundCdrNameInDataSourceEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.ResolveNumberFromNameEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchDataSourcesForCdrEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.PluginLoadedEvent;
 import javafx.application.Platform;
 
@@ -84,25 +90,25 @@ public class PluginRegister {
             explorePluginFolder(folderPath);
         }
 
-            Logger.getLogger(getClass().getName()).info(pluginName + "    " + pluginsFound.toString());
+        Logger.getLogger(getClass().getName()).info(pluginName + "    " + pluginsFound.toString());
 
-            // Load the plugins from the folder
-            if (pluginsFound.contains(pluginName)) {
-                try {
-                    AddressPlugin plugin = getInstantiatedClass(pluginName, folderPath);
-                    loadedPlugins.add(plugin);
-                    plugin.getLoader().setEventBus(eventBus);
-                    this.eventBus.post(new PluginLoadedEvent(plugin.getName()));
-                    if(!approvedPlugins.contains(pluginName)) {
-                        approvedPlugins.add(pluginName);
-                    }
-                } catch (IOException e1) {
-                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e1);
-                    new ErrorMessage("Plugin "+ pluginName+" could not be load. The plugin seems to be broken.");
+        // Load the plugins from the folder
+        if (pluginsFound.contains(pluginName)) {
+            try {
+                AddressPlugin plugin = getInstantiatedClass(pluginName, folderPath);
+                loadedPlugins.add(plugin);
+                plugin.getLoader().setEventBus(eventBus);
+                this.eventBus.post(new PluginLoadedEvent(plugin.getName()));
+                if(!approvedPlugins.contains(pluginName)) {
+                    approvedPlugins.add(pluginName);
                 }
-            } else {
-                new ErrorMessage("Plugin "+ pluginName+" could not be load. Is the path correct?");
+            } catch (IOException e1) {
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e1);
+                new ErrorMessage("Plugin "+ pluginName+" could not be load. The plugin seems to be broken.");
             }
+        } else {
+            new ErrorMessage("Plugin "+ pluginName+" could not be load. Is the path correct?");
+        }
 
 
     }
@@ -143,8 +149,8 @@ public class PluginRegister {
     }
 
     public void resetSpecificPlugin(SqlLiteConnection sqlLiteConnection, AddressPlugin addressPlugin) {
-            addressPlugin.setDataFields(sqlLiteConnection.getFieldsForDataSource(addressPlugin.getName()));
-            addressPlugin.setOptions(sqlLiteConnection.getOptionsForDataSource(addressPlugin.getName()));
+        addressPlugin.setDataFields(sqlLiteConnection.getFieldsForDataSource(addressPlugin.getName()));
+        addressPlugin.setOptions(sqlLiteConnection.getOptionsForDataSource(addressPlugin.getName()));
     }
 
     private ArrayList<String> getAvailablePluginsFromFolder(String folder) {
@@ -229,12 +235,6 @@ public class PluginRegister {
             plugin.searchPossibleNumbers(event.getName(), event.getLeft(), event.getTimestamp());
         }
     }
-    
-
-
-
-
-
 
 
     public void acceptAllPlugins() {
@@ -253,14 +253,14 @@ public class PluginRegister {
     }
 
     public String getPluginLicense(String pluginname, String folder) {
-            try {
-                byte[] keyBytes = Files.readAllBytes(new File(folder+"/"+pluginname+".lic").toPath());
-                String msg = new String(keyBytes);
-                return msg;
-            } catch (IOException e) {
-                Platform.runLater(()-> new ErrorMessage("Could not load license file for "+pluginname+". Should be "+folder+"/"+pluginname+".lic"));
-            }
-            return "";
+        try {
+            byte[] keyBytes = Files.readAllBytes(new File(folder+"/"+pluginname+".lic").toPath());
+            String msg = new String(keyBytes);
+            return msg;
+        } catch (IOException e) {
+            Platform.runLater(()-> new ErrorMessage("Could not load license file for "+pluginname+". Should be "+folder+"/"+pluginname+".lic"));
+        }
+        return "";
 
     }
 

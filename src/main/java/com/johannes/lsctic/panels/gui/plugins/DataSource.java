@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -47,9 +51,9 @@ public class DataSource {
         if(!mobF)
             mobile  =-1;
     }
-    
+
     public String getTag() {return this.tag;}
-    
+
     public void setDataSource(String source) {
         this.source = source;
     }

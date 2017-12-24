@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic.panels.gui;
 
 import com.google.common.eventbus.EventBus;
@@ -8,18 +12,17 @@ import com.johannes.lsctic.messagestage.ErrorMessage;
 import com.johannes.lsctic.panels.gui.fields.AddressField;
 import com.johannes.lsctic.panels.gui.fields.HistoryField;
 import com.johannes.lsctic.panels.gui.fields.InternField;
+import com.johannes.lsctic.panels.gui.fields.NewInternField;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.*;
 import com.johannes.lsctic.panels.gui.fields.internevents.AddInternEvent;
-import com.johannes.lsctic.panels.gui.fields.NewInternField;
 import com.johannes.lsctic.panels.gui.fields.internevents.RemoveInternAndUpdateEvent;
 import com.johannes.lsctic.panels.gui.fields.internevents.ReorderDroppedEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.*;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.*;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
+
 import java.util.*;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -128,7 +131,7 @@ public class DataPanelsRegister {
             //Get last position and increment for new internfield (if available)
             int maxPosInternfield = -1;
             if(internFields.size()>0) {
-                 maxPosInternfield = Collections.max(internFields.values(), Comparator.comparing(InternField::getPosition)).getPosition();
+                maxPosInternfield = Collections.max(internFields.values(), Comparator.comparing(InternField::getPosition)).getPosition();
             }
             p.setPosition(maxPosInternfield+1);
 

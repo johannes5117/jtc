@@ -1,8 +1,8 @@
-package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/*
+ * Copyright (c) 2017. Johannes Engler
  */
+
+package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;
 
 import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.FoundCdrNameInDataSourceEvent;
@@ -12,7 +12,6 @@ import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchDataSourcesF
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import com.johannes.lsctic.panels.gui.plugins.AddressLoader;
 import com.johannes.lsctic.panels.gui.plugins.DataSource;
-import com.johannes.lsctic.panels.gui.plugins.PluginDataField;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic.panels.gui.fields.callrecordevents;
 
 /**
@@ -5,6 +9,7 @@ package com.johannes.lsctic.panels.gui.fields.callrecordevents;
  */
 public class CdrCountEvent {
     private int currentAmount;
+
     public CdrCountEvent(int currentAmount) {
         this.currentAmount = currentAmount;
     }

@@ -1,8 +1,9 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic;
 
-/**
- * Created by johannes on 27.04.17.
- */
 public class OptionTuple {
     private boolean activated;
     private String name;

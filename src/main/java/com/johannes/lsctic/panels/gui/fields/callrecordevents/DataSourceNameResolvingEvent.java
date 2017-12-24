@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic.panels.gui.fields.callrecordevents;
 
 /**
@@ -9,7 +13,7 @@ public class DataSourceNameResolvingEvent {
     public DataSourceNameResolvingEvent(String name) {
         this.name = name;
     }
-    
+
     public String getName() {
         return name;
     }

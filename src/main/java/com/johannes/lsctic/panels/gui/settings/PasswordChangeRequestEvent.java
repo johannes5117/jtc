@@ -1,6 +1,8 @@
-package com.johannes.lsctic.panels.gui.settings;
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
 
-import com.johannes.lsctic.messagestage.PasswordChange;
+package com.johannes.lsctic.panels.gui.settings;
 
 /**
  * Created by johannes on 28.04.17.

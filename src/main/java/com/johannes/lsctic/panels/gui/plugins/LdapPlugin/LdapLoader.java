@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -14,7 +18,6 @@ import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
-import java.awt.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -37,7 +40,7 @@ public class LdapLoader implements AddressLoader {
     private int ldapSearchAmount;       //Amount of Entrys that will be loaded 
     private ArrayList<String[]> ldapFields = new ArrayList<>();  // LDAP Felder mit Namen
 
-    
+
     private Hashtable env;
     private String ldapUrl;
     private String base;
@@ -72,7 +75,7 @@ public class LdapLoader implements AddressLoader {
         base = "ou=" + ou;
     }
     */
-    
+
     @Override
     public ArrayList<AddressBookEntry> getResults(String ein, int n) {
         ArrayList<AddressBookEntry> aus = new ArrayList<>();
@@ -121,7 +124,7 @@ public class LdapLoader implements AddressLoader {
                 for (String[] field : ldapFields) {
                     // catch if a ldap field will be not available
                     try {
-                        Attribute attr = (Attribute) attrs.get(field[0]);
+                        Attribute attr = attrs.get(field[0]);
                         data.add((String) attr.get());
                     } catch (Exception e) {
                         Logger.getLogger(getClass().getName()).log(Level.SEVERE, null,e);
@@ -162,35 +165,35 @@ public class LdapLoader implements AddressLoader {
     }
 
     public void writeSettings(Connection con, Statement statement){
-     
-            try {
-                statement.setQueryTimeout(10);
-                final String query = "UPDATE Settings SET setting = '";
-                statement.executeUpdate(query + ldapAddress + "' WHERE description = 'ldapAddress'");
-                statement.executeUpdate(query + ldapServerPort + "' WHERE description = 'ldapServerPort'");
-                statement.executeUpdate(query + ldapSearchBase + "' WHERE description = 'ldapSearchBase'");
-                statement.executeUpdate(query + ldapBase + "' WHERE description = 'ldapBase'");
-                statement.executeUpdate(query + ldapSearchAmount + "' WHERE description = 'ldapSearchAmount'");
-                
-                int i = 0;
-                statement.execute("Delete from Settings where description LIKE '%ldapField%'");
-                int max;
-                try (ResultSet res = statement.executeQuery("SELECT * FROM Settings ORDER BY id DESC LIMIT 1")) {
-                    max = res.getInt("id");
-                }
+
+        try {
+            statement.setQueryTimeout(10);
+            final String query = "UPDATE Settings SET setting = '";
+            statement.executeUpdate(query + ldapAddress + "' WHERE description = 'ldapAddress'");
+            statement.executeUpdate(query + ldapServerPort + "' WHERE description = 'ldapServerPort'");
+            statement.executeUpdate(query + ldapSearchBase + "' WHERE description = 'ldapSearchBase'");
+            statement.executeUpdate(query + ldapBase + "' WHERE description = 'ldapBase'");
+            statement.executeUpdate(query + ldapSearchAmount + "' WHERE description = 'ldapSearchAmount'");
+
+            int i = 0;
+            statement.execute("Delete from Settings where description LIKE '%ldapField%'");
+            int max;
+            try (ResultSet res = statement.executeQuery("SELECT * FROM Settings ORDER BY id DESC LIMIT 1")) {
+                max = res.getInt("id");
+            }
+            ++max;
+            for (String[] s : ldapFields) {
+                statement.execute("insert into settings values(" + max + ", '" + s[0] + ";" + s[1] + "', 'ldapField" + i + "')");
                 ++max;
-                for (String[] s : ldapFields) {
-                    statement.execute("insert into settings values(" + max + ", '" + s[0] + ";" + s[1] + "', 'ldapField" + i + "')");
-                    ++max;
-                    ++i;
-                }
-                
-            }   catch (SQLException ex) {
+                ++i;
+            }
+
+        }   catch (SQLException ex) {
             Logger.getLogger(LdapLoader.class.getName()).log(Level.SEVERE, null, ex);
         }
-             
+
     }
-      
+
     /**
      * removes temp ldap field. The user removes the fields and they are removed
      * from sqlite database when he hits save. Until that point they are only
@@ -236,8 +239,8 @@ public class LdapLoader implements AddressLoader {
         ldapFields.forEach(b -> Logger.getLogger(getClass().getName()).log(Level.INFO, "{0} {1}", new Object[]{b[0], b[1]}));
         return true;
     }
-    
-     /**
+
+    /**
      * Reads the LDAP settings from the sqlite database
      *
      * @param query

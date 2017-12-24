@@ -1,14 +1,15 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic.panels.gui.plugins;
 
 
-import javafx.event.Event;
-import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 /**
  * Created by johannes on 24.04.17.
@@ -31,6 +32,7 @@ public class TransparentImageButton extends VBox {
         this.getChildren().add(view);
 
     }
+
     public TransparentImageButton(String resource, boolean disabled) {
         Image image = new Image(resource);
         this.view = new ImageView(image);
@@ -56,9 +58,11 @@ public class TransparentImageButton extends VBox {
     public void setUp() {
         this.view.setRotate(180);
     }
+
     public void setDown() {
         this.view.setRotate(0);
     }
+
     private void addHover(){
         this.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> {
             VBox v12 = (VBox) event.getSource();

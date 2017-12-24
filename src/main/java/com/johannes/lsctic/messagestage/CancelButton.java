@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic.messagestage;
 
 import javafx.scene.control.Button;

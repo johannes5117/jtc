@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017. Johannes Engler
+  -->
+
 <project-shared-configuration>
     <!--
 This file contains additional configuration written by modules in the NetBeans IDE.

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic.panels.gui.fields.callrecordevents;
 
 /**
@@ -13,6 +17,7 @@ public class AddCdrAndUpdateEvent {
     private final boolean ordered;
     private final String searchText;
     private final boolean searched;
+
     public AddCdrAndUpdateEvent(String who, String when, String howLong, boolean outgoing, long timeStamp, boolean ordered, String searched, long searchInvokedTimestamp) {
         this.who = who;
         this.when = when;
@@ -22,11 +27,7 @@ public class AddCdrAndUpdateEvent {
         this.ordered = ordered;
         this.searchText = searched;
         this.searchInvokedTimestamp = searchInvokedTimestamp;
-        if(searched.length()>0) {
-            this.searched = true;
-        } else {
-            this.searched = false;
-        }
+        this.searched = searched.length() > 0;
     }
 
     public String getWho() {

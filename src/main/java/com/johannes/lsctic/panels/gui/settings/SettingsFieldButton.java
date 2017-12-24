@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
 package com.johannes.lsctic.panels.gui.settings;
 
 import javafx.scene.control.Button;

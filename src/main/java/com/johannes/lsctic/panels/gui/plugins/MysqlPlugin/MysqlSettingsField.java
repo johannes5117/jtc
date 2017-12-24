@@ -1,14 +1,12 @@
-package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/*
+ * Copyright (c) 2017. Johannes Engler
  */
 
-import com.johannes.lsctic.panels.gui.plugins.TransparentImageButton;
+package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;
+
 import com.johannes.lsctic.panels.gui.plugins.PluginDataField;
 import com.johannes.lsctic.panels.gui.plugins.PluginSettingsField;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import com.johannes.lsctic.panels.gui.plugins.TransparentImageButton;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;

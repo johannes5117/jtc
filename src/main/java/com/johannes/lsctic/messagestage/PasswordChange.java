@@ -1,18 +1,15 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic.messagestage;
 
 import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.UserLoginStatusEvent;
-import com.johannes.lsctic.panels.gui.plugins.TextfilePlugin.TextFileLoader;
 import com.johannes.lsctic.panels.gui.settings.PasswordChangeRequestEvent;
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -21,9 +18,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
-import java.util.logging.Logger;
-
 /**
  * Created by johannes on 12.04.2017.
  */

@@ -1,11 +1,12 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic.panels.gui.plugins.LdapPlugin;
 
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchDataSourcesForCdrEvent;
 import com.johannes.lsctic.panels.gui.plugins.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -86,7 +87,7 @@ public class LdapPlugin implements AddressPlugin {
 
     @Override
     public void setDataFields(ArrayList<PluginDataField> datasourceFields) {
-           loader.getDataSource().setAvailableFields(datasourceFields);
+        loader.getDataSource().setAvailableFields(datasourceFields);
     }
 
     @Override

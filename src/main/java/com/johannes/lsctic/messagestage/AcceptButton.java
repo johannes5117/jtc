@@ -1,9 +1,11 @@
-package com.johannes.lsctic.messagestage;
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
 
+package com.johannes.lsctic.messagestage;
 
 import javafx.scene.control.Button;
 import javafx.scene.text.Font;
-
 /**
  * Created by johannes on 12.04.2017.
  */

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic.messagestage;
 
 import javafx.geometry.Insets;
@@ -12,7 +16,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
 /**
  * Created by johannes on 12.04.2017.
  */

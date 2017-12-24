@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic.panels.gui.plugins;
 
 /**
@@ -15,6 +19,7 @@ public class PluginDataField {
         this.telephone = false;
         this.mobile = false;
     }
+
     public PluginDataField(String fieldname, String fieldvalue, boolean telephone, boolean mobile) {
         this.fieldname = fieldname;
         this.fieldvalue = fieldvalue;

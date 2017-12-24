@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic.panels.gui.fields.internevents;
 
 import com.johannes.lsctic.PhoneNumber;
@@ -7,9 +11,11 @@ import com.johannes.lsctic.PhoneNumber;
  */
 public class AddInternEvent {
     private PhoneNumber phoneNumber;
+
     public AddInternEvent(PhoneNumber phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
+
     public PhoneNumber getPhoneNumber(){
         return phoneNumber;
     }

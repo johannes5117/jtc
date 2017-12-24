@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic;
 
 import com.johannes.lsctic.panels.gui.plugins.PluginDataField;
@@ -5,9 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -15,7 +17,8 @@ import java.util.logging.Logger;
  * Created by johannes on 11.04.2017.
  */
 public class SqlLiteConnectionTest {
-        private SqlLiteConnection sqlLiteConnection;
+    private SqlLiteConnection sqlLiteConnection;
+
     public SqlLiteConnectionTest() {
         // delete possibly existing test-database -> could lead to wrong data to use the same over and over
         File file = new File("test.db");
@@ -80,6 +83,7 @@ public class SqlLiteConnectionTest {
         Assert.assertEquals(1,testInterns.get("203").getCount());
         Assert.assertEquals("Anna",testInterns.get("204").getName());
     }
+
     @Test
     public void getFieldsForDataSource() {
         sqlLiteConnection.queryNoReturn("Insert into settings (id, setting, description) values (4, 'name;Name', 'HammerPluginField0')");

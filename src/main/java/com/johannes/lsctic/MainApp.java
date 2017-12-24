@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic;
 
 import com.google.common.eventbus.EventBus;
@@ -96,6 +100,7 @@ public class MainApp extends Application implements NativeKeyListener {
     @Override
     public void nativeKeyTyped(NativeKeyEvent e) {
     }
+
     @Override
     public void nativeKeyPressed(NativeKeyEvent nke) {
         switch (nke.getKeyCode()) {
