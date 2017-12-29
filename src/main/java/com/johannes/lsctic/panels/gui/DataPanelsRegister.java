@@ -164,8 +164,6 @@ public class DataPanelsRegister {
 
     @Subscribe
     public void addCdrAndUpdate(AddCdrAndUpdateEvent event) {
-        Logger.getLogger(getClass().getName()).info("NUMERERE");
-
         //if we're currently in search mode and not on site 1 accept cdr packets which aren't ordered
         if ((!event.isOrdered() && !searchPaneCBlock && historyfieldCount == 0)
                 || (event.isOrdered() && !searchPaneCBlock)
@@ -193,7 +191,6 @@ public class DataPanelsRegister {
 
     @Subscribe
     public void addCdrUpdateWithNameFromDataSource(FoundCdrNameInDataSourceEvent event) {
-        Logger.getLogger(getClass().getName()).info("NUMERERE");
         HistoryField f = new HistoryField(event.getName(), event.getWho(), event.getWhen(), event.getHowLong(), event.isOutgoing(), event.getTimeStamp(), "", eventBus);
         historyFields.add(0, f);
         if (historyFields.size() >= hFieldPerSite) {

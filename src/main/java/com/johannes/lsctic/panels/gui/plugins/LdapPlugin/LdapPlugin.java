@@ -72,6 +72,7 @@ public class LdapPlugin implements AddressPlugin {
 
     @Override
     public void searchPossibleNumbers(String name, AtomicInteger left, long searchTimestamp) {
+        loader.numberQuery(name, left, searchTimestamp);
     }
 
     @Override

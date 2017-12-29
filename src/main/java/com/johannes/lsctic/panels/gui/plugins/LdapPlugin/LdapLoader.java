@@ -12,6 +12,7 @@ package com.johannes.lsctic.panels.gui.plugins.LdapPlugin;
 import com.google.common.eventbus.EventBus;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.FoundCdrNameInDataSourceEvent;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.NotFoundCdrNameInDataSourceEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchCdrInDatabaseEvent;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchDataSourcesForCdrEvent;
 import com.johannes.lsctic.panels.gui.plugins.*;
 
@@ -30,7 +31,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author johannesengler
  */
 public class LdapLoader implements AddressLoader {
@@ -43,14 +43,12 @@ public class LdapLoader implements AddressLoader {
     private EventBus eventBus;
 
 
-
-
     public LdapLoader(DataSource source) {
         this.source = source;
         this.storage = new LdapLoaderStorage();
         this.storageTemp = new LdapLoaderStorage(storage);
     }
-    
+
     @Override
     public ArrayList<AddressBookEntry> getResults(String ein, int n) {
         this.storage.initLdap();
@@ -68,7 +66,7 @@ public class LdapLoader implements AddressLoader {
             builder.append(s.getFieldname());
             builder.append("=");
             // Search for occurence of sequence user typed (ex: without search fpr Mei wouldnt find user "Harald Meier")
-            if (ein.length()>0) {
+            if (ein.length() > 0) {
                 builder.append("*");
             }
             builder.append(ein);
@@ -96,7 +94,7 @@ public class LdapLoader implements AddressLoader {
         }
         try {
             i = 0;
-            while (results!=null && results.hasMore() && i < n) {
+            while (results != null && results.hasMore() && i < n) {
                 SearchResult sr = (SearchResult) results.next();
                 Attributes attrs = sr.getAttributes();
 
@@ -108,10 +106,10 @@ public class LdapLoader implements AddressLoader {
                         Attribute attr = (Attribute) attrs.get(field.getFieldname());
                         data.add((String) attr.get());
                     } catch (Exception e) {
-                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, null,e);
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
                     }
                 }
-                aus.add(new AddressBookEntry(data, data.get(0),source));
+                aus.add(new AddressBookEntry(data, data.get(0), source));
                 ++i;
             }
         } catch (NamingException ex) {
@@ -131,18 +129,31 @@ public class LdapLoader implements AddressLoader {
         // TODO: observe if this is a safe way to search only for numbers
         ArrayList<AddressBookEntry> results = getResults(event.getWho(), 1);
 
-        if(!results.isEmpty()) {
+        if (!results.isEmpty()) {
             found.set(true);
-            Logger.getLogger(getClass().getName()).info("Found: "+results.get(0).getName());
+            Logger.getLogger(getClass().getName()).info("Found: " + results.get(0).getName());
             eventBus.post(new FoundCdrNameInDataSourceEvent(event, results.get(0).getName()));
         }
 
-        if(!found.get()) {
+        if (!found.get()) {
             eventBus.post(new NotFoundCdrNameInDataSourceEvent(event));
         }
         terminated.decrementAndGet();
     }
 
+    // given a name we want to return the number for the database query
+    public void numberQuery(String name, AtomicInteger left, long searchTimestamp) {
+
+        ArrayList<AddressBookEntry> results = getResults(name, 1);
+
+        if (!results.isEmpty()) {
+            if (storage.getTelephone() > -1) {
+                this.eventBus.post(new SearchCdrInDatabaseEvent(results.get(0).get(storage.getTelephone()), 10, searchTimestamp));
+            } else if (storage.getMobile() > -1) {
+                this.eventBus.post(new SearchCdrInDatabaseEvent(results.get(0).get(storage.getMobile()), 10, searchTimestamp));
+            }
+        }
+    }
 
     @Override
     public void saved() {
