@@ -1,8 +1,10 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic;
 
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by johannesengler on 18.06.17.

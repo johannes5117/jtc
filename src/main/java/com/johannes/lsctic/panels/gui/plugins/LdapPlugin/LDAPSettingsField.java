@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -44,6 +48,7 @@ public class LDAPSettingsField extends PluginSettingsField {
         ldapFields = new ArrayList<>();
         this.loader = loader;
     }
+
     @Override
     public void expand() {
         VBox v = new VBox();
@@ -116,11 +121,10 @@ public class LDAPSettingsField extends PluginSettingsField {
         this.getChildren().add(v);
 
 
-
-
         super.expand();
 
     }
+
     @Override
     public void collapse() {
         this.getChildren().remove(this.getChildren().size()-1);

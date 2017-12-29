@@ -1,7 +1,5 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (c) 2017. Johannes Engler
  */
 package com.johannes.lsctic;
 
@@ -17,10 +15,6 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author johannesengler
- */
 public class SqlLiteConnection {
 
     private static final String JDBC = "jdbc:sqlite:";
@@ -109,7 +103,7 @@ public class SqlLiteConnection {
     private int getMaxIdValueOfTable(String table) {
         final String query = "Select max(id) from " + table;
         try (Connection con = DriverManager.getConnection(JDBC + database); Statement statement = con.createStatement();
-             ResultSet set = statement.executeQuery(query);) {
+             ResultSet set = statement.executeQuery(query)) {
             statement.setQueryTimeout(10);
             return set.getInt(1);
         } catch (SQLException ex) {

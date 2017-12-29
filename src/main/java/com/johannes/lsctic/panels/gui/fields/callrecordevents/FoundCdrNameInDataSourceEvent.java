@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic.panels.gui.fields.callrecordevents;
 
 /**
@@ -11,7 +15,7 @@ public class FoundCdrNameInDataSourceEvent {
     private final boolean outgoing;
     private final long timeStamp;
 
-    public FoundCdrNameInDataSourceEvent(SearchDataSourcesForCdrEvent event,String name) {
+    public FoundCdrNameInDataSourceEvent(SearchDataSourcesForCdrEvent event, String name) {
         this.name = name;
         this.who = event.getWho();
         this.when = event.getWhen();

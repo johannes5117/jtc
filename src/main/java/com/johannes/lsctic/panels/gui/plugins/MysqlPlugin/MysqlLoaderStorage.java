@@ -1,9 +1,12 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic.panels.gui.plugins.MysqlPlugin;
 
 import com.johannes.lsctic.panels.gui.plugins.PluginDataField;
 
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 /**
  * Created by johannes on 31.03.2017.

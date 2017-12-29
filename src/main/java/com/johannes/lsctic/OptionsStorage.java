@@ -1,8 +1,11 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import com.johannes.lsctic.panels.gui.fields.callrecordevents.*;
 import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.UpdateAddressFieldsEvent;
@@ -11,7 +14,6 @@ import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.UserL
 import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
 import com.johannes.lsctic.panels.gui.plugins.AddressPlugin;
 import com.johannes.lsctic.panels.gui.plugins.PluginRegister;
-import com.johannes.lsctic.panels.gui.plugins.PluginSettingsField;
 import com.johannes.lsctic.panels.gui.plugins.pluginevents.CheckLicenseForPluginEvent;
 import com.johannes.lsctic.panels.gui.plugins.pluginevents.PluginLicenseApprovedEvent;
 import com.johannes.lsctic.panels.gui.settings.AsteriskSettingsField;
@@ -26,9 +28,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * @author johannesengler
- */
 public final class OptionsStorage {
 
     private static final String SETTING = "setting";
@@ -111,6 +110,7 @@ public final class OptionsStorage {
         dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(),activatedDataSources, this.pluginRegister.getLoadedPluginNames());
         dataSourceSettingsField.setPluginFolder(pluginFolder);
     }
+
     /**
      * User accepts the changes and wants to store the changes in database
      */
@@ -210,7 +210,7 @@ public final class OptionsStorage {
             readOtherOptions(query, con);
 
             readDatabaseForSources(con);
-            
+
 
             try (PreparedStatement ptsm = con.prepareStatement(query)) {
                 ptsm.setString(1, "time");
@@ -292,7 +292,7 @@ public final class OptionsStorage {
         }
     }
 
-   
+
     public String getAmiAddress() {
         return amiAddress;
     }
@@ -317,9 +317,9 @@ public final class OptionsStorage {
         this.time = time;
     }
 
-   public List<String> getActivatedDataSources() {
+    public List<String> getActivatedDataSources() {
         return this.activatedDataSources;
-   }
+    }
 
 
     public PluginRegister getPluginRegister() {

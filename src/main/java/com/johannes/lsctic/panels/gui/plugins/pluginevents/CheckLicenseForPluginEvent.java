@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic.panels.gui.plugins.pluginevents;
 
 /**
@@ -6,6 +10,7 @@ package com.johannes.lsctic.panels.gui.plugins.pluginevents;
 public class CheckLicenseForPluginEvent {
     private String pluginLicense;
     private String pluginName;
+
     public CheckLicenseForPluginEvent(String pluginName, String pluginLicense) {
         this.pluginLicense = pluginLicense;
         this.pluginName = pluginName;

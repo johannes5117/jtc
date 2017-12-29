@@ -1,15 +1,19 @@
-package com.johannes.lsctic.panels.gui.fields.callrecordevents;
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
 
-import java.util.concurrent.atomic.AtomicBoolean;
+package com.johannes.lsctic.panels.gui.fields.callrecordevents;
 
 /**
  * Created by johannes on 15.04.2017.
  */
 public class SearchDataSourcesForCdrEvent {
     private AddCdrAndUpdateEvent event;
+
     public SearchDataSourcesForCdrEvent(AddCdrAndUpdateEvent event) {
         this.event = event;
     }
+
     public String getWho() {
         return event.getWho();
     }

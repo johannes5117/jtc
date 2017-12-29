@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -16,12 +20,16 @@ import java.util.List;
 public interface AddressLoader {
     //Fetch results from the Loader
     List<AddressBookEntry> getResults(String ein, int n);
+
     //saves the settings if user clicks on save button also for the plugin
     void saved();
+
     //discards the setting if user clicks on discard
     void discarded();
+
     //get the DataSource
     DataSource getDataSource();
+
     //Sets the eventbus for asynch back propagation of results
     void setEventBus(EventBus eventBus);
 
