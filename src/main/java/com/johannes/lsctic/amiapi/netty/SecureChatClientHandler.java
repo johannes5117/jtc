@@ -118,7 +118,7 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
         Date stored = new Date(timeStamp);
         String date = dateFormatDB.format(stored);
         Long duration = Long.parseLong(d[3]);
-        String id = d[4];
+        int disposition = Integer.parseInt(d[4]);
         boolean ordered = Boolean.valueOf(d[5]);
         String searched = "";
         long timestampSearch = 0;
@@ -130,9 +130,9 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
         long finalTimestampSearch = timestampSearch;
         Platform.runLater(() -> {
             if (source.equals(ownExtension)) {
-                bus.post(new AddCdrAndUpdateEvent(destination, date, duration.toString(), true, timeStamp,ordered, finalSearched, finalTimestampSearch));
+                bus.post(new AddCdrAndUpdateEvent(destination, date, duration.toString(),disposition, true, timeStamp,ordered, finalSearched, finalTimestampSearch));
             } else {
-                bus.post(new AddCdrAndUpdateEvent(source, date, duration.toString(), false, timeStamp,ordered, finalSearched, finalTimestampSearch));
+                bus.post(new AddCdrAndUpdateEvent(source, date, duration.toString(), disposition,false, timeStamp,ordered, finalSearched, finalTimestampSearch));
             }
         });
     }

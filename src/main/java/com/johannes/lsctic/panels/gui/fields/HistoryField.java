@@ -38,7 +38,7 @@ public class HistoryField extends VBox {
     public HistoryField(String who, String when, String howLong, boolean outgoing, long timeStamp, String searched,EventBus eventBus) {
         this.when = when;
         this.who = who;
-        this.howLong = howLong + "min";
+        this.howLong = getTimeFormat(howLong);
         this.outgoing = outgoing;
         this.eventBus = eventBus;
         this.labelText = who + " (not found)";
@@ -50,7 +50,7 @@ public class HistoryField extends VBox {
         this.when = when;
         this.name = name;
         this.who = who;
-        this.howLong = howLong + "min";
+        this.howLong = getTimeFormat(howLong);
         this.outgoing = outgoing;
         this.eventBus = eventBus;
         this.labelText = who + " ("+name+")";
@@ -180,6 +180,37 @@ public class HistoryField extends VBox {
 
     public String getSearched() {
         return searched;
+    }
+
+    public String getTimeFormat(String secString) {
+        int secs = Integer.parseInt(secString);
+        String g = "";
+        if(secs / (60 * 60) > 0) {
+            String s = "" +secs / (60 * 60);
+            if (s.length()<2) {
+                g = "0"+s+":";
+            } else {
+                g = s+":";
+            }
+        } else {
+            g = "00:";
+        }
+        if(secs % (60 * 60) > 0) {
+            String s = "" + ((secs % (60 * 60))/60);
+            if (s.length()<2) {
+                g = g + "0"+s+":";
+            } else {
+                g = g + s+":";
+            }
+        } else {
+            g = g + "00:";
+        }
+        String s ="" + secs % 60;
+        if (s.length()<2) {
+            s = "0" + s;
+        }
+        g = g + s;
+        return g;
     }
 
 }

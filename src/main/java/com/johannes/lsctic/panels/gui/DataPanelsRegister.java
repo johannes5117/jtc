@@ -164,9 +164,9 @@ public class DataPanelsRegister {
     @Subscribe
     public void addCdrAndUpdate(AddCdrAndUpdateEvent event) {
         //if we're currently in search mode and not on site 1 accept cdr packets which aren't ordered
-        if ((!event.isOrdered() && !searchPaneCBlock && historyfieldCount == 0)
+        if (((!event.isOrdered() && !searchPaneCBlock && historyfieldCount == 0)
                 || (event.isOrdered() && !searchPaneCBlock)
-                || (event.isOrdered() && searchPaneCTimestamp <= event.getSearchInvokedTimestamp())) {
+                || (event.isOrdered() && searchPaneCTimestamp <= event.getSearchInvokedTimestamp())) && event.getDisposition() == 4) {
             searchPaneCTimestamp = event.getSearchInvokedTimestamp();
             if (internFields.containsKey(event.getWho())) {
                 InternField internField = internFields.get(event.getWho());

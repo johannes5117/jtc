@@ -17,8 +17,9 @@ public class AddCdrAndUpdateEvent {
     private final boolean ordered;
     private final String searchText;
     private final boolean searched;
+    private final int disposition;
 
-    public AddCdrAndUpdateEvent(String who, String when, String howLong, boolean outgoing, long timeStamp, boolean ordered, String searched, long searchInvokedTimestamp) {
+    public AddCdrAndUpdateEvent(String who, String when, String howLong, int disposition, boolean outgoing, long timeStamp, boolean ordered, String searched, long searchInvokedTimestamp) {
         this.who = who;
         this.when = when;
         this.howLong = howLong;
@@ -28,6 +29,7 @@ public class AddCdrAndUpdateEvent {
         this.searchText = searched;
         this.searchInvokedTimestamp = searchInvokedTimestamp;
         this.searched = searched.length() > 0;
+        this.disposition = disposition;
     }
 
     public String getWho() {
@@ -64,5 +66,9 @@ public class AddCdrAndUpdateEvent {
 
     public long getSearchInvokedTimestamp() {
         return searchInvokedTimestamp;
+    }
+
+    public int getDisposition() {
+        return disposition;
     }
 }
