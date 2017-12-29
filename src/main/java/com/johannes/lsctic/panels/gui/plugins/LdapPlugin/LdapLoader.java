@@ -53,11 +53,11 @@ public class LdapLoader implements AddressLoader {
 
         //quick fix TODO: Remove
         //ldapUrl = "ldap://" + ldapAddress + ":" + ldapServerPort + "/" + ldapSearchBase;
-        ldapUrl = "ldap://192.168.0.249:389/ou=addressbook,dc=test,dc=de";
+        ldapUrl = "ldap://" + ldapAddress + ":" + ldapServerPort + "/" + ldapSearchBase;
 
         env.put(Context.PROVIDER_URL, ldapUrl);
 
-        base = "ou=addressbook,dc=test,dc=de";
+        base = ldapBase;
     }
 /* TO delete if function can be guaranteed without this lines
     public LdapLoader(String serverIp, int port, String dc, String ou) {
@@ -109,6 +109,7 @@ public class LdapLoader implements AddressLoader {
         }
         try {
             results = dctx.search(base, filter, sc);
+            Logger.getLogger(getClass().getName()).info("Filter: " + filter + " Context: " + dctx.getNameInNamespace());
         } catch (NamingException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }
@@ -140,6 +141,7 @@ public class LdapLoader implements AddressLoader {
         } catch (NamingException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }
+        Logger.getLogger(getClass().getName()).info(aus.toString());
         return aus;
     }
 
@@ -164,7 +166,7 @@ public class LdapLoader implements AddressLoader {
     }
 
     public void writeSettings(Connection con, Statement statement){
-     
+            Logger.getLogger(getClass().getName()).info("Tries to write but doesnt get it in ");
             try {
                 statement.setQueryTimeout(10);
                 final String query = "UPDATE Settings SET setting = '";
