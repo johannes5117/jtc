@@ -6,9 +6,10 @@
 package com.johannes.lsctic.panels.gui.plugins.LdapPlugin;
 
 import com.google.common.eventbus.EventBus;
-import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
-import com.johannes.lsctic.panels.gui.plugins.AddressLoader;
-import com.johannes.lsctic.panels.gui.plugins.DataSource;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.FoundCdrNameInDataSourceEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.NotFoundCdrNameInDataSourceEvent;
+import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchDataSourcesForCdrEvent;
+import com.johannes.lsctic.panels.gui.plugins.*;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -19,6 +20,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,66 +33,41 @@ import java.util.logging.Logger;
 public class LdapLoader implements AddressLoader {
     private static final String SETTING = "setting";
 
-    private EventBus eventBus;
-    private String ldapAddress;       //LDAP Server Address
-    private int ldapServerPort;      //LDAP Server Port
-    private String ldapSearchBase;   //LDAP Suchbasis
-    private String ldapBase;         //LDAP Basis
-    private int ldapSearchAmount;       //Amount of Entrys that will be loaded 
-    private ArrayList<String[]> ldapFields = new ArrayList<>();  // LDAP Felder mit Namen
-
-    
-    private Hashtable env;
-    private String ldapUrl;
-    private String base;
+    private LdapLoaderStorage storage;
+    private LdapLoaderStorage storageTemp;
 
     private DataSource source;
+    private EventBus eventBus;
+
+
+
 
     public LdapLoader(DataSource source) {
         this.source = source;
-        env = new Hashtable();
-
-        String sp = "com.sun.jndi.ldap.LdapCtxFactory";
-        env.put(Context.INITIAL_CONTEXT_FACTORY, sp);
-
-        //quick fix TODO: Remove
-        //ldapUrl = "ldap://" + ldapAddress + ":" + ldapServerPort + "/" + ldapSearchBase;
-        ldapUrl = "ldap://" + ldapAddress + ":" + ldapServerPort + "/" + ldapSearchBase;
-
-        env.put(Context.PROVIDER_URL, ldapUrl);
-
-        base = ldapBase;
+        this.storage = new LdapLoaderStorage();
+        this.storageTemp = new LdapLoaderStorage(storage);
     }
-/* TO delete if function can be guaranteed without this lines
-    public LdapLoader(String serverIp, int port, String dc, String ou) {
-        source = new DataSource("LdapPlugin");
-        env = new Hashtable();
-
-        String sp = "com.sun.jndi.ldap.LdapCtxFactory";
-        env.put(Context.INITIAL_CONTEXT_FACTORY, sp);
-
-        ldapUrl = "ldap://" + serverIp + ":" + port + "/dc=" + dc;
-
-        env.put(Context.PROVIDER_URL, ldapUrl);
-
-        base = "ou=" + ou;
-    }
-    */
     
     @Override
     public ArrayList<AddressBookEntry> getResults(String ein, int n) {
+        this.storage.initLdap();
+
         ArrayList<AddressBookEntry> aus = new ArrayList<>();
         SearchControls sc = new SearchControls();
-        String[] attributeFilter = new String[ldapFields.size()];
+        String[] attributeFilter = new String[storage.getLdapFields().size()];
 
         int i = 0;
         StringBuilder builder = new StringBuilder();
         builder.append("(|");
-        for (String[] s : ldapFields) {
-            attributeFilter[i] = s[0];
+        for (PluginDataField s : storage.getLdapFields()) {
+            attributeFilter[i] = s.getFieldname();
             builder.append("(");
-            builder.append(s[0]);
+            builder.append(s.getFieldname());
             builder.append("=");
+            // Search for occurence of sequence user typed (ex: without search fpr Mei wouldnt find user "Harald Meier")
+            if (ein.length()>0) {
+                builder.append("*");
+            }
             builder.append(ein);
             builder.append("*)");
             ++i;
@@ -103,13 +82,12 @@ public class LdapLoader implements AddressLoader {
 
         DirContext dctx = null;
         try {
-            dctx = new InitialDirContext(env);
+            dctx = new InitialDirContext(storage.getEnv());
         } catch (NamingException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }
         try {
-            results = dctx.search(base, filter, sc);
-            Logger.getLogger(getClass().getName()).info("Filter: " + filter + " Context: " + dctx.getNameInNamespace());
+            results = dctx.search(storage.getBase(), filter, sc);
         } catch (NamingException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }
@@ -121,10 +99,10 @@ public class LdapLoader implements AddressLoader {
 
                 ArrayList<String> data = new ArrayList<>();
 
-                for (String[] field : ldapFields) {
+                for (PluginDataField field : storage.getLdapFields()) {
                     // catch if a ldap field will be not available
                     try {
-                        Attribute attr = (Attribute) attrs.get(field[0]);
+                        Attribute attr = (Attribute) attrs.get(field.getFieldname());
                         data.add((String) attr.get());
                     } catch (Exception e) {
                         Logger.getLogger(getClass().getName()).log(Level.SEVERE, null,e);
@@ -141,18 +119,46 @@ public class LdapLoader implements AddressLoader {
         } catch (NamingException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }
-        Logger.getLogger(getClass().getName()).info(aus.toString());
         return aus;
     }
 
+
+    public void resolveNameForNumber(SearchDataSourcesForCdrEvent event, AtomicInteger terminated, AtomicBoolean found) {
+        Logger.getLogger(getClass().getName()).info("Searches For: " + event.getWho());
+        // TODO: observe if this is a safe way to search only for numbers
+        ArrayList<AddressBookEntry> results = getResults(event.getWho(), 1);
+
+        if(!results.isEmpty()) {
+            found.set(true);
+            Logger.getLogger(getClass().getName()).info("Found: "+results.get(0).getName());
+            eventBus.post(new FoundCdrNameInDataSourceEvent(event, results.get(0).getName()));
+        }
+
+        if(!found.get()) {
+            eventBus.post(new NotFoundCdrNameInDataSourceEvent(event));
+        }
+        terminated.decrementAndGet();
+    }
+
+
     @Override
     public void saved() {
-        //TODO: Implement
+        this.storage = new LdapLoaderStorage(this.storageTemp);
+        // Update also the datasource -> without that Addressfields wouldnt update by accept
+        this.getDataSource().setAvailableFields(this.storage.getLdapFields());
     }
 
     @Override
     public void discarded() {
-        //TODO: Implement
+        this.storageTemp = new LdapLoaderStorage(this.storage);
+    }
+
+    public LdapLoaderStorage getStorageTemp() {
+        return storageTemp;
+    }
+
+    public LdapLoaderStorage getStorage() {
+        return storage;
     }
 
     @Override
@@ -165,169 +171,4 @@ public class LdapLoader implements AddressLoader {
         this.eventBus = eventBus;
     }
 
-    public void writeSettings(Connection con, Statement statement){
-            Logger.getLogger(getClass().getName()).info("Tries to write but doesnt get it in ");
-            try {
-                statement.setQueryTimeout(10);
-                final String query = "UPDATE Settings SET setting = '";
-                statement.executeUpdate(query + ldapAddress + "' WHERE description = 'ldapAddress'");
-                statement.executeUpdate(query + ldapServerPort + "' WHERE description = 'ldapServerPort'");
-                statement.executeUpdate(query + ldapSearchBase + "' WHERE description = 'ldapSearchBase'");
-                statement.executeUpdate(query + ldapBase + "' WHERE description = 'ldapBase'");
-                statement.executeUpdate(query + ldapSearchAmount + "' WHERE description = 'ldapSearchAmount'");
-                
-                int i = 0;
-                statement.execute("Delete from Settings where description LIKE '%ldapField%'");
-                int max;
-                try (ResultSet res = statement.executeQuery("SELECT * FROM Settings ORDER BY id DESC LIMIT 1")) {
-                    max = res.getInt("id");
-                }
-                ++max;
-                for (String[] s : ldapFields) {
-                    statement.execute("insert into settings values(" + max + ", '" + s[0] + ";" + s[1] + "', 'ldapField" + i + "')");
-                    ++max;
-                    ++i;
-                }
-                
-            }   catch (SQLException ex) {
-            Logger.getLogger(LdapLoader.class.getName()).log(Level.SEVERE, null, ex);
-        }
-             
-    }
-      
-    /**
-     * removes temp ldap field. The user removes the fields and they are removed
-     * from sqlite database when he hits save. Until that point they are only
-     * temp. removed.
-     *
-     * @param cn
-     * @param field
-     */
-    public void removeFromLdapFields(String cn, String field) {
-
-        Iterator<String[]> iter = ldapFields.iterator();
-
-        while (iter.hasNext()) {
-            String[] kk = iter.next();
-            if (kk[0].equals(cn) && kk[1].equals(field)) {
-                iter.remove();
-                Logger.getLogger(getClass().getName()).info("Remove");
-            }
-        }
-        ldapFields.forEach(g -> Logger.getLogger(getClass().getName()).info(g[0]));
-    }
-
-    /**
-     * * adds temp ldap field. The user adds the fields and they are stored in
-     * sqlite databse when he hits save. Until that point they are only temp.
-     * saved.
-     *
-     * @param cn
-     * @param field
-     * @return
-     */
-    public boolean addToLdapFields(String cn, String field) {
-        String[] a = {cn, field};
-        for (String[] b : ldapFields) {
-
-            if (a[0].equals(b[0]) || a[1].equals(b[1])) {
-                Logger.getLogger(getClass().getName()).info("Schon vorhanden");
-                return false;
-            }
-
-        }
-        ldapFields.add(a);
-        ldapFields.forEach(b -> Logger.getLogger(getClass().getName()).log(Level.INFO, "{0} {1}", new Object[]{b[0], b[1]}));
-        return true;
-    }
-    
-     /**
-     * Reads the LDAP settings from the sqlite database
-     *
-     * @param query
-     * @param con
-     * @throws SQLException
-     */
-    private void readLdapFields(String query, Connection con) throws SQLException {
-        try (PreparedStatement ptsm = con.prepareStatement(query)) {
-            ptsm.setString(1, "ldapAddress");
-            ResultSet amiAddressRS = ptsm.executeQuery();
-            ldapAddress = !amiAddressRS.next() ? "localhost" : amiAddressRS.getString(SETTING);
-            Logger.getLogger(getClass().getName()).info(ldapAddress);
-        }
-        try (PreparedStatement ptsm = con.prepareStatement(query)) {
-            ptsm.setString(1, "ldapServerPort");
-            ResultSet amiAddressRS = ptsm.executeQuery();
-            ldapServerPort = Integer.valueOf(!amiAddressRS.next() ? "322" : amiAddressRS.getString(SETTING));
-        }
-        try (PreparedStatement ptsm = con.prepareStatement(query)) {
-            ptsm.setString(1, "ldapSearchBase");
-            ResultSet amiAddressRS=  ptsm.executeQuery();
-            ldapSearchBase = !amiAddressRS.next() ? "cn=ldapDocker23" : amiAddressRS.getString(SETTING);
-        }
-        try (PreparedStatement ptsm = con.prepareStatement(query)) {
-            ptsm.setString(1, "ldapBase");
-            ResultSet amiAddressRS = ptsm.executeQuery();
-            ldapBase = !amiAddressRS.next() ? "ou=people23" : amiAddressRS.getString(SETTING);
-        }
-        try (PreparedStatement ptsm = con.prepareStatement(query)) {
-            ptsm.setString(1, "ldapSearchAmount");
-            ResultSet amiAddressRS = ptsm.executeQuery();
-            ldapSearchAmount = Integer.valueOf(!amiAddressRS.next() ? "1023" : amiAddressRS.getString(SETTING));
-        }
-    }
-
-
-    public String getLdapAddress() {
-        return ldapAddress;
-    }
-
-    public void setLdapAddress(String ldapAddress) {
-        this.ldapAddress = ldapAddress;
-    }
-
-    public int getLdapServerPort() {
-        return ldapServerPort;
-    }
-
-    public void setLdapServerPort(int ldapServerPort) {
-        this.ldapServerPort = ldapServerPort;
-    }
-
-    public String getLdapSearchBase() {
-        return ldapSearchBase;
-    }
-
-    public void setLdapSearchBase(String ldapSearchBase) {
-        this.ldapSearchBase = ldapSearchBase;
-    }
-
-    public String getLdapBase() {
-        return ldapBase;
-    }
-
-    public void setLdapBase(String ldapBase) {
-        this.ldapBase = ldapBase;
-    }
-
-    public int getLdapSearchAmount() {
-        return ldapSearchAmount;
-    }
-
-    public void setLdapSearchAmount(int ldapSearchAmount) {
-        this.ldapSearchAmount = ldapSearchAmount;
-    }
-
-    public String getLdapUrl() {
-        return ldapUrl;
-    }
-
-    public void setLdapUrl(String ldapUrl) {
-        this.ldapUrl = ldapUrl;
-    }
-
-
-    public ArrayList<String[]> getLdapFields() {
-        return ldapFields;
-    }
 }

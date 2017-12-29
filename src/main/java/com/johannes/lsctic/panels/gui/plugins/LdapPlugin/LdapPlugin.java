@@ -24,7 +24,7 @@ public class LdapPlugin implements AddressPlugin {
     public LdapPlugin() {
         DataSource source = new DataSource(PLUGIN_NAME, PLUGIN_TAG);
         loader = new LdapLoader(source);
-        settingsField = new LDAPSettingsField(loader);
+        settingsField = new LDAPSettingsField(loader, PLUGIN_NAME);
         this.setLoader(loader);
         this.setPluginSettingsField(settingsField);
     }
@@ -71,32 +71,68 @@ public class LdapPlugin implements AddressPlugin {
 
     @Override
     public void searchPossibleNumbers(String name, AtomicInteger left, long searchTimestamp) {
-
     }
 
     @Override
     public void resolveNameForNumber(SearchDataSourcesForCdrEvent event, AtomicInteger terminated, AtomicBoolean found) {
-
+        loader.resolveNameForNumber(event, terminated, found);
     }
 
     @Override
     public ArrayList<PluginDataField> getDataFields() {
-        return null;
+        return loader.getStorage().getLdapFields();
     }
 
     @Override
     public void setDataFields(ArrayList<PluginDataField> datasourceFields) {
-           loader.getDataSource().setAvailableFields(datasourceFields);
+        loader.getDataSource().setAvailableFields(datasourceFields);
+        loader.getStorage().setLdapFields(datasourceFields);
+        ArrayList<PluginDataField> datasourceFieldsTemp = new ArrayList<>();
+        // Deep Copy for being able to reset
+        for(PluginDataField plug : datasourceFields) {
+            datasourceFieldsTemp.add(new PluginDataField(plug.getFieldname(),plug.getFieldvalue(),plug.isTelephone(),plug.isMobile()));
+        }
+        loader.getStorageTemp().setLdapFields(datasourceFieldsTemp);
+        int i = 0;
+        for(PluginDataField dataField : datasourceFields) {
+            if(dataField.isTelephone()) {
+                loader.getStorageTemp().setTelephone(i);
+                loader.getStorage().setTelephone(i);
+            } else if(dataField.isMobile()) {
+                loader.getStorageTemp().setMobile(i);
+                loader.getStorage().setMobile(i);
+            }
+            ++i;
+        }
     }
 
     @Override
     public ArrayList<String> getOptions() {
-        return null;
+        ArrayList<String> options = new ArrayList<>();
+        options.add(loader.getStorage().getLdapAddress());
+        options.add(String.valueOf(loader.getStorage().getLdapServerPort()));
+        options.add(loader.getStorage().getLdapSearchBase());
+        options.add(loader.getStorage().getLdapBase());
+
+        return options;
     }
 
     @Override
     public void setOptions(ArrayList<String> options) {
+        if(options.isEmpty()) {
+            options.add("localhost");
+            options.add("389");
+            options.add("dc=test,dc=de");
+            options.add("ou=addressbook");
 
+        }
+        loader.getStorage().setLdapAddress(options.get(0));
+        loader.getStorage().setLdapServerPort(Integer.valueOf(options.get(1)));
+        loader.getStorage().setLdapSearchBase(options.get(2));
+        loader.getStorage().setLdapBase(options.get(3));
+
+        //to force storageTemp = storage
+        loader.discarded();
     }
 
 }
