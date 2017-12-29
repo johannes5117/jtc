@@ -136,7 +136,6 @@ public class DataPanelsRegister {
             p.setPosition(maxPosInternfield+1);
 
             //Write new intern into database and add field to UI
-            Logger.getLogger(getClass().getName()).info(p.getPhoneNumber());
             sqlLiteConnection.queryNoReturn("Insert into internfields (id, number,name,callcount,position) " +
                     "values (((Select max(id) from internfields)+1),'" + p.getPhoneNumber() + "','" + p.getName() + "'," + p.getCount() + "," + p.getPosition() + ")");
             internNumbers.put(p.getPhoneNumber(), p);
@@ -298,7 +297,6 @@ public class DataPanelsRegister {
 
     @Subscribe
     public void cdrAmountInDatabaseUpdate(CdrCountEvent event) {
-        Logger.getLogger(getClass().getName()).info("Got the info: " + event.getCurrentAmount());
         maxHistoryFieldcount = event.getCurrentAmount();
         if ((historyfieldCount + 1) * hFieldPerSite >= maxHistoryFieldcount) {
             this.buttonNext.setDisable(true);

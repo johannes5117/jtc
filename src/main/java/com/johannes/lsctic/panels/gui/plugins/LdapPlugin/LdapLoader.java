@@ -125,13 +125,11 @@ public class LdapLoader implements AddressLoader {
 
 
     public void resolveNameForNumber(SearchDataSourcesForCdrEvent event, AtomicInteger terminated, AtomicBoolean found) {
-        Logger.getLogger(getClass().getName()).info("Searches For: " + event.getWho());
         // TODO: observe if this is a safe way to search only for numbers
         ArrayList<AddressBookEntry> results = getResults(event.getWho(), 1);
 
         if (!results.isEmpty()) {
             found.set(true);
-            Logger.getLogger(getClass().getName()).info("Found: " + results.get(0).getName());
             eventBus.post(new FoundCdrNameInDataSourceEvent(event, results.get(0).getName()));
         }
 

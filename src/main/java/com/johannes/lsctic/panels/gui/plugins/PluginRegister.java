@@ -81,7 +81,6 @@ public class PluginRegister {
     public void loadPlugin(String pluginName, String folderPath) {
         for(AddressPlugin loadedPlugin: loadedPlugins) {
             if(loadedPlugin.getName().equals(pluginName)) {
-                Logger.getLogger(getClass().getName()).info("Thats the case here");
                 return;
             }
         }
@@ -89,8 +88,6 @@ public class PluginRegister {
         if (!folderPath.equals(exploredFolder)) {
             explorePluginFolder(folderPath);
         }
-
-        Logger.getLogger(getClass().getName()).info(pluginName + "    " + pluginsFound.toString());
 
         // Load the plugins from the folder
         if (pluginsFound.contains(pluginName)) {
@@ -134,7 +131,6 @@ public class PluginRegister {
 
     public void explorePluginFolder(String folderPath) {
         this.pluginsFound = getAvailablePluginsFromFolder(folderPath);
-        Logger.getLogger(getClass().getName()).info(pluginsFound.toString());
         exploredFolder = folderPath;
     }
 
@@ -217,7 +213,6 @@ public class PluginRegister {
             AtomicInteger searchFinished = new AtomicInteger(loadedPlugins.size());
             AtomicBoolean found = new AtomicBoolean(false);
             for (AddressPlugin plugin : loadedPlugins) {
-                Logger.getLogger(getClass().getName()).info("invoking Plugin search");
                 plugin.resolveNameForNumber(event, searchFinished, found);
             }
         } else {
@@ -228,10 +223,7 @@ public class PluginRegister {
     //Resolving Input on the historyfield search -> mapping entered name to number in datasource
     @Subscribe
     public void searchPossibleNumbersToName(ResolveNumberFromNameEvent event) {
-        Logger.getLogger(getClass().getName()).info("Event invoked ");
-
         for (AddressPlugin plugin : loadedPlugins) {
-            Logger.getLogger(getClass().getName()).info("Inside Loop");
             plugin.searchPossibleNumbers(event.getName(), event.getLeft(), event.getTimestamp());
         }
     }
