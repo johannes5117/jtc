@@ -19,6 +19,7 @@ import com.johannes.lsctic.panels.gui.fields.internevents.RemoveInternAndUpdateE
 import com.johannes.lsctic.panels.gui.fields.internevents.ReorderDroppedEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.*;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.*;
+import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 
@@ -207,8 +208,15 @@ public class DataPanelsRegister {
         if (historyFields.size() >= hFieldPerSite) {
             historyFields = historyFields.subList(0, hFieldPerSite);
         }
-        panelC.getChildren().clear();
-        panelC.getChildren().addAll(historyFields);
+        // The data comes from a not FX Thread ->  Therefore use run later
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                panelC.getChildren().clear();
+                panelC.getChildren().addAll(historyFields);
+            }
+        });
+
     }
 
     @Subscribe
@@ -263,10 +271,15 @@ public class DataPanelsRegister {
 
     @Subscribe
     public void updateAddressFields(UpdateAddressFieldsEvent event) {
-        panelB.getChildren().clear();
-        ArrayList<AddressField> addressFields = new ArrayList<>();
-        event.getAddressBookEntries().stream().forEach(ent -> addressFields.add(new AddressField(2, ent, eventBus)));
-        panelB.getChildren().addAll(addressFields);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                panelB.getChildren().clear();
+                ArrayList<AddressField> addressFields = new ArrayList<>();
+                event.getAddressBookEntries().stream().forEach(ent -> addressFields.add(new AddressField(2, ent, eventBus)));
+                panelB.getChildren().addAll(addressFields);
+            }
+        });
     }
 
     @Subscribe

@@ -96,8 +96,7 @@ public final class OptionsStorage {
      * Updates the addressfields which are currently showed
      */
     private void updateAddressFields() {
-        List<AddressBookEntry> ld = getPluginRegister().getResultFromEveryPlugin("", 10);
-        bus.post(new UpdateAddressFieldsEvent(ld));
+       getPluginRegister().getResultFromEveryPlugin("", 10);
     }
 
     /**
@@ -146,8 +145,7 @@ public final class OptionsStorage {
         for (AddressPlugin plugin : this.getPluginRegister().getAllActivePlugins()) {
             if (plugin.getPluginSettingsField().hasChanged()) {
                 sqlLiteConnection.writePluginSettingsToDatabase(plugin.getName(), plugin.getOptions(), plugin.getDataFields());
-                List<AddressBookEntry> ld = getPluginRegister().getResultFromEveryPlugin("", 10);
-                bus.post(new UpdateAddressFieldsEvent(ld));
+                getPluginRegister().getResultFromEveryPlugin("", 10);
 
             }
         }

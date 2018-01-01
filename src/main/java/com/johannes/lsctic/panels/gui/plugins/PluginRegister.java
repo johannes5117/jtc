@@ -17,6 +17,7 @@ import com.johannes.lsctic.panels.gui.fields.callrecordevents.NotFoundCdrNameInD
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.ResolveNumberFromNameEvent;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.SearchDataSourcesForCdrEvent;
 import com.johannes.lsctic.panels.gui.fields.otherevents.PluginLoadedEvent;
+import com.johannes.lsctic.panels.gui.fields.otherevents.UpdateAddressFieldsEvent;
 import javafx.application.Platform;
 
 import java.io.File;
@@ -182,22 +183,26 @@ public class PluginRegister {
     }
 
 
-    public List<AddressBookEntry> getResultFromEveryPlugin(String query, int number) {
-        ArrayList<AddressBookEntry> filteredQuery = new ArrayList<>();
+    public void getResultFromEveryPlugin(String query, int number) {
+        Runnable runnable = () -> {
+            ArrayList<AddressBookEntry> filteredQuery = new ArrayList<>();
 
-        for (AddressPlugin plugin : loadedPlugins) {
-            ArrayList<AddressBookEntry> pluginResult = plugin.getResults(query, number);
-            if (pluginResult != null && !pluginResult.isEmpty()) {
-                filteredQuery.addAll(pluginResult);
+            for (AddressPlugin plugin : loadedPlugins) {
+                ArrayList<AddressBookEntry> pluginResult = plugin.getResults(query, number);
+                if (pluginResult != null && !pluginResult.isEmpty()) {
+                    filteredQuery.addAll(pluginResult);
+                }
             }
-        }
-        if (!filteredQuery.isEmpty()) {
-            filteredQuery.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
-        }
-        if (filteredQuery.size() > number) {
-            return filteredQuery.subList(0, number);
-        }
-        return filteredQuery;
+            if (!filteredQuery.isEmpty()) {
+                filteredQuery.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
+            }
+            if (filteredQuery.size() > number) {
+                eventBus.post(new UpdateAddressFieldsEvent(filteredQuery.subList(0, number)));
+            }
+            eventBus.post(new UpdateAddressFieldsEvent(filteredQuery));
+        };
+        Thread thread = new Thread(runnable);
+        thread.start();
     }
 
 
@@ -209,15 +214,19 @@ public class PluginRegister {
     //If a CDR comes in, it comes without a name -> try to resolve the name and write it into the local cache
     @Subscribe
     public void searchNameToNumber(SearchDataSourcesForCdrEvent event) {
-        if(loadedPlugins.size()>0) {
-            AtomicInteger searchFinished = new AtomicInteger(loadedPlugins.size());
-            AtomicBoolean found = new AtomicBoolean(false);
-            for (AddressPlugin plugin : loadedPlugins) {
-                plugin.resolveNameForNumber(event, searchFinished, found);
+        Runnable runnable = () -> {
+            if(loadedPlugins.size()>0) {
+                AtomicInteger searchFinished = new AtomicInteger(loadedPlugins.size());
+                AtomicBoolean found = new AtomicBoolean(false);
+                for (AddressPlugin plugin : loadedPlugins) {
+                    plugin.resolveNameForNumber(event, searchFinished, found);
+                }
+            } else {
+                eventBus.post(new NotFoundCdrNameInDataSourceEvent(event));
             }
-        } else {
-            eventBus.post(new NotFoundCdrNameInDataSourceEvent(event));
-        }
+        };
+        Thread thread = new Thread(runnable);
+        thread.start();
     }
 
     //Resolving Input on the historyfield search -> mapping entered name to number in datasource

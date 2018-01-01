@@ -86,11 +86,13 @@ public class LdapLoader implements AddressLoader {
             dctx = new InitialDirContext(storage.getEnv());
         } catch (NamingException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
         try {
             results = dctx.search(storage.getBase(), filter, sc);
         } catch (NamingException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
         try {
             i = 0;
@@ -107,6 +109,7 @@ public class LdapLoader implements AddressLoader {
                         data.add((String) attr.get());
                     } catch (Exception e) {
                         Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+                        return null;
                     }
                 }
                 aus.add(new AddressBookEntry(data, data.get(0), source));
@@ -114,11 +117,13 @@ public class LdapLoader implements AddressLoader {
             }
         } catch (NamingException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
         try {
             dctx.close();
         } catch (NamingException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
         return aus;
     }
@@ -127,8 +132,9 @@ public class LdapLoader implements AddressLoader {
     public void resolveNameForNumber(SearchDataSourcesForCdrEvent event, AtomicInteger terminated, AtomicBoolean found) {
         // TODO: observe if this is a safe way to search only for numbers
         ArrayList<AddressBookEntry> results = getResults(event.getWho(), 1);
-
-        if (!results.isEmpty()) {
+        if (results == null) {
+            found.set(false);
+        } else if (!results.isEmpty()) {
             found.set(true);
             eventBus.post(new FoundCdrNameInDataSourceEvent(event, results.get(0).getName()));
         }

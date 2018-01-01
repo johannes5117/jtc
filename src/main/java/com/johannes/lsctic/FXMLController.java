@@ -118,8 +118,7 @@ public class FXMLController implements Initializable {
         dataPanelsRegister = new DataPanelsRegister(eventBus, sqlLiteConnection, panels, buttons);
 
         //Initally show 10 first entries in the Addressbook View
-        List<AddressBookEntry> ld = storage.getPluginRegister().getResultFromEveryPlugin("", 10);
-        dataPanelsRegister.updateAddressFields(new UpdateAddressFieldsEvent(ld));
+        storage.getPluginRegister().getResultFromEveryPlugin("", 10);
 
         //Add listener for number enterd in search field of paneA which will be used as quickdial field for phonenumbers
         paneATextIn.addEventFilter(KeyEvent.KEY_PRESSED, (javafx.scene.input.KeyEvent event) -> {
@@ -157,8 +156,7 @@ public class FXMLController implements Initializable {
         //listener to search in the Address sources
         paneBTextIn.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
             // Todo might be better done async via Eventbus
-            List<AddressBookEntry> ld1 = storage.getPluginRegister().getResultFromEveryPlugin(newValue, 10);
-            dataPanelsRegister.updateAddressFields(new UpdateAddressFieldsEvent(ld1));
+            storage.getPluginRegister().getResultFromEveryPlugin(newValue, 10);
         });
 
         // Listener to search history data on the server
