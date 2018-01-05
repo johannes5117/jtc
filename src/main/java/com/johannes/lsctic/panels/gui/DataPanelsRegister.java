@@ -196,8 +196,13 @@ public class DataPanelsRegister {
         if (historyFields.size() >= hFieldPerSite) {
             historyFields = historyFields.subList(0, hFieldPerSite);
         }
-        panelC.getChildren().clear();
-        panelC.getChildren().addAll(historyFields);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                panelC.getChildren().clear();
+                panelC.getChildren().addAll(historyFields);
+            }
+        });
         resolveCache.put(event.getWho(), event.getName());
     }
 
