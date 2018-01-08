@@ -1,25 +1,21 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic;
 
-import java.awt.AWTException;
-import java.awt.CheckboxMenuItem;
-import java.awt.Menu;
-import java.awt.MenuItem;
-import java.awt.PopupMenu;
-import java.awt.SystemTray;
-import java.awt.Toolkit;
-import java.awt.TrayIcon;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.google.common.eventbus.EventBus;
+import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyEvent;
 import javafx.application.Application;
-import static javafx.application.Application.launch;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.stage.Stage;
+import javafx.scene.text.Font;
 import javafx.stage.Screen;
+import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 import org.jnativehook.GlobalScreen;
@@ -27,35 +23,57 @@ import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class MainApp extends Application implements NativeKeyListener {
 
     private Stage stage;
+    // Bereich für den Hook
+    private boolean strg = false;
+    private boolean shift = false;
+    private boolean five = false;
+    private boolean escape = false;
+
+    public static void main(String[] args) {
+        launch(args);
+    }
 
     @Override
     public void start(Stage stage) throws Exception {
-        generateTray();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Scene.fxml"));
-        Parent root = (Parent) loader.load();
-        FXMLController controller = (FXMLController) loader.getController();
+        Parent root = loader.load();
+        FXMLController controller = loader.getController();
+        EventBus eventBus = new EventBus();
+        controller.startApp(eventBus);
         controller.setStage(stage);
         Scene scene = new Scene(root);
-        scene.setFill(null);
+        Font.loadFont(MainApp.class.getResource("/styles/Roboto-Light.ttf").toExternalForm(),13);
+
         scene.getStylesheets().add("/styles/Styles.css");
         stage.setTitle("JavaFX and Maven");
 
         stage.initStyle(StageStyle.TRANSPARENT);
+        scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
         stage.setScene(scene);
 
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
         stage.show();
         stage.setX(primaryScreenBounds.getWidth() - scene.getWidth());
         stage.setY(primaryScreenBounds.getHeight() - scene.getHeight());
-        this.stage = stage;
-        GlobalScreen.registerNativeHook();
-        Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
-        logger.setLevel(Level.WARNING);
-        GlobalScreen.addNativeKeyListener(this);
 
+        this.stage = stage;
+
+        if (true) {
+            // Get the logger for "org.jnativehook" and set the level to warning.
+            Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
+            logger.setLevel(Level.OFF);
+            // Don't forget to disable the parent handlers.
+            logger.setUseParentHandlers(false);
+
+            GlobalScreen.registerNativeHook();
+            GlobalScreen.addNativeKeyListener(this);
+        }
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
@@ -65,61 +83,15 @@ public class MainApp extends Application implements NativeKeyListener {
                 } catch (NativeHookException ex) {
                     Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
                 }
+                eventBus.post(new CloseApplicationSafelyEvent());
+                stage.close();
+                Platform.exit();
                 System.exit(0);
+                //TODO: Find way to securely shutdown program
             }
         });
     }
-    
-    public static void main(String[] args) {
-        launch(args);
-    }
 
-    private void generateTray() {
-        if (!SystemTray.isSupported()) {
-            System.out.println("SystemTray is not supported");
-            return;
-        }
-        final PopupMenu popup = new PopupMenu();
-        final TrayIcon trayIcon
-                = new TrayIcon(Toolkit.getDefaultToolkit().getImage("/pics/down.png"));
-        final SystemTray tray = SystemTray.getSystemTray();
-
-        // Create a pop-up menu components
-        MenuItem aboutItem = new MenuItem("About");
-        CheckboxMenuItem cb1 = new CheckboxMenuItem("Set auto size");
-        CheckboxMenuItem cb2 = new CheckboxMenuItem("Set tooltip");
-        Menu displayMenu = new Menu("Display");
-        MenuItem errorItem = new MenuItem("Error");
-        MenuItem warningItem = new MenuItem("Warning");
-        MenuItem infoItem = new MenuItem("Info");
-        MenuItem noneItem = new MenuItem("None");
-        MenuItem exitItem = new MenuItem("Exit");
-
-        //Add components to pop-up menu
-        popup.add(aboutItem);
-        popup.addSeparator();
-        popup.add(cb1);
-        popup.add(cb2);
-        popup.addSeparator();
-        popup.add(displayMenu);
-        displayMenu.add(errorItem);
-        displayMenu.add(warningItem);
-        displayMenu.add(infoItem);
-        displayMenu.add(noneItem);
-        popup.add(exitItem);
-        trayIcon.setPopupMenu(popup);
-
-        try {
-            tray.add(trayIcon);
-        } catch (AWTException e) {
-            System.out.println("TrayIcon could not be added.");
-        }
-    }
-    // Bereich für den Hook 
-    private boolean strg = false;
-    private boolean shift = false;
-    private boolean five = false;
-    private boolean escape = false;
     /**
      * @param e
      * @see
@@ -128,6 +100,7 @@ public class MainApp extends Application implements NativeKeyListener {
     @Override
     public void nativeKeyTyped(NativeKeyEvent e) {
     }
+
     @Override
     public void nativeKeyPressed(NativeKeyEvent nke) {
         switch (nke.getKeyCode()) {
@@ -158,7 +131,7 @@ public class MainApp extends Application implements NativeKeyListener {
                 }
             });
             escape = false;
-        } else if (five & strg & shift == true) {
+        } else if (five && strg && shift == true) {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {

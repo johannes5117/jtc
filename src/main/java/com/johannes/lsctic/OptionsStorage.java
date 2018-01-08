@@ -1,84 +1,155 @@
+/*
+ * Copyright (c) 2017. Johannes Engler
+ */
+
 package com.johannes.lsctic;
 
-import com.johannes.lsctic.address.DataSourceActivationDatabaseTool;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import com.johannes.lsctic.panels.gui.fields.otherevents.CloseApplicationSafelyEvent;
+import com.johannes.lsctic.panels.gui.fields.otherevents.StartConnectionEvent;
+import com.johannes.lsctic.panels.gui.fields.otherevents.UpdateAddressFieldsEvent;
+import com.johannes.lsctic.panels.gui.fields.otherevents.ViewOptionsChangedEvent;
+import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.UserLoginStatusEvent;
+import com.johannes.lsctic.panels.gui.plugins.AddressBookEntry;
+import com.johannes.lsctic.panels.gui.plugins.AddressPlugin;
+import com.johannes.lsctic.panels.gui.plugins.PluginRegister;
+import com.johannes.lsctic.panels.gui.plugins.pluginevents.CheckLicenseForPluginEvent;
+import com.johannes.lsctic.panels.gui.plugins.pluginevents.PluginLicenseApprovedEvent;
+import com.johannes.lsctic.panels.gui.settings.AsteriskSettingsField;
+import com.johannes.lsctic.panels.gui.settings.DataSourceSettingsField;
+import com.johannes.lsctic.panels.gui.settings.ProgramSettingsField;
+import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
+
+import java.sql.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.Button;
-
-/**
- * @author johannesengler
- */
 public final class OptionsStorage {
 
+    private static final String SETTING = "setting";
     private String amiAddress;        //AMI Server Address
     private int amiServerPort;       //AMI Server Port
     private String amiLogIn;         //AMI Login
-    private String amiPassword;      //AMI Password
-    
-    private String ownExtension;     // eigene Extension asterisk
+    private String amiPasswordHash;
+    private boolean sortByCount;
     private long time;               // TimeStamp
-    private DataSourceActivationDatabaseTool dataSources = new DataSourceActivationDatabaseTool(this);
+    private String pluginFolder;
+    private PluginRegister pluginRegister;
+    private ArrayList<String> activatedDataSources = new ArrayList<>();
+    private AsteriskSettingsField asteriskSettingsField;
+    private ProgramSettingsField programSettingsField;
+    private DataSourceSettingsField dataSourceSettingsField;
+    private EventBus bus;
+    private VBox panelD;
+    private SqlLiteConnection sqlLiteConnection;
 
-    private String amiAddressTemp;        //AMI Server Addresse
-    private int amiServerPortTemp;       //AMI Server Port
-    private String amiLogInTemp;         //AMI Login
-    private String amiPasswordTemp;      //AMI Password
-    private String ownExtensionTemp;     // eigene Extension asterisk
-    private long timeTemp;               // TimeStamp
-    private DataSourceActivationDatabaseTool dataSourcesTemp = new DataSourceActivationDatabaseTool(this);
+    public OptionsStorage(Button accept, Button reject, VBox panelD, EventBus bus, SqlLiteConnection sqlLiteConnection) {
+        this.asteriskSettingsField = new AsteriskSettingsField(bus);
+        this.pluginRegister = new PluginRegister(bus);
+        this.programSettingsField = new ProgramSettingsField();
 
-    private static final String DATABASE_CONNECTION = "jdbc:sqlite:settingsAndData.db";
-    private static final String SETTING = "setting";
-
-    public OptionsStorage(Button accept, Button reject) {
-        accept.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent event) {
-                accept();
-            }
-        });
-        reject.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent event) {
-                setTempVariables();
-            }
-        });
+        this.dataSourceSettingsField = new DataSourceSettingsField();
+        this.bus = bus;
+        bus.register(this);
+        this.panelD = panelD;
+        this.sqlLiteConnection = sqlLiteConnection;
 
         readSettingsFromDatabase();
+
+        this.pluginRegister.explorePluginFolder(this.pluginFolder);
+        this.dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(), this.activatedDataSources, new ArrayList<String>() );
+
+        addStandardFields();
+
+        accept.setOnAction(event -> accept());
+        reject.setOnAction(event -> setTempVariables());
+    }
+
+
+    private void setUpPlugins() {
+        for(String g : activatedDataSources) {
+            bus.post(new CheckLicenseForPluginEvent(g,this.pluginRegister.getPluginLicense(g, this.pluginFolder)));
+        }
+        this.pluginRegister.removeUnloadedPlugins(activatedDataSources);
+        updateAddressFields();
+    }
+
+    private void addStandardFields() {
+        panelD.getChildren().addAll(asteriskSettingsField,programSettingsField, dataSourceSettingsField);
+    }
+
+    @Subscribe
+    public void loadApprovedPlugin(PluginLicenseApprovedEvent event) {
+        this.pluginRegister.loadPlugin(event.getPluginname(), pluginFolder);
+        this.pluginRegister.activateLicensedPlugins(sqlLiteConnection,event.getPluginname());
+        panelD.getChildren().clear();
+        addStandardFields();
+        panelD.getChildren().addAll(this.getPluginRegister().getAllPluginSettingsFields());
+        updateAddressFields();
+    }
+
+    /**
+     * Updates the addressfields which are currently showed
+     */
+    private void updateAddressFields() {
+       getPluginRegister().getResultFromEveryPlugin("", 10);
     }
 
     /**
      * Used to store the temp. vars.
      */
     public void setTempVariables() {
-        amiAddressTemp = amiAddress;
-        amiServerPortTemp = amiServerPort;
-        amiLogInTemp = amiLogIn;
-        amiPasswordTemp = amiPassword;
-        ownExtensionTemp = ownExtension;
-        dataSourcesTemp = dataSources;
+        pluginRegister.discardAllPlugins();
+        String[] options = {amiAddress, Integer.toString(amiServerPort), amiLogIn};
+        this.asteriskSettingsField.setOptions(options);
+        dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(),activatedDataSources, this.pluginRegister.getLoadedPluginNames());
+        dataSourceSettingsField.setPluginFolder(pluginFolder);
     }
 
     /**
      * User accepts the changes and wants to store the changes in database
      */
     public void accept() {
+        pluginRegister.acceptAllPlugins();
         setVariables();
         writeSettingsToDatabase();
+        refreshProgram();
+    }
+
+    /**
+     * Refreshs all the settings fields
+     */
+    private void refreshProgram() {
+        if(asteriskSettingsField.hasChanged() || asteriskSettingsField.passwordChanged()) {
+            String[] options = asteriskSettingsField.getOptions();
+            bus.post(new StartConnectionEvent(options[0], Integer.parseInt(options[1]), options[2], options[3], false,false));
+        } else if(dataSourceSettingsField.hasChanged()) {
+            Logger.getLogger(getClass().getName()).info("Has changed was triggered");
+            // Check plugin path for plugins
+            this.pluginRegister.explorePluginFolder(this.pluginFolder);
+            this.dataSourceSettingsField.setCheckBoxes(pluginRegister.getPluginsFound(), this.activatedDataSources, new ArrayList<String>());
+            this.dataSourceSettingsField.refresh();
+            //starts the license check procedure
+            setUpPlugins();
+            writeActivatedDataSourcesToDatabase();
+            // Delete all fields and add the standardfields + all loaded plugin fields
+            panelD.getChildren().clear();
+            addStandardFields();
+        } else if(programSettingsField.hasChanged()) {
+            bus.post(new ViewOptionsChangedEvent(sortByCount));
+        }
+        for (AddressPlugin plugin : this.getPluginRegister().getAllActivePlugins()) {
+            if (plugin.getPluginSettingsField().hasChanged()) {
+                sqlLiteConnection.writePluginSettingsToDatabase(plugin.getName(), plugin.getOptions(), plugin.getDataFields());
+                getPluginRegister().getResultFromEveryPlugin("", 10);
+
+            }
+        }
+
     }
 
     /**
@@ -86,32 +157,41 @@ public final class OptionsStorage {
      * accept
      */
     public void setVariables() {
-        amiAddress = amiAddressTemp;
-        amiServerPort = amiServerPortTemp;
-        amiLogIn = amiLogInTemp;
-        amiPassword = amiPasswordTemp;
-      
-        ownExtension = ownExtensionTemp;
-    
-        dataSources = dataSourcesTemp;
+        // compare the old with the new values -> if no change happened its not necessary to restart server connection
+        String[] optionsCompare = {amiAddress, Integer.toString(amiServerPort), amiLogIn};
+        String[] options = asteriskSettingsField.getOptionsTriggerHasChanged(optionsCompare);
+        amiAddress = options[0];
+        amiServerPort = Integer.valueOf(options[1]);
+        amiLogIn = options[2];
+
+        boolean[] optionsOther = programSettingsField.getChecked();
+        sortByCount = optionsOther[0];
+
+        // compare the old with the new values -> if no change happened its not necessary to reload the plugins
+        activatedDataSources = (ArrayList<String>) this.dataSourceSettingsField.getChecked();
+        pluginFolder = this.dataSourceSettingsField.getPluginFolder(pluginFolder);
     }
 
     /**
      * Saves the settings in the sqlite database
      */
     private void writeSettingsToDatabase() {
+        sqlLiteConnection.buildUpdateOrInsertStatementForSetting("amiAddress", amiAddress);
+        sqlLiteConnection.buildUpdateOrInsertStatementForSetting("amiServerPort", String.valueOf(amiServerPort));
+        sqlLiteConnection.buildUpdateOrInsertStatementForSetting("amiLogIn", amiLogIn);
+        sqlLiteConnection.buildUpdateOrInsertStatementForSetting("pluginFolder", pluginFolder);
+        sqlLiteConnection.buildUpdateOrInsertStatementForSetting("programSettingSortCallCount", String.valueOf(sortByCount));
+    }
 
-        try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {
-            statement.setQueryTimeout(10);
-            final String query = "UPDATE Settings SET setting = '";
-            statement.executeUpdate(query + amiAddress + "' WHERE description = 'amiAddress'");
-            statement.executeUpdate(query + amiServerPort + "' WHERE description = 'amiServerPort'");
-            statement.executeUpdate(query + amiLogIn + "' WHERE description = 'amiLogIn'");
-            statement.executeUpdate(query + amiPassword + "' WHERE description = 'amiPassword'");
-            
-
-        } catch (SQLException ex) {
-            Logger.getLogger(getClass().getName()).log(Level.WARNING, null, ex);
+    /**
+     * deletes all activated entries from the database and writes the currently activated
+     */
+    private void writeActivatedDataSourcesToDatabase() {
+        sqlLiteConnection.queryNoReturn("Delete from settings where description LIKE 'datasource_%%%%%%%%%%%%';");
+        int i = 0;
+        for (String s : activatedDataSources) {
+            sqlLiteConnection.buildUpdateOrInsertStatementForSetting("datasource" + i, s);
+            ++i;
         }
     }
 
@@ -119,31 +199,28 @@ public final class OptionsStorage {
      * reads the settings saved in the sqlite database
      */
     public void readSettingsFromDatabase() {
-
-        try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {
+        try (Connection con = DriverManager.getConnection(sqlLiteConnection.getConnection()); Statement statement = con.createStatement()) {
             statement.setQueryTimeout(10);
             //Safely read in all Settings. If a setting isnt found a default value will be taken
             final String query = "select setting from settings where description = ?";
             readAmiFields(query, con);
-            
-            
-            
-            // Enter Datasource read in here 
-            //readLdapFields(query, con);
-            
-            
-            
-            try (PreparedStatement ptsm = con.prepareStatement(query)) {
-                ptsm.setString(1, "ownExtension");
-                ResultSet amiAddressRS=  ptsm.executeQuery();
-                ownExtension = !amiAddressRS.next() ? "201" : amiAddressRS.getString(SETTING);
-            }
+
+            readOtherOptions(query, con);
+
+            readDatabaseForSources(con);
+
+
             try (PreparedStatement ptsm = con.prepareStatement(query)) {
                 ptsm.setString(1, "time");
                 ResultSet amiAddressRS = ptsm.executeQuery();
                 time = Long.valueOf(!amiAddressRS.next() ? Long.toString(System.currentTimeMillis()) : amiAddressRS.getString(SETTING));
             }
-            readInDataSources();
+            try (PreparedStatement ptsm = con.prepareStatement(query)) {
+                ptsm.setString(1, "pluginFolder");
+                ResultSet amiAddressRS = ptsm.executeQuery();
+                pluginFolder = !amiAddressRS.next() ? "" : amiAddressRS.getString(SETTING);
+            }
+
             setTempVariables();
         } catch (SQLException ex) {
             Logger.getLogger(OptionsStorage.class.getName()).log(Level.SEVERE, null, ex);
@@ -175,77 +252,59 @@ public final class OptionsStorage {
             amiLogIn = !amiAddressRS.next() ? "admin" : amiAddressRS.getString(SETTING);
         }
         try (PreparedStatement ptsm = con.prepareStatement(query)) {
-            ptsm.setString(1, "amiPassword");
+            ptsm.setString(1, "amiPasswordHash");
             ResultSet amiAddressRS = ptsm.executeQuery();
-            amiPassword = !amiAddressRS.next() ? "" : amiAddressRS.getString(SETTING);
+            amiPasswordHash = !amiAddressRS.next() ? "" : amiAddressRS.getString(SETTING);
         }
     }
 
-   
-
-   
-    public String getAmiAddress() {
-        return amiAddress;
+    private void readOtherOptions(String query, Connection con) throws SQLException {
+        ArrayList<OptionTuple> options = new ArrayList<>();
+        try (PreparedStatement ptsm = con.prepareStatement(query)) {
+            ptsm.setString(1, "programSettingSortCallCount");
+            ResultSet amiAddressRS = ptsm.executeQuery();
+            boolean value = !amiAddressRS.next() ? true : Boolean.valueOf(amiAddressRS.getString(SETTING));
+            options.add(new OptionTuple(value, "Sort by call count"));
+            sortByCount = value;
+        }
+        programSettingsField.setCheckBoxes(options);
     }
 
-    public void setAmiAddress(String amiAddress) {
-        this.amiAddress = amiAddress;
+    public void readDatabaseForSources(Connection con) throws SQLException {
+        activatedDataSources.addAll(sqlLiteConnection.getMultipleStringsFromDatabase("datasource"));
+    }
+
+    @Subscribe
+    public void closeApplication(CloseApplicationSafelyEvent event) {
+        bus.unregister(this);
+    }
+
+    @Subscribe
+    public void loginSuccessfulNewHash(UserLoginStatusEvent event) {
+        if (event.isLoggedIn()) {
+            this.amiPasswordHash = event.getHashedPw();
+            sqlLiteConnection.buildUpdateOrInsertStatementForSetting("amiPasswordHash", this.amiPasswordHash);
+
+            // Needs to login for the plugin check -> Trigger it if logged in successfully
+            setUpPlugins();
+        }
+    }
+
+
+    public String getAmiAddress() {
+        return amiAddress;
     }
 
     public int getAmiServerPort() {
         return amiServerPort;
     }
 
-    public void setAmiServerPort(int amiServerPort) {
-        this.amiServerPort = amiServerPort;
-
-    }
-
     public String getAmiLogIn() {
         return amiLogIn;
     }
 
-    public void setAmiLogIn(String amiLogIn) {
-        this.amiLogIn = amiLogIn;
-    }
-
-    public String getAmiPassword() {
-        return amiPassword;
-    }
-
-    public void setAmiPassword(String amiPassword) {
-        this.amiPassword = amiPassword;
-    }
-
-    
-    public void setAmiAddressTemp(String amiAddressTemp) {
-        this.amiAddressTemp = amiAddressTemp;
-    }
-
-    public void setAmiServerPortTemp(int amiServerPortTemp) {
-        this.amiServerPortTemp = amiServerPortTemp;
-    }
-
-    public void setAmiLogInTemp(String amiLogInTemp) {
-        this.amiLogInTemp = amiLogInTemp;
-    }
-
-    public void setAmiPasswordTemp(String amiPasswordTemp) {
-        this.amiPasswordTemp = amiPasswordTemp;
-    }
-
-   
-
-    public String getOwnExtension() {
-        return ownExtension;
-    }
-
-    public void setOwnExtension(String ownExtension) {
-        this.ownExtension = ownExtension;
-    }
-
-    public void setOwnExtensionTemp(String ownExtensionTemp) {
-        this.ownExtensionTemp = ownExtensionTemp;
+    public String getAmiPasswordHash() {
+        return amiPasswordHash;
     }
 
     public long getTime() {
@@ -256,33 +315,19 @@ public final class OptionsStorage {
         this.time = time;
     }
 
-    public void setTimeTemp(long timeTemp) {
-        this.timeTemp = timeTemp;
+    public List<String> getActivatedDataSources() {
+        return this.activatedDataSources;
     }
 
-   
 
-
-    public DataSourceActivationDatabaseTool getDataSourcesTemp() {
-        return dataSourcesTemp;
+    public PluginRegister getPluginRegister() {
+        return pluginRegister;
     }
 
-    public void setDataSourcesTemp(DataSourceActivationDatabaseTool dataSourcesTemp) {
-        this.dataSourcesTemp = dataSourcesTemp;
-    }
-
-    public DataSourceActivationDatabaseTool getDataSources() {
-        return dataSources;
-    }
-    
-  
-
-    private void readInDataSources() {
-        try (Connection con = DriverManager.getConnection(DATABASE_CONNECTION); Statement statement = con.createStatement()) {
-            dataSources.readDatabaseForSources(con, statement);
-        } catch (SQLException ex) {
-            Logger.getLogger(OptionsStorage.class.getName()).log(Level.WARNING, null, ex);
-        }
+    public void setAsteriskSettingsField(AsteriskSettingsField asteriskSettingsField) {
+        this.asteriskSettingsField = asteriskSettingsField;
+        String[] options = {amiAddress, Integer.toString(amiServerPort), amiLogIn};
+        this.asteriskSettingsField.setOptions(options);
     }
 
 }
