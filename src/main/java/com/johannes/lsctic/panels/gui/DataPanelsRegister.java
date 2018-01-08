@@ -23,9 +23,11 @@ import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 
+import java.awt.event.HierarchyBoundsAdapter;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Created by johannes on 06.04.2017.
@@ -186,8 +188,7 @@ public class DataPanelsRegister {
             if (historyFields.size() >= hFieldPerSite) {
                 historyFields = historyFields.subList(0, hFieldPerSite);
             }
-            panelC.getChildren().clear();
-            panelC.getChildren().addAll(historyFields);
+            addHistoryFieldsSorted();
         }
     }
 
@@ -199,14 +200,21 @@ public class DataPanelsRegister {
         if (historyFields.size() >= hFieldPerSite) {
             historyFields = historyFields.subList(0, hFieldPerSite);
         }
+        addHistoryFieldsSorted();
+        resolveCache.put(event.getWho(), event.getName());
+    }
+
+    public void addHistoryFieldsSorted() {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
+                Collections.sort(historyFields, Comparator.comparingLong(HistoryField::getTimeStamp));
+                Collections.reverse(historyFields);
                 panelC.getChildren().clear();
                 panelC.getChildren().addAll(historyFields);
             }
         });
-        resolveCache.put(event.getWho(), event.getName());
+
     }
 
     @Subscribe
@@ -218,14 +226,7 @@ public class DataPanelsRegister {
             historyFields = historyFields.subList(0, hFieldPerSite);
         }
         // The data comes from a not FX Thread ->  Therefore use run later
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                panelC.getChildren().clear();
-                panelC.getChildren().addAll(historyFields);
-            }
-        });
-
+       addHistoryFieldsSorted();
     }
 
     @Subscribe
