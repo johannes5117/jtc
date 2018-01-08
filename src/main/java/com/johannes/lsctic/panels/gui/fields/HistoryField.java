@@ -2,8 +2,9 @@
  * Copyright (c) 2017. Johannes Engler
  */
 package com.johannes.lsctic.panels.gui.fields;
-
 import com.google.common.eventbus.EventBus;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.johannes.lsctic.PhoneNumber;
 import com.johannes.lsctic.panels.gui.fields.callrecordevents.RemoveCdrAndUpdateLocalEvent;
 import com.johannes.lsctic.panels.gui.fields.serverconnectionhandlerevents.CallEvent;
 import javafx.geometry.Insets;
@@ -30,32 +31,43 @@ public class HistoryField extends VBox {
     private final String when;
     private final String howLong;
     private final String searched;
+    private final String countryCode;
+    private final boolean internal;
+    private final String prefix;
     private final boolean outgoing;
     private final EventBus eventBus;
     private String name;
     private final long timeStamp;
 
-    public HistoryField(String who, String when, String howLong, boolean outgoing, long timeStamp, String searched,EventBus eventBus) {
+    public HistoryField(String who, String when, String howLong, boolean outgoing,
+                        boolean internal, int countryCode, int prefix, long timeStamp, String searched,EventBus eventBus) {
         this.when = when;
         this.who = who;
         this.howLong = getTimeFormat(howLong);
         this.outgoing = outgoing;
         this.eventBus = eventBus;
-        this.labelText = who + " (not found)";
+        this.countryCode = countryCode + "";
+        this.labelText = internal ? who + " (not found)" : getNumberInfos() + who + " (not found)";
         this.timeStamp = timeStamp;
         this.searched = searched;
+        this.internal = internal;
+        this.prefix = prefix + "";
         buildField();
     }
-    public HistoryField(String name, String who, String when, String howLong, boolean outgoing, long timeStamp,String searched, EventBus eventBus) {
+    public HistoryField(String name, String who, String when, String howLong, boolean outgoing,
+                        boolean internal, int countryCode, int prefix, long timeStamp, String searched, EventBus eventBus) {
         this.when = when;
         this.name = name;
         this.who = who;
         this.howLong = getTimeFormat(howLong);
         this.outgoing = outgoing;
         this.eventBus = eventBus;
-        this.labelText = who + " ("+name+")";
+        this.countryCode = countryCode + "";
+        this.labelText = internal ? who + " ("+name+")" : getNumberInfos() + who + " ("+name+")";
         this.timeStamp = timeStamp;
         this.searched = searched;
+        this.internal = internal;
+        this.prefix = prefix + "";
         buildField();
     }
 
@@ -80,7 +92,7 @@ public class HistoryField extends VBox {
 
         this.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             if (event.getClickCount() == 2) {
-                this.eventBus.post(new CallEvent(this.getWho(),false));
+                this.eventBus.post(new CallEvent(constructNumber(),false));
             }
             HistoryField.this.requestFocus();
             event.consume();
@@ -143,7 +155,7 @@ public class HistoryField extends VBox {
             contextMenu.hide();
         });
         call.setOnAction(event -> {
-            this.eventBus.post(new CallEvent(HistoryField.this.getWho(),false));
+            this.eventBus.post(new CallEvent(constructNumber(),false));
             contextMenu.hide();
 
         });
@@ -211,6 +223,16 @@ public class HistoryField extends VBox {
         }
         g = g + s;
         return g;
+    }
+
+    private String getNumberInfos() {
+        PhoneNumberUtil phoneutil = PhoneNumberUtil.getInstance();
+        String country = phoneutil.getRegionCodeForCountryCode(Integer.parseInt(countryCode));
+        return country+" 0";
+    }
+
+    private String constructNumber() {
+        return prefix + "00" + countryCode + who;
     }
 
 }

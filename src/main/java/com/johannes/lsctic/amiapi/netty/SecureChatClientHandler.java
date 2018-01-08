@@ -122,17 +122,22 @@ public class SecureChatClientHandler extends SimpleChannelInboundHandler<String>
         boolean ordered = Boolean.valueOf(d[5]);
         String searched = "";
         long timestampSearch = 0;
-        if(ordered && d.length>6) {
+        if(ordered && d[6].length()>0) {
             searched = d[6];
             timestampSearch = Long.valueOf(d[7]);
         }
+        boolean isInternal = Integer.parseInt(d[8]) == 1 ? true : false;
+        int countryCode = Integer.parseInt(d[9]);
+        int prefix = Integer.parseInt(d[10]);
         String finalSearched = searched;
         long finalTimestampSearch = timestampSearch;
         Platform.runLater(() -> {
             if (source.equals(ownExtension)) {
-                bus.post(new AddCdrAndUpdateEvent(destination, date, duration.toString(),disposition, true, timeStamp,ordered, finalSearched, finalTimestampSearch));
+                bus.post(new AddCdrAndUpdateEvent(destination, date, duration.toString(),disposition, true,
+                        timeStamp,ordered, finalSearched, finalTimestampSearch, isInternal, countryCode, prefix));
             } else {
-                bus.post(new AddCdrAndUpdateEvent(source, date, duration.toString(), disposition,false, timeStamp,ordered, finalSearched, finalTimestampSearch));
+                bus.post(new AddCdrAndUpdateEvent(source, date, duration.toString(), disposition,false,
+                        timeStamp,ordered, finalSearched, finalTimestampSearch, isInternal, countryCode, prefix));
             }
         });
     }

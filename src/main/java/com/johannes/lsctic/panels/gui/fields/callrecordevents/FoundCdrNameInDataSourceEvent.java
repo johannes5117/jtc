@@ -13,6 +13,9 @@ public class FoundCdrNameInDataSourceEvent {
     private final String when;
     private final String howLong;
     private final boolean outgoing;
+    private final int countryCode;
+    private final int prefix;
+    private final boolean internal;
     private final long timeStamp;
 
     public FoundCdrNameInDataSourceEvent(SearchDataSourcesForCdrEvent event, String name) {
@@ -22,6 +25,10 @@ public class FoundCdrNameInDataSourceEvent {
         this.howLong = event.getHowLong();
         this.outgoing = event.isOutgoing();
         this.timeStamp = event.getTimeStamp();
+
+        this.countryCode = event.getCountryCode();
+        this.prefix = event.getPrefix();
+        this.internal = event.isInternal();
     }
 
     public String getName() {
@@ -46,5 +53,17 @@ public class FoundCdrNameInDataSourceEvent {
 
     public long getTimeStamp() {
         return timeStamp;
+    }
+
+    public int getCountryCode() {
+        return countryCode;
+    }
+
+    public int getPrefix() {
+        return prefix;
+    }
+
+    public boolean isInternal() {
+        return internal;
     }
 }

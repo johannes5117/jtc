@@ -34,4 +34,15 @@ public class SearchDataSourcesForCdrEvent {
 
     public long getSearchInvokedTimestamp() {return  event.getSearchInvokedTimestamp();}
 
+    public int getCountryCode() {
+        return event.getCountryCode();
+    }
+
+    public int getPrefix() {
+        return event.getPrefix();
+    }
+
+    public boolean isInternal() {
+        return event.isInternal();
+    }
 }
