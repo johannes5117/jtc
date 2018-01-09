@@ -20,6 +20,8 @@ import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -59,6 +61,9 @@ public class LdapLoader implements AddressLoader {
 
         int i = 0;
         StringBuilder builder = new StringBuilder();
+        if(storage.getLdapType().length()>0 && storage.getLdapType().split("=").length==2) {
+            builder.append("(&");
+        }
         builder.append("(|");
         for (PluginDataField s : storage.getLdapFields()) {
             attributeFilter[i] = s.getFieldname();
@@ -74,6 +79,10 @@ public class LdapLoader implements AddressLoader {
             ++i;
         }
         builder.append(")");
+        if(storage.getLdapType().length()>0 && storage.getLdapType().split("=").length==2) {
+            builder.append("(" + storage.getLdapType() + ")");
+            builder.append(")");
+        }
         String filter = builder.toString();
         sc.setReturningAttributes(attributeFilter);
         sc.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -89,7 +98,7 @@ public class LdapLoader implements AddressLoader {
             return null;
         }
         try {
-            results = dctx.search(storage.getBase(), filter, sc);
+            results = dctx.search("", filter, sc);
         } catch (NamingException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
             return null;
@@ -104,13 +113,17 @@ public class LdapLoader implements AddressLoader {
 
                 for (PluginDataField field : storage.getLdapFields()) {
                     // catch if a ldap field will be not available
-                    try {
-                        Attribute attr = (Attribute) attrs.get(field.getFieldname());
-                        data.add((String) attr.get());
-                    } catch (Exception e) {
-                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
-                        return null;
-                    }
+
+                        try {
+                            Attribute attr = (Attribute) attrs.get(field.getFieldname());
+                            if(attr != null) {
+                                data.add((String) attr.get());
+                            }
+                        } catch (Exception e) {
+                            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+                            return null;
+                        }
+
                 }
                 aus.add(new AddressBookEntry(data, data.get(0), source));
                 ++i;

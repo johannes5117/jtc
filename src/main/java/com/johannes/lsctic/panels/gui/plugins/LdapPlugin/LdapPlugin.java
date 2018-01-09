@@ -114,7 +114,7 @@ public class LdapPlugin implements AddressPlugin {
         options.add(loader.getStorage().getLdapAddress());
         options.add(String.valueOf(loader.getStorage().getLdapServerPort()));
         options.add(loader.getStorage().getLdapSearchBase());
-        options.add(loader.getStorage().getLdapBase());
+        options.add(loader.getStorage().getLdapType());
 
         return options;
     }

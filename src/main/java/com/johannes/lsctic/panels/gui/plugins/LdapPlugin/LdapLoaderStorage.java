@@ -3,7 +3,6 @@ package com.johannes.lsctic.panels.gui.plugins.LdapPlugin;
 import com.johannes.lsctic.panels.gui.plugins.PluginDataField;
 
 import javax.naming.Context;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -11,7 +10,7 @@ public class LdapLoaderStorage {
     private String ldapAddress;       //LDAP Server Address
     private int ldapServerPort;      //LDAP Server Port
     private String ldapSearchBase;   //LDAP Suchbasis
-    private String ldapBase;         //LDAP Basis
+    private String ldapType;         //LDAP Basis
     private int ldapSearchAmount;       //Amount of Entrys that will be loaded
     private ArrayList<PluginDataField> ldapFields = new ArrayList<>();  // LDAP Felder mit Namen
 
@@ -30,7 +29,7 @@ public class LdapLoaderStorage {
         this.ldapAddress = old.getLdapAddress();
         this.ldapServerPort = old.getLdapServerPort();
         this.ldapSearchBase = old.getLdapSearchBase();
-        this.ldapBase = old.getLdapBase();
+        this.ldapType = old.getLdapType();
         this.telephone = old.getTelephone();
         this.mobile = old.getMobile();
         ldapFields = new ArrayList<>();
@@ -52,7 +51,7 @@ public class LdapLoaderStorage {
 
         env.put(Context.PROVIDER_URL, ldapUrl);
 
-        base = ldapBase;
+        base = ldapType;
     }
 
     public String getLdapAddress() {
@@ -67,8 +66,8 @@ public class LdapLoaderStorage {
         return ldapSearchBase;
     }
 
-    public String getLdapBase() {
-        return ldapBase;
+    public String getLdapType() {
+        return ldapType;
     }
 
     public int getLdapSearchAmount() {
@@ -141,10 +140,6 @@ public class LdapLoaderStorage {
         return ldapUrl;
     }
 
-    public String getBase() {
-        return base;
-    }
-
     public Hashtable getEnv() {
         return env;
     }
@@ -182,6 +177,6 @@ public class LdapLoaderStorage {
     }
 
     public void setLdapBase(String ldapBase) {
-        this.ldapBase = ldapBase;
+        this.ldapType = ldapBase;
     }
 }

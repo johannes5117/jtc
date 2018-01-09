@@ -89,8 +89,8 @@ public class LDAPSettingsField extends PluginSettingsField {
             }
         });
         TextField f5 = new TextField();
-        f5.setText(loader.getStorageTemp().getLdapBase());
-        f5.setPromptText("Basis (Beispiel: ou=people");
+        f5.setText(loader.getStorageTemp().getLdapType());
+        f5.setPromptText("Typ (Beispiel: objectClass=inetOrgPerson");
         f5.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
