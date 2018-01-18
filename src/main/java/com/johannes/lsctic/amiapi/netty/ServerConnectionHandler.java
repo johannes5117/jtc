@@ -129,8 +129,15 @@ public class ServerConnectionHandler {
 
     @Subscribe
     public void call(CallEvent event) {
-        Logger.getLogger(getClass().getName()).info("Versucht: " + event.getPhoneNumber() + " anzurufen");
-        this.write("003" + ownExtension+";"+event.getPhoneNumber() + "\r\n");
+
+        String number = event.isIntern() ? event.getPhoneNumber() : cleanNumber(event.getPhoneNumber());
+        Logger.getLogger(getClass().getName()).info("Versucht: " + number + " anzurufen");
+        this.write("003" + ownExtension+";"+ number + "\r\n");
+    }
+
+    public String cleanNumber(String number) {
+        number = number.replace("+", "00");
+        return number.replaceAll("[^0-9]", "");
     }
 
     @Subscribe

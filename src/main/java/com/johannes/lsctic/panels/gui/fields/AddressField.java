@@ -24,6 +24,7 @@ import javafx.scene.layout.VBox;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 /**
  * @author johannesengler
@@ -88,7 +89,11 @@ public class AddressField extends VBox {
         inner.getChildren().add(innerinner);
         this.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.ENTER) {
-                this.eventBus.post(new CallEvent(this.getName(),false));
+                if (telephone != -1) {
+                    this.eventBus.post(new CallEvent(addressBookEntry.get(telephone),false));
+                } else if (mobile != -1) {
+                    this.eventBus.post(new CallEvent(addressBookEntry.get(mobile),false));
+                }
                 event.consume();
             }
         });
@@ -167,11 +172,11 @@ public class AddressField extends VBox {
             space.setMaxWidth(Double.MAX_VALUE);
             HBox.setHgrow(space, Priority.ALWAYS);
             h.getChildren().add(space);
-            Label value = new Label("Error");
+            Label value = new Label("-");
             try {
                 value.setText(addressBookEntry.get(i));
             } catch (IndexOutOfBoundsException ex) {
-                new ErrorMessage("Please correct your plugin settings. Values for fields are missed");
+               break;
             }
             value.getStyleClass().clear();
             value.getStyleClass().add("address-label");
@@ -197,6 +202,10 @@ public class AddressField extends VBox {
             v.getChildren().add(h);
             ++i;
         }
+        if(fieldNames.size() != addressBookEntry.getDataSize()) {
+            new ErrorMessage("Please correct your plugin settings. Values for fields are missed. " +
+                    "Some data fields might be shifted and can not be displayed properly");
+        }
 
         this.getChildren().add(v);
         expanded = true;
@@ -206,5 +215,7 @@ public class AddressField extends VBox {
         this.getChildren().remove(this.getChildren().size() - 1);
         expanded = false;
     }
+
+
 
 }
