@@ -8,11 +8,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.johannes</groupId>
-    <artifactId>LSCTIC</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <artifactId>Citos</artifactId>
+    <version>1.0.3</version>
     <packaging>jar</packaging>
 
-    <name>LSCTIC</name>
+    <name>Citos</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
