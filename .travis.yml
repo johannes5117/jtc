@@ -5,7 +5,7 @@ install: true
 jdk:
 - oraclejdk8
 addons:
-  sonarqube:
+  sonarcloud:
     branches:
       - master
       - Working_Version
@@ -31,7 +31,7 @@ notifications:
 deploy:
   provider: releases
   api_key: "d60e4b7aefccae716200fb8144c5ae925e91b589"
-  file: "Citos-1.0.3.jar"
+  file: "target/Citos-1.0.3.jar"
   skip_cleanup: true
   on:
     tags: true
