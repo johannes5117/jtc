@@ -23,7 +23,7 @@ deploy:
   provider: releases
   api:key:
     secure: "RAVea2mZMmSV1ii5mdsp/wTd1vn3Lv5yy4lQmGYYsuRPdFPRyqkJV8r0oDrnTPfaqyQi8btEtwtIawT4meur0XKwzqXe07ZDFR2d838ei1MV7CIYS9xtROmWZ+kVZFBMSEuA5wOmmG8RNFiMMlwOQ7iZIKrpmMU8+I7H5uImSpt3bLKf+GScpvpWHb5xLqQ43q1mxamABQhX1IJUzC5Q259DjmypZ1Q1ceSOqYQcmiIL1z0nZL28tZzgMaUnjRrAKcjtY0DVGJjMvZ0gljPT9vbjChTYxW3oyFJ141EYgHQKzZvWu1+ZzkfG+cR7AqBbblgDLfoqSKX7aXGAbJ7nRVjVENeuS2RhShFFdFXwKkL2stFa/Qn4ZThJHKWW300jt3nuLk4Qr8Y55iGO5+A0yZkkr/J1I/cwdZiy3fxyd5JKgLYui9oNQsxgqzsO5iYDukcmBMz8PvpFvl4VDQvqyrbbpM6nL2oRa3JmQiWOz2QykHUQnxdYQhaUocm2CvbxglGoJe5OUhhu66u1MQVpPBJFMZwF35l6YIuT/V151S/fqynfMmoyTQBn59b1G9yskYCH0RUGb0uPs8SxYOcRkZ1KBPXhUQs6hcW3c+Dwz2rqlEuubkHScmxnm42p1H8fmGuvHYO2kRCW3NdOdNrFjsXmcdb+hrDfed9g8CnYq1M="
-  file: "$HOME/target/Citos-1.0.3.jar"
+  file: "$HOME/build/johannes5117/jtc/target/Citos-1.0.3.jar"
   skip_cleanup: true
   on:
     tags: true
